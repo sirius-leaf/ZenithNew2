@@ -3,7 +3,7 @@
 @section('content')
     <div class="container">
         <h2>Daftar Produk</h2>
-        <a href="{{ route('manage.produk.create') }}" class="btn btn-primary mb-3">+ Tambah Produk</a>
+        <a href="{{ route('dashboard.manage.produk.create') }}" class="btn btn-primary mb-3">+ Tambah Produk</a>
 
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -29,8 +29,9 @@
                         <td>
                             {{-- <a href="{{ route('dashboard.manage.produk.show', $p) }}"
                                 class="btn btn-primary btn-sm">Show</a> --}}
-                            <a href="{{ route('manage.produk.edit', $p) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <form action="{{ route('manage.produk.destroy', $p) }}" method="POST" style="display:inline-block;">
+                            <a href="{{ route('dashboard.manage.produk.edit', $p) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <form action="{{ route('dashboard.manage.produk.destroy', $p) }}" method="POST"
+                                style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-danger btn-sm"

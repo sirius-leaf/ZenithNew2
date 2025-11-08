@@ -16,18 +16,13 @@ Route::get('dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::prefix('manage')->name('manage.')->group(function () {
-    Route::resource('produk', ProductController::class);
-});
-
-
-
 // Logout route di luar group
 Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->middleware('auth');
 
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Route::prefix('manage')->name('manage.')->group(function () {
         Route::resource('user', UserController::class);
+        Route::resource('produk', ProductController::class);
         Route::post('/become-seller', [UserRoleController::class, 'requestSeller'])->name('user.requestSeller');
 
         // admin halaman konfirmasi
