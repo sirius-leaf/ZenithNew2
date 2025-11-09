@@ -69,24 +69,9 @@ class TokoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show(Toko $toko)
     {
-        $user = Auth::user();
-        $toko = $user->toko; // Ambil toko milik user yang login
-
-        // Jika user bukan penjual, kembalikan ke dashboard
-        if ($user->role !== 'penjual') {
-            return redirect()->route('dashboard')->with('error', 'Anda bukan penjual.');
-        }
-
-        // Jika penjual tapi belum punya toko, paksa ke halaman create
-        if (!$toko) {
-            return redirect()->route('dashboard.manage.toko.create')->with('info', 'Anda harus membuat toko terlebih dahulu.');
-        }
-
-        // Jika penjual dan sudah punya toko, tampilkan halaman kelola toko
-        // Di sini Anda bisa menambahkan logika untuk mengambil produk milik toko, dll.
-        return view('toko.show', compact('toko'));
+        //
     }
 
     /**

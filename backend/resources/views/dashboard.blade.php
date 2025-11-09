@@ -64,7 +64,7 @@
                 {{-- Cek apakah user sudah punya toko --}}
                 @if (Auth::user()->toko)
                     {{-- Jika SUDAH punya toko, tampilkan tombol "Kelola Toko" --}}
-                    <a href="{{ route('dashboard.manage.show') }}">
+                    <a href="{{ route('dashboard.toko.show') }}">
                         Kelola Toko Anda
                     </a>
                 @else
