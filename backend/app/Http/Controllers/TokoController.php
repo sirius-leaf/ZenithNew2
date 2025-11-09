@@ -63,7 +63,7 @@ class TokoController extends Controller
             'deskripsi' => $request->deskripsi,
         ]);
 
-        return redirect()->route('dashboard.manage.toko.show')->with('success', 'Toko berhasil dibuat!');
+        return redirect()->route('dashboard')->with('success', 'Toko berhasil dibuat!');
     }
 
     /**
