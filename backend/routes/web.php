@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         Route::resource('user', UserController::class);
         Route::get('/tokomu', [TokoController::class, 'show'])->name('show');
         Route::resource('toko', TokoController::class);
-        Route::post('/becoume-seller', [UserRoleController::class, 'requestSeller'])->name('user.requestSeller');
+        Route::post('/become-seller', [UserRoleController::class, 'requestSeller'])->name('user.requestSeller');
 
         // admin halaman konfirmasi
         Route::get('/admin/seller-requests', [UserRoleController::class, 'index'])->middleware('can:is-admin')->name('admin.sellerRequests');
