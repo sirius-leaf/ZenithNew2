@@ -24,5 +24,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('is-admin', function (User $user) {
             return $user->role === 'admin'; // sesuaikan dengan nama kolom di tabel users kamu
         });
+
+        Gate::define('create-toko', function (User $user) {
+        // hanya boleh buat toko kalau user belum punya toko
+        return !$user->toko;
+    });
     }
 }

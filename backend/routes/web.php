@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\VariantController;
 use App\Http\Controllers\Api\UserRoleController;
+use App\Http\Controllers\TokoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,8 +28,10 @@ Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->mid
 
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Route::prefix('manage')->name('manage.')->group(function () {
-        Route::resource('user', UserController::class);
-        Route::post('/become-seller', [UserRoleController::class, 'requestSeller'])->name('user.requestSeller');
+        Route::resource('ser', UserController::class);
+        Route::get('/tokomu', [TokoController::class, 'show'])->name('show');
+        Route::resource('toko', TokoController::class);
+        Route::post('/becoume-seller', [UserRoleController::class, 'requestSeller'])->name('user.requestSeller');
 
         // admin halaman konfirmasi
         Route::get('/admin/seller-requests', [UserRoleController::class, 'index'])->middleware('can:is-admin')->name('admin.sellerRequests');
