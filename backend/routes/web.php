@@ -28,7 +28,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->mid
 
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Route::prefix('manage')->name('manage.')->group(function () {
-        Route::resource('ser', UserController::class);
+        Route::resource('user', UserController::class);
         Route::get('/tokomu', [TokoController::class, 'show'])->name('show');
         Route::resource('toko', TokoController::class);
         Route::post('/becoume-seller', [UserRoleController::class, 'requestSeller'])->name('user.requestSeller');
