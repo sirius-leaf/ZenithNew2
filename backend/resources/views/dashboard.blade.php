@@ -10,8 +10,7 @@
     <div style="padding: 20px;">
 
         @if (session('error'))
-            <div
-                style="background-color: #f8d7da; color: #842029; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            <div style="background-color: #f8d7da; color: #842029; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
                 {{ session('error') }}
             </div>
         @endif
@@ -32,7 +31,7 @@
 
         {{-- Link navigasi --}}
         <div style="margin: 20px 0;">
-            <a href="/manage/produk" style="margin-right: 10px;">Manage Produk</a> |
+            <a href="{{ route('dashboard.manage.produk.index') }}" style="margin-right: 10px;">Manage Produk</a> |
             <a href="/dashboard/manage/user" style="margin-left: 10px;">Manage User</a>
 
             {{-- Tombol menuju Seller Requests (hanya admin) --}}

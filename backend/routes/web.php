@@ -20,10 +20,6 @@ Route::get('dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::prefix('manage')->name('manage.')->group(function () {
-    Route::resource('produk', ProductController::class);
-});
-
 
 
 // Logout route di luar group
@@ -32,6 +28,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->mid
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Route::prefix('manage')->name('manage.')->group(function () {
         Route::resource('user', UserController::class);
+        Route::resource('produk', ProductController::class);
         // Route::get('/tokomu', [MyTokoController::class, 'show'])->name('show');
         Route::resource('toko', TokoController::class);
         Route::post('/become-seller', [UserRoleController::class, 'requestSeller'])->name('user.requestSeller');
@@ -46,13 +43,13 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         Route::get('/', [MyTokoController::class, 'show'])->name('show');
 
         Route::resource('produk', MyTokoProductController::class)
-         ->except(['index', 'show'])
-         ->parameters(['produk' => 'id'])
-         // GANTI INI:
-         // ->middleware(function ($request, $next) { ... });
+            ->except(['index', 'show'])
+            ->parameters(['produk' => 'id'])
+            // GANTI INI:
+            // ->middleware(function ($request, $next) { ... });
 
-         // MENJADI INI (nama string):
-         ->middleware('isSellerWithToko'); // <-- Jauh lebih bersih!
+            // MENJADI INI (nama string):
+            ->middleware('isSellerWithToko'); // <-- Jauh lebih bersih!
 
     });
 });

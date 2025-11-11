@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Toko; // Pastikan Anda import model Toko
+use App\Models\Product;
 
 class MyTokoController extends Controller
 {
@@ -23,6 +24,7 @@ class MyTokoController extends Controller
 
         // 2. Ambil toko milik user, DAN produk-produk di dalamnya (Eager Loading)
         $toko = $user->toko()->with('products')->first();
+        $products = Product::with('variant')->get();
 
         // 3. Jika dia penjual tapi belum punya toko (mis. dihapus admin)
         if (!$toko) {
@@ -33,7 +35,7 @@ class MyTokoController extends Controller
 
         // 4. Jika semua aman, tampilkan view dashboard tokonya
         // Kita kirim data $toko (yang sudah berisi produk) ke view
-        return view('toko.show', compact('toko'));
+        return view('toko.show', compact('toko', 'products'));
     }
 
     /*
