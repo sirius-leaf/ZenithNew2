@@ -16,14 +16,14 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
         <div class="container">
-            <a class="navbar-brand" href="/admin">Admin Dashboard</a>
+            <a class="navbar-brand" href="{{ route('dashboard') }}">Admin Dashboard</a>
             @auth
-            <div class="ms-auto">
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-danger">Logout</button>
-                </form>
-            </div>
+                <div class="ms-auto">
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger">Logout</button>
+                    </form>
+                </div>
             @endauth
         </div>
     </nav>

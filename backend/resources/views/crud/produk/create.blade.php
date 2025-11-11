@@ -7,6 +7,8 @@
         <form action="{{ route('dashboard.manage.produk.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
+            <input type="hidden" name="id_toko" value="{{ $toko->id }}">
+
             <div class="mb-3">
                 <label for="nama_produk" class="form-label">Nama Produk</label>
                 <input type="text" name="nama_produk" id="nama_produk" class="form-control" required>
@@ -83,27 +85,27 @@
                     const newRow = document.createElement('div');
                     newRow.classList.add('input-group', 'mb-2', 'varian-item');
                     newRow.innerHTML = `
-                        <div>
-                            <label for="gambar_varian" class="form-label">Gambar Varian</label>
-                            <input type="file" name="varian[${index}][gambar_varian]" id="gambar_varian" class="form-control"
-                                required>
-                            @error('gambar_varian') <small class="text-danger">{{ $message }}</small> @enderror
+                            <div>
+                                <label for="gambar_varian" class="form-label">Gambar Varian</label>
+                                <input type="file" name="varian[${index}][gambar_varian]" id="gambar_varian" class="form-control"
+                                    required>
+                                @error('gambar_varian') <small class="text-danger">{{ $message }}</small> @enderror
 
-                            <label for="nama_varian" class="form-label">Nama Varian</label>
-                            <input type="text" name="varian[${index}][nama_varian]" id="nama_varian" class="form-control" required>
-                            @error('nama_varian') <small class="text-danger">{{ $message }}</small> @enderror
+                                <label for="nama_varian" class="form-label">Nama Varian</label>
+                                <input type="text" name="varian[${index}][nama_varian]" id="nama_varian" class="form-control" required>
+                                @error('nama_varian') <small class="text-danger">{{ $message }}</small> @enderror
 
-                            <label for="harga" class="form-label">Harga</label>
-                            <input type="number" min="0" name="varian[${index}][harga]" id="harga" class="form-control" required>
-                            @error('harga') <small class="text-danger">{{ $message }}</small> @enderror
+                                <label for="harga" class="form-label">Harga</label>
+                                <input type="number" min="0" name="varian[${index}][harga]" id="harga" class="form-control" required>
+                                @error('harga') <small class="text-danger">{{ $message }}</small> @enderror
 
-                            <label for="stok" class="form-label">Stok</label>
-                            <input type="number" min="0" name="varian[${index}][stok]" id="stok" class="form-control" required>
-                            @error('stok') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
+                                <label for="stok" class="form-label">Stok</label>
+                                <input type="number" min="0" name="varian[${index}][stok]" id="stok" class="form-control" required>
+                                @error('stok') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
 
-                        <button type="button" class="btn btn-danger remove-row">Hapus</button>
-                    `;
+                            <button type="button" class="btn btn-danger remove-row">Hapus</button>
+                        `;
                     index++;
                     wrapper.appendChild(newRow);
                 });
@@ -113,19 +115,19 @@
                     const newRow = document.createElement('div');
                     newRow.classList.add('input-group', 'mb-2', 'kategori-item');
                     newRow.innerHTML = `
-                        <div>
-                            <label for="kategori" class="form-label">Lokasi Sewa</label>
-                            <select name="kategori[]" id="kategori" class="form-select" required>
-                                <option value="">-- Pilih Kategori --</option>
-                                @foreach ($kategori as $k)
-                                    <option value="{{ $k->id_kategori }}">{{ $k->nama_kategori }}</option>
-                                @endforeach
-                            </select>
-                            @error('kategori') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
+                            <div>
+                                <label for="kategori" class="form-label">Lokasi Sewa</label>
+                                <select name="kategori[]" id="kategori" class="form-select" required>
+                                    <option value="">-- Pilih Kategori --</option>
+                                    @foreach ($kategori as $k)
+                                        <option value="{{ $k->id_kategori }}">{{ $k->nama_kategori }}</option>
+                                    @endforeach
+                                </select>
+                                @error('kategori') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
 
-                        <button type="button" class="btn btn-danger remove-kategori-row">Hapus</button>
-                    `;
+                            <button type="button" class="btn btn-danger remove-kategori-row">Hapus</button>
+                        `;
                     wrapper.appendChild(newRow);
                 });
 

@@ -11,7 +11,7 @@ class Product extends Model
     use HasFactory;
 
     protected $primaryKey = 'id_produk';
-    protected $fillable = ['deskripsi', 'merek', 'nama_produk'];
+    protected $fillable = ['id_toko', 'deskripsi', 'merek', 'nama_produk'];
 
     public function variant()
     {

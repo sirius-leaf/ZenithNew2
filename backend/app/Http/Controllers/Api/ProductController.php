@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use function PHPUnit\Framework\isEmpty;
 
 class ProductController extends Controller
@@ -23,7 +24,8 @@ class ProductController extends Controller
     public function create()
     {
         $kategori = Category::all();
-        return view('crud.produk.create', compact('kategori'));
+        $toko = Auth::user()->toko;
+        return view('crud.produk.create', compact('kategori', 'toko'));
     }
 
     /**
@@ -47,6 +49,7 @@ class ProductController extends Controller
 
         DB::transaction(function () use ($validated, $request) {
             $produk = Product::create([
+                'id_toko' => $request->id_toko,
                 'nama_produk' => $validated['nama_produk'],
                 'deskripsi' => $validated['deskripsi'] ?? '',
                 'merek' => $validated['merek'],
@@ -73,17 +76,18 @@ class ProductController extends Controller
             }
         });
 
-        return redirect()->route('manage.produk.index')
+        return redirect()->route('dashboard.toko.show')
             ->with('success', 'Produk dan variannya berhasil disimpan!');
     }
 
     public function edit(int $id)
     {
+        $toko = Auth::user()->toko;
         $produk = Product::findOrFail($id);
         $produk->load(['variant', 'categoryDetail']);
         $kategori = Category::all();
 
-        return view('crud.produk.edit', compact('produk', 'kategori'));
+        return view('crud.produk.edit', compact('produk', 'kategori', 'toko'));
     }
 
     /**
@@ -187,8 +191,8 @@ class ProductController extends Controller
             }
         }
 
-        $produk->update($request->only('nama_produk', 'merek', 'deskripsi'));
-        return redirect()->route('manage.produk.index')->with('success', 'Produk berhasil diperbarui!');
+        $produk->update($request->only('id_toko', 'nama_produk', 'merek', 'deskripsi'));
+        return redirect()->route('dashboard.toko.show')->with('success', 'Produk berhasil diperbarui!');
     }
 
     /**
