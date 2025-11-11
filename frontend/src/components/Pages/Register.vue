@@ -1,7 +1,10 @@
 <template>
-  <div class="w-full h-screen relative bg-pink-500 overflow-hidden">
+  <div class="w-full min-h-screen relative bg-pink-500 overflow-hidden flex flex-col">
     <!-- Background bottom section -->
     <div class="w-full h-[526px] left-0 top-[214px] absolute bg-pink-300 border-black"></div>
+    
+    <!-- Main Content Area -->
+    <div class="flex-1 relative"></div>
     
     <!-- Registration Form Card -->
     <div class="w-72 h-96 px-7 py-7 left-1/2 -translate-x-1/2 top-[161px] absolute bg-blue-900/20 rounded-[20px] shadow-[0px_5px_10px_0px_rgba(53,51,51,0.60)] backdrop-blur-md inline-flex justify-start items-center gap-2.5">
@@ -18,7 +21,7 @@
               type="text"
               placeholder="Username"
               required
-              class="w-full bg-transparent border-none outline-none text-white text-base font-normal font-['Ubuntu'] placeholder-white/70 pb-1"
+              class="w-full bg-transparent border-none outline-none text-white text-base font-normal font-['Ubuntu'] pb-1"
             />
             <div class="w-60 h-0 outline outline-1 outline-offset-[-0.50px] outline-white"></div>
           </div>
@@ -30,7 +33,7 @@
               type="email"
               placeholder="Email"
               required
-              class="w-full bg-transparent border-none outline-none text-white text-base font-normal font-['Ubuntu'] placeholder-white/70 pb-1"
+              class="w-full bg-transparent border-none outline-none text-white text-base font-normal font-['Ubuntu'] pb-1"
             />
             <div class="w-60 h-0 outline outline-1 outline-offset-[-0.50px] outline-white"></div>
           </div>
@@ -42,7 +45,7 @@
               type="password"
               placeholder="Password"
               required
-              class="w-full bg-transparent border-none outline-none text-white text-base font-normal font-['Ubuntu'] placeholder-white/70 pb-1"
+              class="w-full bg-transparent border-none outline-none text-white text-base font-normal font-['Ubuntu'] pb-1"
             />
             <div class="w-60 h-0 outline outline-1 outline-offset-[-0.50px] outline-white"></div>
           </div>
@@ -53,14 +56,14 @@
           type="submit"
           class="w-52 h-8 px-16 py-2 bg-white rounded-2xl inline-flex justify-center items-center gap-2.5 hover:bg-gray-100 transition-colors"
         >
-          <span class="justify-start text-blue-900 text-base font-medium font-['Ubuntu']">Register</span>
+          <span class="text-blue-900 text-base font-medium font-['Ubuntu']">Register</span>
         </button>
       </form>
     </div>
     
     <!-- Footer -->
-    <div class="w-full h-14 left-0 top-[680px] absolute bg-white overflow-hidden">
-      <div class="w-80 left-1/2 -translate-x-1/2 top-[21px] absolute text-center justify-center text-blue-900/70 text-base font-normal font-['Ubuntu']">
+    <div class="w-full h-14 bg-white flex items-center justify-center">
+      <div class="text-center text-blue-900/70 text-base font-normal font-['Ubuntu']">
         @ 2025 Zenith. All rights reserved.
       </div>
     </div>
