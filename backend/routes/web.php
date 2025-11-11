@@ -1,12 +1,16 @@
 <?php
 
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TokoController;
+use App\Http\Controllers\MyTokoController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\VariantController;
 use App\Http\Controllers\Api\UserRoleController;
+use App\Http\Controllers\MyTokoProductController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,11 +27,28 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
     Route::prefix('manage')->name('manage.')->group(function () {
         Route::resource('user', UserController::class);
         Route::resource('produk', ProductController::class);
+        // Route::get('/tokomu', [MyTokoController::class, 'show'])->name('show');
+        Route::resource('toko', TokoController::class);
         Route::post('/become-seller', [UserRoleController::class, 'requestSeller'])->name('user.requestSeller');
 
         // admin halaman konfirmasi
         Route::get('/admin/seller-requests', [UserRoleController::class, 'index'])->middleware('can:is-admin')->name('admin.sellerRequests');
         Route::post('/admin/seller-requests/{user}/approve', [UserRoleController::class, 'approve'])->middleware('can:is-admin')->name('admin.sellerRequests.approve');
+    });
+
+    Route::prefix('toko-saya')->name('toko.')->group(function () {
+        // Halaman utama kelola toko (menampilkan daftar produk)
+        Route::get('/', [MyTokoController::class, 'show'])->name('show');
+
+        Route::resource('produk', MyTokoProductController::class)
+            ->except(['index', 'show'])
+            ->parameters(['produk' => 'id'])
+            // GANTI INI:
+            // ->middleware(function ($request, $next) { ... });
+
+            // MENJADI INI (nama string):
+            ->middleware('isSellerWithToko'); // <-- Jauh lebih bersih!
+
     });
 });
 

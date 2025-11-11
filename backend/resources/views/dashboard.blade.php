@@ -9,6 +9,12 @@
 <body>
     <div style="padding: 20px;">
 
+        @if (session('error'))
+            <div style="background-color: #f8d7da; color: #842029; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                {{ session('error') }}
+            </div>
+        @endif
+
         {{-- Header Dashboard --}}
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2>Dashboard</h2>
@@ -54,10 +60,18 @@
                 <p>Permintaan menjadi penjual sedang menunggu konfirmasi admin.</p>
             @elseif (Auth::user()->role === 'penjual')
                 <p>Anda sudah menjadi penjual.</p>
-                <a href="/dashboard/manage/toko"
-                    style="background-color: #2ecc71; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">
-                    Manage Toko
-                </a>
+                {{-- Cek apakah user sudah punya toko --}}
+                @if (Auth::user()->toko)
+                    {{-- Jika SUDAH punya toko, tampilkan tombol "Kelola Toko" --}}
+                    <a href="{{ route('dashboard.toko.show') }}">
+                        Kelola Toko Anda
+                    </a>
+                @else
+                    {{-- Jika BELUM punya toko, tampilkan tombol "Buat Toko" --}}
+                    <a href="{{ route('dashboard.manage.toko.create') }}">
+                        Buka Toko Sekarang
+                    </a>
+                @endif
             @endif
         </div>
 

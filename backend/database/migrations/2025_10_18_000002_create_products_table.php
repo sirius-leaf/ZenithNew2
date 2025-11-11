@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id('id_produk');
+            $table->foreignId('id_toko')->constrained('tokos', 'id')->onDelete('cascade');
             $table->text('deskripsi')->nullable();
             $table->string('merek', 100);
             $table->string('nama_produk', 150);
