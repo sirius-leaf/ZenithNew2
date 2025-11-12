@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Product;
+use App\Models\DetailPesanan;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -16,4 +18,9 @@ class Variant extends Model
     {
         return $this->belongsTo(Product::class, 'id_produk', 'id_produk');
     }
+
+    public function detailPesanans()
+{
+    return $this->hasMany(DetailPesanan::class,'variant_id', 'id_varian');
+}
 }
