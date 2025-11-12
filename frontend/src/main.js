@@ -36,6 +36,7 @@ const router = createRouter({
       path: "/testimonial",
       component: TestimonialPage,
     },
+
     {
       path: "/register",
       component: Register,
