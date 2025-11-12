@@ -7,6 +7,7 @@ import ProductPage from "./components/Pages/ProductPage.vue";
 import CategoryPage from "./components/Pages/CategoryPage.vue";
 import AboutPage from "./components/Pages/AboutPage.vue";
 import TestimonialPage from "./components/Pages/TestimonialPage.vue";
+import Login from "./components/Pages/Login.vue";
 
 import "aos/dist/aos.css";
 import AOS from "aos";
@@ -38,6 +39,13 @@ const router = createRouter({
     {
       path: "/register",
       component: Register,
+      meta: { hideLayout: true },
+    },
+
+    {
+      path: "/login",
+      component: Login,
+      meta: { hideLayout: true },
     },
   ],
 });

@@ -1,18 +1,15 @@
 <script setup>
+import { useRoute } from 'vue-router'
 import FooterSection from "./components/FooterSection.vue";
 import Navbar from "./components/Navbar.vue";
+
+const route = useRoute()
 </script>
 
 <template>
   <div class="font-sans text-gray-800">
-    <Navbar />
+    <Navbar v-if="!route.meta.hideLayout" />
     <RouterView />
-    <FooterSection />
+    <FooterSection v-if="!route.meta.hideLayout" />
   </div>
 </template>
-
-<style scoped>
-div {
-  overflow-x: hidden;
-}
-</style>
