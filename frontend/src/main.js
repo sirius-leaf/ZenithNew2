@@ -8,6 +8,7 @@ import CategoryPage from "./components/Pages/CategoryPage.vue";
 import AboutPage from "./components/Pages/AboutPage.vue";
 import TestimonialPage from "./components/Pages/TestimonialPage.vue";
 import Login from "./components/Pages/Login.vue";
+import ProductDetail from "./components/Pages/ProductDetail.vue";
 
 import "aos/dist/aos.css";
 import AOS from "aos";
@@ -23,7 +24,16 @@ const router = createRouter({
     {
       path: "/product/",
       component: ProductPage,
+      name: "product-list",
     },
+    
+    {
+      // Path ini akan menangani URL seperti /product/1, /product/4, dll.
+      path: "/product/:id", 
+      component: ProductDetail, // Komponen yang akan ditampilkan
+      name: "product-detail", // Nama yang dicari oleh <router-link> Anda
+    },
+
     {
       path: "/categories/:category",
       component: CategoryPage,

@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/user', function (Request $request) {
@@ -10,8 +11,10 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('guest')->name('api.register');
-
 Route::post('/login', [LoginController::class, 'login']);
+
+Route::get('/products', [ProductPageController::class, 'index']);
+Route::get('/products/{id_produk}', [ProductPageController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
