@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Toko;
+use App\Models\BuildDetail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -21,6 +22,11 @@ class Product extends Model
     public function categoryDetail()
     {
         return $this->hasMany(CategoryDetail::class, 'id_produk', 'id_produk');
+    }
+
+    public function buildDetail()
+    {
+        return $this->hasMany(BuildDetail::class, 'id_produk', 'id_produk');
     }
 
     public function toko()

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Toko;
+use App\Models\PcBuild;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -30,6 +31,11 @@ class User extends Authenticatable
     public function toko()
     {
         return $this->hasOne(Toko::class, 'id_user');
+    }
+
+    public function pcBuild()
+    {
+        return $this->hasMany(PcBuild::class, 'id_user');
     }
 
 

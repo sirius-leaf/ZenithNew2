@@ -192,6 +192,7 @@ class ProductController extends Controller
         }
 
         $produk->update($request->only('id_toko', 'nama_produk', 'merek', 'deskripsi'));
+
         return redirect()->route('dashboard.toko.show')->with('success', 'Produk berhasil diperbarui!');
     }
 
