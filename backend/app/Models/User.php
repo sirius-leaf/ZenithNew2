@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Toko;
 use App\Models\Pesanan;
+use App\Models\PcBuild;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -34,9 +35,14 @@ class User extends Authenticatable
     }
 
     public function pesanans()
-{
-    return $this->hasMany(Pesanan::class);
-}
+    {
+        return $this->hasMany(Pesanan::class);
+    }
+
+    public function pcBuild()
+    {
+        return $this->hasMany(PcBuild::class, 'id_user');
+    }
 
 
     /**

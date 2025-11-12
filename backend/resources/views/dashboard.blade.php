@@ -32,6 +32,8 @@
         {{-- Link navigasi --}}
         <div style="margin: 20px 0;">
             <a href="{{ route('dashboard.manage.produk.index') }}" style="margin-right: 10px;">Manage Produk</a> |
+            <a href="{{ route('dashboard.manage.pcBuild.index') }}"
+                style="margin-right: 10px; margin-left: 10px;">Manage Pc Build</a> |
             <a href="/dashboard/manage/user" style="margin-left: 10px;">Manage User</a>
 
             {{-- Tombol menuju Seller Requests (hanya admin) --}}
