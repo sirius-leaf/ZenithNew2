@@ -79,6 +79,9 @@
 import zenith from '../assets/zenith.png' 
 import axios from 'axios'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const form = ref({
   name: '',
@@ -91,12 +94,16 @@ const registerUser = async () => {
     const res = await axios.post('http://127.0.0.1:8000/api/register', form.value)
     console.log(res.data)
     alert('Registrasi berhasil!')
+    
     // Reset form setelah berhasil
     form.value = {
       name: '',
       email: '',
       password: ''
     }
+
+    router.push('/login')
+
   } catch (err) {
     console.error(err.response?.data)
     alert('Registrasi gagal!')
