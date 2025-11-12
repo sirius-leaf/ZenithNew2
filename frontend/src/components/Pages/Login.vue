@@ -87,10 +87,10 @@
 import zenith from '../../assets/zenith.png' 
 import { ref } from 'vue'
 import axios from 'axios' // <-- 1. Import axios
-// import { useRouter } from 'vue-router' // <-- 2. (Opsional) Import router jika ingin redirect
+import { useRouter } from 'vue-router' // <-- 2. (Opsional) Import router jika ingin redirect
 
 // (Opsional) Inisialisasi router
-// const router = useRouter()
+const router = useRouter()
 
 // State untuk form
 const form = ref({
@@ -121,8 +121,8 @@ const loginUser = async () => {
     // Simpan token di localStorage untuk request selanjutnya
     localStorage.setItem('authToken', response.data.token);
     
-    // (Opsional) Arahkan ke halaman dashboard
-    // router.push('/dashboard'); 
+    // (Opsional) Arahkan ke halaman /
+    router.push('/'); 
     
     // Ganti alert dengan pesan sukses (jika perlu) atau langsung redirect
     // Di sini saya akan reset form-nya saja

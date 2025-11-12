@@ -1,19 +1,46 @@
 <script setup>
-import { ref } from "vue";
-import { RouterLink } from "vue-router";
+import { ref, watch } from "vue";
+import { RouterLink, useRouter, useRoute } from "vue-router";
 
 const isOpen = ref(false); // untuk toggle menu di mobile
+
+// --- Logika Otentikasi ---
+const isLoggedIn = ref(false);     // State untuk status login
+const router = useRouter();       // Untuk redirect saat logout
+const route = useRoute();         // Untuk memantau perubahan halaman
+
+// Fungsi untuk mengecek status login dari localStorage
+const checkAuthStatus = () => {
+  const token = localStorage.getItem('authToken');
+  isLoggedIn.value = !!token; // !!token mengubah string (jika ada) menjadi true, dan null menjadi false
+};
+
+// Cek status login saat komponen pertama kali dimuat
+checkAuthStatus();
+
+// Pantau perubahan rute (URL).
+// Ini penting agar header tahu kapan harus update setelah login/logout.
+watch(() => route.path, () => {
+  checkAuthStatus();
+});
+
+// Fungsi untuk logout
+const logout = () => {
+  localStorage.removeItem('authToken'); // Hapus token
+  isLoggedIn.value = false;           // Update state
+  isOpen.value = false;               // Tutup menu mobile (jika terbuka)
+  router.push('/');                 // Arahkan ke homepage
+};
+// --- Akhir Logika Otentikasi ---
 </script>
 
 <template>
   <header class="bg-white shadow px-6 py-4 md:px-10 md:py-6">
     <div class="flex justify-between items-center">
-      <!-- Logo -->
       <RouterLink to="/" class="flex items-center gap-2">
         <img src="/src/assets/logo.png" alt="logo" class="h-10 w-auto" />
       </RouterLink>
 
-      <!-- Menu desktop -->
       <nav class="hidden md:flex gap-6 text-gray-700">
         <RouterLink to="/product" class="hover:text-blue-500"
           >Product</RouterLink
@@ -29,8 +56,7 @@ const isOpen = ref(false); // untuk toggle menu di mobile
         >
       </nav>
 
-      <!-- Login/Register desktop -->
-      <div class="hidden md:flex gap-4">
+      <div v-if="!isLoggedIn" class="hidden md:flex gap-4">
         <RouterLink
           to="/login"
           class="text-pink-600 px-4 py-2 rounded-lg hover:bg-pink-100"
@@ -44,7 +70,15 @@ const isOpen = ref(false); // untuk toggle menu di mobile
         </RouterLink>
       </div>
 
-      <!-- Tombol Hamburger (mobile) -->
+      <div v-if="isLoggedIn" class="hidden md:flex gap-4">
+        <button
+          @click="logout"
+          class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
+
       <button
         @click="isOpen = !isOpen"
         class="md:hidden text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded-lg"
@@ -82,7 +116,6 @@ const isOpen = ref(false); // untuk toggle menu di mobile
       </button>
     </div>
 
-    <!-- Menu mobile -->
     <transition name="slide-fade">
       <div
         v-if="isOpen"
@@ -113,18 +146,29 @@ const isOpen = ref(false); // untuk toggle menu di mobile
           >Testimoni</RouterLink
         >
 
-        <div class="flex gap-4 mt-2">
+        <div v-if="!isLoggedIn" class="flex gap-4 mt-2">
           <RouterLink
             to="/login"
             class="px-4 py-2 text-pink-600 hover:bg-pink-100"
+            @click="isOpen = false"
             >Login</RouterLink
           >
           <RouterLink
             to="/register"
             class="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700"
+            @click="isOpen = false"
           >
             Register
           </RouterLink>
+        </div>
+
+        <div v-if="isLoggedIn" class="flex justify-center w-full mt-2">
+          <button
+            @click="logout"
+            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </transition>
