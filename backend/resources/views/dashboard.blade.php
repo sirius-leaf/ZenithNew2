@@ -34,11 +34,11 @@
             <a href="{{ route('dashboard.manage.produk.index') }}" style="margin-right: 10px;">Manage Produk</a> |
             <a href="{{ route('dashboard.manage.pcBuild.index') }}"
                 style="margin-right: 10px; margin-left: 10px;">Manage Pc Build</a> |
-            <a href="/dashboard/manage/user" style="margin-left: 10px;">Manage User</a>
+
 
             {{-- Tombol menuju Seller Requests (hanya admin) --}}
             @if (Auth::user()->role === 'admin')
-                |
+                |<a href="/dashboard/manage/user" style="margin-left: 10px;">Manage User</a>
                 <a href="/dashboard/manage/admin/seller-requests"
                     style="margin-left: 10px; background-color: #9b59b6; color: white; padding: 6px 10px; border-radius: 5px; text-decoration: none;">
                     Seller Requests
