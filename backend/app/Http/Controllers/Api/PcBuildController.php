@@ -5,39 +5,48 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\PcBuild;
 use App\Models\Product;
-use App\Models\BuildDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PcBuildController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * GET /api/pc-build
+     * List semua build milik user login
      */
     public function index()
     {
-        $pcBuild = Auth::user()->pcBuild()->get();
+        $pcBuild = Auth::user()
+            ->pcBuild()
+            ->with('buildDetail.product')
+            ->get();
 
-        return view('crud.pcBuild.index', compact('pcBuild'));
+        return response()->json([
+            'status' => 'success',
+            'data' => $pcBuild
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * GET /api/pc-build/products
+     * Ambil data produk untuk form (motherboard, cpu, dll)
      */
-    public function create()
+    public function products()
     {
         $products = Product::all();
-        $user = Auth::user();
 
-        return view('crud.pcBuild.create', compact('products', 'user'));
+        return response()->json([
+            'status' => 'success',
+            'data' => $products
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * POST /api/pc-build
+     * Simpan build baru
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         $validated = $request->validate([
             'nama_build' => 'required',
             'komponen' => 'required|array',
@@ -49,87 +58,92 @@ class PcBuildController extends Controller
         ]);
 
         $build = PcBuild::create([
-            'id_user' => $request->id_user,
+            'id_user' => Auth::id(),
             'nama_build' => $validated['nama_build'],
         ]);
 
-        foreach ($request->komponen as $k => $v) {
-            // dd($v);
+        foreach ($validated['komponen'] as $bagian => $produk) {
             $build->buildDetail()->create([
-                'id_produk' => $v,
-                'bagian_komponen' => $k,
+                'id_produk' => $produk,
+                'bagian_komponen' => $bagian,
             ]);
         }
 
-        return redirect()->route('dashboard.manage.pcBuild.index')
-            ->with('success', 'PC build berhasil disimpan!');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'PC build berhasil disimpan!',
+            'data' => $build->load('buildDetail.product')
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * GET /api/pc-build/{id}
+     * Detail satu build
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $build = PcBuild::with('buildDetail.product')->findOrFail($id);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $build
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * PUT /api/pc-build/{id}
+     * Update build
      */
-    public function edit(int $id)
-    {
-        $build = PcBuild::with('buildDetail')->find($id);
-        $products = Product::all();
-        $user = Auth::user();
-
-        return view('crud.pcBuild.edit', compact('products', 'user', 'build'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, int $id)
+    public function update(Request $request, $id)
     {
         $build = PcBuild::findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'nama_build' => 'required',
             'komponen' => 'required|array',
-            'komponen.motherboard.produk' => 'required',
-            'komponen.cpu.produk' => 'required',
-            'komponen.ram.produk' => 'required',
-            'komponen.psu.produk' => 'required',
-            'komponen.storage.produk' => 'required',
+            'komponen.*.id' => 'required|numeric',
+            'komponen.*.produk' => 'required|numeric',
         ]);
 
-        foreach ($request->komponen as $k => $v) {
-            $detail = $build->buildDetail()->find($v['id']);
-            if ($detail)
+        foreach ($validated['komponen'] as $bagian => $item) {
+            $detail = $build->buildDetail()->find($item['id']);
+            if ($detail) {
                 $detail->update([
-                    'id_produk' => $v['produk'],
-                    'bagian_komponen' => $k,
+                    'id_produk' => $item['produk'],
+                    'bagian_komponen' => $bagian,
                 ]);
+            }
         }
 
-        $build->update($request->only('id_user', 'nama_build'));
+        $build->update([
+            'nama_build' => $validated['nama_build']
+        ]);
 
-        return redirect()->route('dashboard.manage.pcBuild.index')
-            ->with('success', 'PC build berhasil diperbarui!');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'PC build berhasil diperbarui!',
+            'data' => $build->load('buildDetail.product')
+        ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * DELETE /api/pc-build/{id}
      */
-    public function destroy(int $id)
+    public function destroy($id)
     {
-        $build = PcBuild::with('buildDetail')->find($id);
+        $build = PcBuild::with('buildDetail')->findOrFail($id);
 
-        foreach ($build->buildDetail() as $detail) {
+        // Hapus detail komponen
+        foreach ($build->buildDetail as $detail) {
             $detail->delete();
         }
 
+        // Hapus build utama
         $build->delete();
 
-        return redirect()->back()->with('success', 'PC build dihapus!');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'PC build dihapus!'
+        ]);
     }
 }
