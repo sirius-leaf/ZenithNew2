@@ -32,7 +32,7 @@ class TokoController extends Controller
         // 2. Cek apakah user sudah punya toko
         if ($user->toko) {
             // Jika sudah, redirect ke halaman kelola toko
-            return redirect()->route('dashboard.manage.toko.index')->with('info', 'Anda sudah memiliki toko.');
+            return redirect()->route('dashboard')->with('info', 'Anda sudah memiliki toko.');
         }
 
         // 3. Jika lolos, tampilkan form

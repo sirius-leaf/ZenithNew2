@@ -35,7 +35,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->mid
 
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Route::prefix('manage')->name('manage.')->group(function () {
-        Route::resource('user', UserController::class);
+        Route::resource('user', UserController::class)->middleware('can:is-admin');
         Route::resource('produk', ProductController::class);
         Route::resource('pcBuild', PcBuildController::class);
         // Route::get('/tokomu', [MyTokoController::class, 'show'])->name('show');
