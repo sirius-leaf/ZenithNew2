@@ -1,91 +1,116 @@
-import { createApp } from "vue";
-import "./style.css";
-import App from "./App.vue";
-import { createRouter, createWebHistory } from "vue-router";
-import axios from "axios";
+// src/main.js
+import { createApp } from 'vue'
+import './style.css'
+import App from './App.vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import axios from 'axios'
 
-import HomePage from "./components/Pages/HomePage.vue";
-import ProductPage from "./components/Pages/ProductPage.vue";
-import CategoryPage from "./components/Pages/CategoryPage.vue";
-import AboutPage from "./components/Pages/AboutPage.vue";
-import TestimonialPage from "./components/Pages/TestimonialPage.vue";
-import Login from "./components/Pages/Login.vue";
-import ProductDetail from "./components/Pages/ProductDetail.vue";
-import Register from "./views/Register.vue";
-import Dashboard from "./views/Dashboard.vue";
-import PcBuildIndex from "./views/manage_pages/pc_build/PcBuildIndex.vue";
-import PcBuildCreate from "./views/manage_pages/pc_build/PcBuildCreate.vue";
-import PcBuildEdit from "./views/manage_pages/pc_build/PcBuildEdit.vue";
+// ✅ Semua halaman di src/views/pages/
+import HomePage from './views/pages/Home.vue'
+import ProductPage from './views/pages/Product.vue'
+import CategoryPage from './views/pages/Category.vue'
+import AboutPage from './views/pages/About.vue'
+import TestimonialPage from './views/pages/Testimonials.vue'
+import Login from './views/pages/Login.vue'
+import ProductDetail from './views/pages/ProductDetail.vue'
+import Register from './views/pages/Register.vue'    // ✅ Fixed: sesuai struktur folder
+import Dashboard from './views/pages/Dashboard.vue' // ✅ Fixed: sesuai struktur folder
 
-import "aos/dist/aos.css";
-import AOS from "aos";
+// ✅ Manage pages tetap di lokasi semula
+import PcBuildIndex from './views/manage_pages/pc_build/PcBuildIndex.vue'
+import PcBuildCreate from './views/manage_pages/pc_build/PcBuildCreate.vue'
+import PcBuildEdit from './views/manage_pages/pc_build/PcBuildEdit.vue'
 
+import 'aos/dist/aos.css'
+import AOS from 'aos'
+
+// Setup global axios
+axios.defaults.baseURL = 'http://localhost:8000/api'
+axios.defaults.withCredentials = true
+
+// ✅ Buat router — HARUS sebelum createApp
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: "",
+      path: '/',
+      name: 'home',
       component: HomePage,
     },
     {
-      path: "/product/",
+      path: '/product',
+      name: 'product-list',
       component: ProductPage,
-      name: "product-list",
     },
-
     {
-      // Path ini akan menangani URL seperti /product/1, /product/4, dll.
-      path: "/product/:id",
-      component: ProductDetail, // Komponen yang akan ditampilkan
-      name: "product-detail", // Nama yang dicari oleh <router-link> Anda
+      path: '/product/:id',
+      name: 'product-detail',
+      component: ProductDetail,
+      props: true,
     },
-
     {
-      path: "/categories/:category",
+      path: '/categories/:category',
+      name: 'category',
       component: CategoryPage,
+      props: true,
     },
     {
-      path: "/about",
+      path: '/about',
+      name: 'about',
       component: AboutPage,
     },
     {
-      path: "/testimonial",
+      path: '/testimonial',
+      name: 'testimonial',
       component: TestimonialPage,
     },
-
     {
-      path: "/dashboard",
+      path: '/dashboard',
+      name: 'dashboard',
       component: Dashboard,
       children: [
         {
-          path: "manage/pcBuild",
+          path: 'manage/pcBuild',
+          name: 'pc-build.index',
           component: PcBuildIndex,
         },
         {
-          path: "manage/pcBuild/create",
+          path: 'manage/pcBuild/create',
+          name: 'pc-build.create',
           component: PcBuildCreate,
         },
         {
-          path: "manage/pcBuild/:id/edit",
+          path: 'manage/pcBuild/:id/edit',
+          name: 'pc-build.edit',
           component: PcBuildEdit,
           props: true,
         },
       ],
     },
-
     {
-      path: "/register",
+      path: '/register',
+      name: 'register',
       component: Register,
       meta: { hideLayout: true },
     },
-
     {
-      path: "/login",
+      path: '/login',
+      name: 'login',
       component: Login,
       meta: { hideLayout: true },
     },
+    // ✅ Fallback route (opsional tapi direkomendasikan)
+    { 
+      path: '/:pathMatch(.*)*', 
+      redirect: '/' 
+    }
   ],
-});
+})
 
-AOS.init();
-createApp(App).use(router).mount("#app");
+// ✅ Inisialisasi AOS
+AOS.init()
+
+// ✅ Mount aplikasi — ini HARUS baris terakhir!
+createApp(App)
+  .use(router)
+  .mount('#app')

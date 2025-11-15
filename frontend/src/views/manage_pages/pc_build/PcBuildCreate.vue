@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 
-import ComponentSelect from "../../../components/ComponentSelect.vue";
+import ComponentSelect from "../../../components/ui/ComponentSelect.vue";
 
 const router = useRouter();
 

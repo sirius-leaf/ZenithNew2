@@ -1,7 +1,7 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import FooterSection from "./components/FooterSection.vue";
-import Navbar from "./components/Navbar.vue";
+import FooterSection from "./components/layout/FooterSection.vue";
+import Navbar from "./components/layout/Navbar.vue";
 
 const route = useRoute()
 </script>
