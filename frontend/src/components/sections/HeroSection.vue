@@ -4,7 +4,7 @@ const hero = "/src/assets/hero.png";
 
 <template>
   <section
-    class="flex flex-col md:flex-row items-center justify-between py-16 px-8 md:px-16 bg-gradient-to-b from-white to-pink-50"
+    class="flex flex-col md:flex-row items-center justify-between py-16 px-8 md:px-16 bg-gradient-to-b from-white to-pink-100"
   >
     <!-- Kiri: Teks -->
     <div class="md:w-1/2 text-center md:text-left space-y-6">

@@ -22,7 +22,9 @@ const images = [
         desc: "Fiturnya lengkap, ini sangat rekomendasi sih",
     },
 ];
-const getImage = (file) => new URL(`../assets/${file}`, import.meta.url).href;
+const getImage = (file) => {
+  return new URL(`../../assets/${file}`, import.meta.url).href
+}
 </script>
 
 <template>

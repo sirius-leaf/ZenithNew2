@@ -16,7 +16,10 @@ const features = [
     desc: "Real reviews and ratings guide your best purchase.",
   },
 ];
-const getIcon = (icon) => new URL(`../assets/${icon}`, import.meta.url).href;
+
+const getIcon = (icon) => {
+  return new URL(`../../assets/${icon}`, import.meta.url).href
+}
 </script>
 
 <template>
