@@ -15,6 +15,7 @@ onMounted(async () => {
     return
   }
 
+  
   try {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
     const res = await axios.get('http://127.0.0.1:8000/api/user')
