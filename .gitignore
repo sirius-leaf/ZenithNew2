@@ -1,0 +1,4 @@
+#Ignore Docker
+docker-compose.yml
+docker-entrypoint.sh
+Dockerfile.backend
