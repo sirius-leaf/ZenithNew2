@@ -1,47 +1,48 @@
+<!-- src/components/layout/Navbar.vue -->
 <script setup>
-import { ref, watch } from "vue";
-import { RouterLink, useRouter, useRoute } from "vue-router";
+import { ref, watch } from 'vue'
+import { RouterLink, useRouter, useRoute } from 'vue-router'
 
-const isOpen = ref(false); // untuk toggle menu di mobile (opsional)
-const isLoggedIn = ref(false);
-const router = useRouter();
-const route = useRoute();
+const isOpen = ref(false)
+const isLoggedIn = ref(false)
+const router = useRouter()
+const route = useRoute()
 
 // Cek status login saat komponen dimuat
 const checkAuthStatus = () => {
-  const token = localStorage.getItem('authToken');
-  isLoggedIn.value = !!token;
-};
-checkAuthStatus();
+  const token = localStorage.getItem('authToken')
+  isLoggedIn.value = !!token
+}
+checkAuthStatus()
 
 // Pantau perubahan rute
 watch(() => route.path, () => {
-  checkAuthStatus();
-});
+  checkAuthStatus()
+})
 
 // Fungsi logout
 const logout = () => {
-  localStorage.removeItem('authToken');
-  isLoggedIn.value = false;
-  isOpen.value = false;
-  router.push('/');
-};
+  localStorage.removeItem('authToken')
+  isLoggedIn.value = false
+  isOpen.value = false
+  router.push('/')
+}
 
 // State untuk input pencarian
-const searchQuery = ref('');
+const searchQuery = ref('')
 
 // Fungsi untuk handle submit pencarian
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    router.push({ path: '/product', query: { q: searchQuery.value } });
+    router.push({ path: '/product', query: { q: searchQuery.value } })
   }
-};
+}
 </script>
 
 <template>
-  <header class="bg-white shadow">
+  <header class="bg-white shadow-sm">
     <!-- Baris Atas: Logo, Search, Cart & Profile -->
-    <div class="flex justify-between items-center px-6 py-3 md:px-10 md:py-4 bg-gray-50 border-b">
+    <div class="flex justify-between items-center px-6 py-3 md:px-10 md:py-4 bg-gray-50">
       <!-- Logo -->
       <RouterLink to="/" class="flex items-center gap-2">
         <img src="/src/assets/logo.png" alt="Zenith Logo" class="h-8 w-auto" />
@@ -86,7 +87,13 @@ const handleSearch = () => {
         <div v-if="isLoggedIn" class="flex items-center gap-2">
           <img src="https://ui-avatars.com/api/?name=Raditya+Ba&background=0D8ABC&color=fff" alt="Profile" class="h-8 w-8 rounded-full" />
           <span class="text-sm font-medium text-gray-700">raditya.ba</span>
-          <button @click="logout" class="text-xs text-red-500 hover:text-red-700">Logout</button>
+          <!-- 🔥 Logout sebagai tombol modern -->
+          <button
+            @click="logout"
+            class="ml-2 px-3 py-1 text-xs font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors duration-200 cursor-pointer"
+          >
+            Logout
+          </button>
         </div>
 
         <div v-else class="flex gap-2">
@@ -94,16 +101,6 @@ const handleSearch = () => {
           <RouterLink to="/register" class="text-sm bg-pink-600 text-white px-3 py-1 rounded-md hover:bg-pink-700">Register</RouterLink>
         </div>
       </div>
-    </div>
-
-    <!-- Baris Bawah: Menu Navigasi Utama -->
-    <div class="hidden md:flex justify-center bg-white px-6 py-2">
-      <nav class="flex gap-8 text-gray-700">
-        <RouterLink to="/product" class="hover:text-blue-500">Product</RouterLink>
-        <RouterLink to="/category" class="hover:text-blue-500">Category</RouterLink>
-        <RouterLink to="/about" class="hover:text-blue-500">About Us</RouterLink>
-        <RouterLink to="/testimonial" class="hover:text-blue-500">Testimoni</RouterLink>
-      </nav>
     </div>
 
     <!-- Tombol Mobile Menu (Opsional) -->
@@ -138,7 +135,7 @@ const handleSearch = () => {
         <div v-if="isLoggedIn" class="w-full mt-4">
           <button
             @click="logout"
-            class="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+            class="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-200"
           >
             Logout
           </button>
