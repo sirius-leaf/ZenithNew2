@@ -11,7 +11,7 @@
     <!-- Main Content - Flex grow untuk push footer ke bawah -->
     <div class="flex-1 flex items-center justify-center relative px-4 py-8 sm:py-0">
       <!-- Registration Form Card -->
-      <div class="w-full max-w-[288px] sm:w-72 px-5 sm:px-7 py-6 sm:py-7 bg-blue-900/20 rounded-[20px] shadow-[0px_5px_10px_0px_rgba(53,51,51,0.60)] backdrop-blur-md">
+      <div class="w-full max-w-[288px] sm:w-72 px-5 sm:px-7 py-6 sm:py-7 bg-blue-900/20 rounded-[5px] shadow-xl backdrop-blur-3xl">
         <form @submit.prevent="registerUser" class="w-full flex flex-col items-center gap-8 sm:gap-14">
           <!-- Logo/Avatar -->
           <img :src="zenith" alt="zenith" class="w-12 h-12 sm:w-16 sm:h-16 object-contain"/>
@@ -62,6 +62,19 @@
           >
             <span class="text-blue-900 text-sm sm:text-base font-medium font-['Ubuntu']">Register</span>
           </button>
+
+          <!-- Register Prompt: Text + Link on new line -->
+          <div class="mt-2 flex flex-col items-center gap-1">
+            <span class="text-white/80 text-xs sm:text-sm font-normal font-['Ubuntu']">
+              Sudah punya akun?
+            </span>
+            <router-link
+              to="/login"
+              class="text-white text-xs sm:text-sm font-medium font-['Ubuntu'] underline hover:text-white/90 transition-colors"
+            >
+              Masuk sekarang
+            </router-link>
+          </div>
         </form>
       </div>
     </div>

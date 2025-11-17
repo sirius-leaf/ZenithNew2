@@ -30,11 +30,8 @@
     >
       <!-- Login Form Card -->
       <div
-        class="w-full max-w-[288px] sm:w-72 px-5 sm:px-7 py-6 sm:py-7 bg-blue-900/20 rounded-[20px] shadow-[0px_5px_10px_0px_rgba(53,51,51,0.60)] backdrop-blur-md"
+        class="w-full max-w-[288px] sm:w-72 px-5 sm:px-7 py-6 sm:py-7 bg-blue-900/20 rounded-[5px] shadow-xl backdrop-blur-3xl"
       >
-        <!-- =================================================================== -->
-        <!--   Form diubah sedikit untuk menangani submit dan error               -->
-        <!-- =================================================================== -->
         <form
           @submit.prevent="loginUser"
           class="w-full flex flex-col items-center gap-6 sm:gap-10"
@@ -77,9 +74,7 @@
             </div>
           </div>
 
-          <!-- =================================================================== -->
-          <!--   Menampilkan pesan error jika ada                                  -->
-          <!-- =================================================================== -->
+          <!-- Error Message -->
           <div
             v-if="errorMessage"
             class="w-full p-2.5 bg-red-200 text-red-800 rounded-md text-center text-xs sm:text-sm font-medium font-['Ubuntu']"
@@ -87,20 +82,29 @@
             {{ errorMessage }}
           </div>
 
-          <!-- =================================================================== -->
-          <!--   Tombol diubah untuk menampilkan loading state                     -->
-          <!-- =================================================================== -->
+          <!-- Submit Button -->
           <button
             type="submit"
             :disabled="isLoading"
             class="w-full max-w-[208px] h-8 px-8 sm:px-16 py-2 bg-white rounded-2xl flex justify-center items-center hover:bg-gray-100 transition-colors disabled:opacity-75 disabled:cursor-not-allowed"
           >
-            <span
-              class="text-blue-900 text-sm sm:text-base font-medium font-['Ubuntu']"
-            >
+            <span class="text-blue-900 text-sm sm:text-base font-medium font-['Ubuntu']">
               {{ isLoading ? "Loading..." : "Login" }}
             </span>
           </button>
+
+          <!-- Register Prompt: Text + Link on new line -->
+          <div class="mt-4 flex flex-col items-center gap-1">
+            <span class="text-white/80 text-xs sm:text-sm font-normal font-['Ubuntu']">
+              Belom punya akun?
+            </span>
+            <router-link
+              to="/register"
+              class="text-white text-xs sm:text-sm font-medium font-['Ubuntu'] underline hover:text-white/90 transition-colors"
+            >
+              Daftar sekarang
+            </router-link>
+          </div>
         </form>
       </div>
     </div>
@@ -116,77 +120,59 @@
   </div>
 </template>
 
-<!-- =================================================================== -->
-<!--   SCRIPT SETUP DIPERBARUI                                         -->
-<!-- =================================================================== -->
 <script setup>
 import zenith from "../../assets/zenith.png";
 import { ref } from "vue";
-import axios from "axios"; // <-- 1. Import axios
-import { useRouter } from "vue-router"; // <-- 2. (Opsional) Import router jika ingin redirect
+import axios from "axios";
+import { useRouter } from "vue-router";
 
-// (Opsional) Inisialisasi router
 const router = useRouter();
 
-// State untuk form
 const form = ref({
   email: "",
   password: "",
 });
 
-// --- 3. Tambahkan state untuk loading dan error ---
 const isLoading = ref(false);
 const errorMessage = ref(null);
 
-// --- 4. Ubah fungsi loginUser menjadi async dan panggil API ---
 const loginUser = async () => {
-  // Reset state
   isLoading.value = true;
   errorMessage.value = null;
 
   try {
-    // Kirim request ke API Laravel
     const response = await axios.post("http://127.0.0.1:8000/api/login", {
       email: form.value.email,
       password: form.value.password,
     });
 
-    // Jika berhasil:
     console.log("Login berhasil:", response.data);
 
-    // Simpan token di localStorage untuk request selanjutnya
+    // Simpan token
     localStorage.setItem("authToken", response.data.token);
-
     axios.defaults.headers.common[
       "Authorization"
     ] = `Bearer ${response.data.token}`;
 
-    //router.push("/"); // Redirect ke Landing Page
-    router.push("/dashboard"); // Redirect ke Dashboard
-
-    // Ganti alert dengan pesan sukses (jika perlu) atau langsung redirect
-    // Di sini saya akan reset form-nya saja
+    // Reset form
     form.value = { email: "", password: "" };
-    // Anda bisa tambahkan state 'successMessage' jika mau
+
+    // Redirect
+    router.push("/dashboard");
   } catch (error) {
-    // Jika gagal:
-    if (error.response && error.response.data) {
-      // Tampilkan pesan error dari API (cth: "Email atau password salah.")
+    if (error.response?.data?.message) {
       errorMessage.value = error.response.data.message;
     } else {
-      // Error jaringan atau server
       errorMessage.value = "Terjadi kesalahan koneksi. Coba lagi nanti.";
     }
     console.error("Login gagal:", error);
   } finally {
-    // Selesai (baik sukses atau gagal)
     isLoading.value = false;
   }
 };
 </script>
 
 <style scoped>
-/* Style autofill Anda sudah bagus, biarkan saja */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
