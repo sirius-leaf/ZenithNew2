@@ -20,7 +20,7 @@ import Dashboard from "./views/pages/Dashboard.vue";
 // 🔐 Halaman admin — SESUAI STRUKTUR FOLDER ANDA
 import AdminDashboard from "./views/admin/DashboardAdmin.vue";
 import KelolaProduk from "./views/admin/KelolaProduk.vue"; // ✅ BARU: tambahkan ini
-//import Konfirmasi from "./views/admin/Konfirmasi.vue"; // ✅ BARU: tambahkan ini
+import Konfirmasi from "./views/admin/Konfirmasi.vue"; // ✅ BARU: tambahkan ini
 
 // 🧱 Layout admin
 import AdminLayout from "./layout/AdminLayout.vue"; // pastikan file ini ada di src/AdminLayout.vue
@@ -50,7 +50,7 @@ const router = createRouter({
       children: [
         { path: "", component: AdminDashboard }, // ← ini jadi halaman utama admin
         { path: "kelolaproduk", component: KelolaProduk },
-        //{ path: "konfirmasi", component: Konfirmasi },
+        { path: "konfirmasi", component: Konfirmasi },
       ],
     },
 

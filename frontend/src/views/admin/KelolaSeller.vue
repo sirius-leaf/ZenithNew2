@@ -34,7 +34,7 @@
             :key="seller.id"
             class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200"
           >
-            <td class="py-2 px-3 md:px-4">{{ seller.userId }}</td>
+            <td class="py-2 px-3 md:px-4">{{ seller.Id }}</td>
             <td class="py-2 px-3 md:px-4">{{ seller.storeName }}</td>
             <td class="py-2 px-3 md:px-4">{{ seller.sellerName }}</td>
             <td class="py-2 px-3 md:px-4">{{ seller.email }}</td>
@@ -73,10 +73,10 @@
 import { ref, computed } from 'vue'
 
 const sellers = [
-  { id: 1, userId: 2, storeName: 'Toko A', sellerName: 'Keonho', email: 'ahnkeonho@zenith.com' },
-  { id: 2, userId: 3, storeName: 'Toko B', sellerName: 'Jake', email: 'shimjake@zenith.com' },
-  { id: 3, userId: 4, storeName: 'Toko C', sellerName: 'Yuha', email: 'Yuha@zenith.com' },
-  { id: 4, userId: 1, storeName: 'Toko Budi', sellerName: 'Budi Santoso', email: 'budi.santoso@email.com' }
+  { id: 1, Id: 2, storeName: 'Toko A', sellerName: 'Keonho', email: 'ahnkeonho@zenith.com' },
+  { id: 2, Id: 3, storeName: 'Toko B', sellerName: 'Jake', email: 'shimjake@zenith.com' },
+  { id: 3, Id: 4, storeName: 'Toko C', sellerName: 'Yuha', email: 'Yuha@zenith.com' },
+  { id: 4, Id: 1, storeName: 'Toko Budi', sellerName: 'Budi Santoso', email: 'budi.santoso@email.com' }
 ]
 
 const searchQuery = ref('')
@@ -86,7 +86,7 @@ const filteredSellers = computed(() => {
   if (!q) return sellers
 
   return sellers.filter(s =>
-    s.userId.toString().includes(q) ||
+    s.Id.toString().includes(q) ||
     s.storeName.toLowerCase().includes(q) ||
     s.sellerName.toLowerCase().includes(q) ||
     s.email.toLowerCase().includes(q)
