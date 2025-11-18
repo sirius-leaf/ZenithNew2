@@ -14,7 +14,7 @@ import TestimonialPage from "./views/pages/Testimonials.vue";
 import Login from "./views/pages/Login.vue";
 import ProductDetail from "./views/pages/ProductDetail.vue";
 import Register from "./views/pages/Register.vue"; // ✅ Fixed: sesuai struktur folder
-import Dashboard from "./views/pages/Dashboardlama.vue"; // ✅ Fixed: sesuai struktur folder
+import Dashboard from "./views/pages/Dashboard.vue"; // ✅ Fixed: sesuai struktur folder 
 
 // ✅ Manage pages tetap di lokasi semula
 import PcBuildIndex from "./views/manage_pages/pc_build/PcBuildIndex.vue";
