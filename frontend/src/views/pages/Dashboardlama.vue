@@ -37,7 +37,7 @@ onMounted(async () => {
         <ul class="list-none text-blue-600 underline">
           <li><a href="/dashboard">Dashboard</a></li>
           <li><a href="/dashboard/manage/pcBuild">Manage PC Build</a></li>
-          <li><a href="#">Item</a></li>
+          <li><a href="/dashboard/manage/users">Manage Users</a></li>
           <li><a href="#">Item</a></li>
         </ul>
       </div>

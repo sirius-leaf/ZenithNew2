@@ -2,10 +2,13 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\TokoController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\ProductPageController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Api\PcBuildController;
+use App\Http\Controllers\ProductPageController;
+use App\Http\Controllers\Api\UserRoleController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -28,5 +31,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('manage')->name('manage.')->group(function () {
         Route::apiResource('pcBuild', PcBuildController::class);
+        Route::apiResource('users', UserController::class)->only(['index', 'update', 'destroy']);
+        Route::apiResource('toko', TokoController::class)->only(['index', 'store']);
+        // 1. User: Request jadi penjual
+        Route::post('/become-seller', [UserRoleController::class, 'requestSeller']);
+        // 2. Admin: Lihat list request (Perlu middleware 'can:is-admin' atau cek role di controller)
+        Route::get('/admin/seller-requests', [UserRoleController::class, 'index']);
+        // 3. Admin: Approve request
+        Route::post('/admin/seller-requests/{id}/approve', [UserRoleController::class, 'approve']);
     });
 });
