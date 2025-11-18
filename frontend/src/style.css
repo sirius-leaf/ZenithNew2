@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+body {
+  font-family: 'Ubuntu', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased; /* Lebih halus di macOS/iOS */
+  -moz-osx-font-smoothing: grayscale;
+}
