@@ -15,6 +15,7 @@ import Login from './views/pages/Login.vue'
 import ProductDetail from './views/pages/ProductDetail.vue'
 import Register from './views/pages/Register.vue'    // ✅ Fixed: sesuai struktur folder
 import Dashboard from './views/pages/Dashboard.vue' // ✅ Fixed: sesuai struktur folder
+import Profile from "./views/pages/ProfileUser.vue"; 
 
 // ✅ Manage pages tetap di lokasi semula
 import PcBuildIndex from './views/manage_pages/pc_build/PcBuildIndex.vue'
@@ -33,79 +34,84 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/',
-      name: 'home',
+      path: "/",
+      name: "home",
       component: HomePage,
     },
     {
-      path: '/product',
-      name: 'product-list',
+      path: "/product",
+      name: "product-list",
       component: ProductPage,
     },
     {
-      path: '/product/:id',
-      name: 'product-detail',
+      path: "/product/:id",
+      name: "product-detail",
       component: ProductDetail,
       props: true,
     },
     {
-      path: '/categories/:category',
-      name: 'category',
+      path: "/categories/:category",
+      name: "category",
       component: CategoryPage,
       props: true,
     },
     {
-      path: '/about',
-      name: 'about',
+      path: "/about",
+      name: "about",
       component: AboutPage,
     },
     {
-      path: '/testimonial',
-      name: 'testimonial',
+      path: "/testimonial",
+      name: "testimonial",
       component: TestimonialPage,
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
+      path: "/profile",
+      name: "profile",
+      component: Profile,
+    },
+    {
+      path: "/dashboard",
+      name: "dashboard",
       component: Dashboard,
       children: [
         {
-          path: 'manage/pcBuild',
-          name: 'pc-build.index',
+          path: "manage/pcBuild",
+          name: "pc-build.index",
           component: PcBuildIndex,
         },
         {
-          path: 'manage/pcBuild/create',
-          name: 'pc-build.create',
+          path: "manage/pcBuild/create",
+          name: "pc-build.create",
           component: PcBuildCreate,
         },
         {
-          path: 'manage/pcBuild/:id/edit',
-          name: 'pc-build.edit',
+          path: "manage/pcBuild/:id/edit",
+          name: "pc-build.edit",
           component: PcBuildEdit,
           props: true,
         },
       ],
     },
     {
-      path: '/register',
-      name: 'register',
+      path: "/register",
+      name: "register",
       component: Register,
       meta: { hideLayout: true },
     },
     {
-      path: '/login',
-      name: 'login',
+      path: "/login",
+      name: "login",
       component: Login,
       meta: { hideLayout: true },
     },
     // ✅ Fallback route (opsional tapi direkomendasikan)
-    { 
-      path: '/:pathMatch(.*)*', 
-      redirect: '/' 
-    }
+    {
+      path: "/:pathMatch(.*)*",
+      redirect: "/",
+    },
   ],
-})
+});
 
 // ✅ Inisialisasi AOS
 AOS.init()

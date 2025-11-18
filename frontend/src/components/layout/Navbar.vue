@@ -92,7 +92,7 @@ const handleSearch = () => {
         <!-- 🔥 Akun: Kotak Klik → /account -->
         <RouterLink
           v-if="isLoggedIn"
-          to="/account"
+          to="/profile"
           class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-200 transition-colors cursor-pointer"
         >
           <img :src="accountIcon" alt="Profile" class="h-8 w-8 rounded-full" />
