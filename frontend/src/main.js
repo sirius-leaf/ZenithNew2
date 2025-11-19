@@ -33,9 +33,6 @@ import ManageUser from "./views/manage_pages/user/ManageUser.vue";
 import CreateToko from "./views/manage_pages/toko/CreateToko.vue";
 import SellerRequests from "./views/manage_pages/admin/SellerRequests.vue";
 
-import "aos/dist/aos.css";
-import AOS from "aos";
-
 // Setup global axios
 axios.defaults.baseURL = "http://localhost:8000/api";
 axios.defaults.withCredentials = true;
