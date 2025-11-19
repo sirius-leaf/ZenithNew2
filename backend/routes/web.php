@@ -4,7 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\TokoController;
+use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\MyTokoController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CheckoutController;

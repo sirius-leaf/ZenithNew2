@@ -7,6 +7,8 @@ const router = useRouter();
 const user = ref(null);
 const loadingSeller = ref(false); // State loading untuk tombol request
 
+var role = "";
+
 // Fungsi untuk mengambil data user
 const fetchUser = async () => {
   const token = localStorage.getItem("authToken");
@@ -25,6 +27,7 @@ const fetchUser = async () => {
     // Update role di localStorage agar sinkron
     if (res.data.role) {
       localStorage.setItem("userRole", res.data.role);
+      role = res.data.role;
     }
   } catch (error) {
     localStorage.removeItem("authToken");
@@ -107,6 +110,7 @@ onMounted(() => {
             <span class="font-medium">Home</span>
           </router-link>
           <router-link
+            v-if="role === 'admin'"
             to="/dashboard/manage/users"
             class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
@@ -117,6 +121,13 @@ onMounted(() => {
             class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
             Manage PC Build
+          </router-link>
+          <router-link
+            v-if="role === 'penjual'"
+            to="/dashboard/manage/produk"
+            class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+          >
+            Manage Produk
           </router-link>
           <router-link
             to="#"

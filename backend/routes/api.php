@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\PcBuildController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\Api\UserRoleController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -31,6 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('manage')->name('manage.')->group(function () {
         Route::apiResource('pcBuild', PcBuildController::class);
+        Route::apiResource('product', ProductController::class);
+        Route::get('productToko', [ProductController::class, 'create']);
         Route::apiResource('users', UserController::class)->only(['index', 'update', 'destroy']);
         Route::apiResource('toko', TokoController::class)->only(['index', 'store']);
         // 1. User: Request jadi penjual

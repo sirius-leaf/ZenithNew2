@@ -29,6 +29,9 @@ import AdminLayout from "./layout/AdminLayout.vue"; // pastikan file ini ada di 
 import PcBuildIndex from "./views/manage_pages/pc_build/PcBuildIndex.vue";
 import PcBuildCreate from "./views/manage_pages/pc_build/PcBuildCreate.vue";
 import PcBuildEdit from "./views/manage_pages/pc_build/PcBuildEdit.vue";
+import ProdukIndex from "./views/manage_pages/produk/ProdukIndex.vue";
+import ProdukCreate from "./views/manage_pages/produk/ProdukCreate.vue";
+import ProdukEdit from "./views/manage_pages/produk/ProdukEdit.vue";
 import ManageUser from "./views/manage_pages/user/ManageUser.vue";
 import CreateToko from "./views/manage_pages/toko/CreateToko.vue";
 import SellerRequests from "./views/manage_pages/admin/SellerRequests.vue";
@@ -129,6 +132,21 @@ const router = createRouter({
           name: "pc-build.edit",
           component: PcBuildEdit,
           props: true,
+        },
+        {
+          path: "manage/produk",
+          name: "produk.index",
+          component: ProdukIndex,
+        },
+        {
+          path: "manage/produk/create",
+          name: "produk.create",
+          component: ProdukCreate,
+        },
+        {
+          path: "manage/produk/:id/edit",
+          name: "produk.edit",
+          component: ProdukEdit,
         },
       ],
     },
