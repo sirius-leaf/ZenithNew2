@@ -16,6 +16,7 @@ import ProductDetail from "./views/pages/ProductDetail.vue";
 import Register from "./views/pages/Register.vue";
 import Profile from "./views/pages/ProfileUser.vue";
 import Dashboard from "./views/pages/Dashboard.vue";
+import Cart from "./views/pages/Cart.vue"
 
 // 🔐 Halaman admin — SESUAI STRUKTUR FOLDER ANDA
 import AdminDashboard from "./views/admin/DashboardAdmin.vue";
@@ -72,6 +73,7 @@ const router = createRouter({
     { path: "/about", name: "about", component: AboutPage },
     { path: "/testimonial", name: "testimonial", component: TestimonialPage },
     { path: "/profile", name: "profile", component: Profile },
+    { path: "/cart", name: "cart", component: Cart },
     {
       path: "/dashboard",
       name: "dashboard",
