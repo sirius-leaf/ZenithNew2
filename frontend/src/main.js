@@ -17,6 +17,8 @@ import Register from "./views/pages/Register.vue"; // ✅ Fixed: sesuai struktur
 import Dashboard from "./views/pages/Dashboard.vue"; // ✅ Fixed: sesuai struktur folder 
 import CartPage from "./views/pages/Cart.vue"; 
 import CheckoutPage from "./views/pages/Checkout.vue";
+import Profile from "./views/pages/ProfileUser.vue";
+
 
 // ✅ Manage pages tetap di lokasi semula
 import PcBuildIndex from "./views/manage_pages/pc_build/PcBuildIndex.vue";
@@ -60,16 +62,16 @@ const router = createRouter({
       props: true,
     },
     {
-        path: "/cart",
-        name: "cart-index",
-        component: CartPage,
-        // meta: { requiresAuth: true }
+      path: "/cart",
+      name: "cart-index",
+      component: CartPage,
+      // meta: { requiresAuth: true }
     },
     {
-        path: "/checkout",
-        name: "checkout",
-        component: CheckoutPage,
-        // meta: { requiresAuth: true }
+      path: "/checkout",
+      name: "checkout",
+      component: CheckoutPage,
+      // meta: { requiresAuth: true }
     },
     {
       path: "/about",
@@ -81,6 +83,9 @@ const router = createRouter({
       name: "testimonial",
       component: TestimonialPage,
     },
+    { path: "/profile", 
+      name: "profile", 
+      component: Profile },
     {
       path: "/dashboard",
       name: "dashboard",
@@ -99,7 +104,7 @@ const router = createRouter({
         {
           path: "manage/seller-requests",
           component: SellerRequests,
-          name: "seller-requests", 
+          name: "seller-requests",
         },
         {
           path: "manage/pcBuild",
