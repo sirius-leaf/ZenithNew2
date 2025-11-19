@@ -151,7 +151,7 @@ const cartItems = ref([
     selected: true,
     storeName: 'Samsung Indonesia',
     name: 'Samsung Galaxy S25 Edge 256GB',
-    color: '12GB 256GB, Brown',
+    color: '12GB 256GB, Pink',
     price: 7299000,
     quantity: 1,
     image: 'https://placehold.co/144x161?text=Samsung'
