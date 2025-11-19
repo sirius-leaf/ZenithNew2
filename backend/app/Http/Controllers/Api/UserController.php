@@ -11,15 +11,19 @@ class UserController extends Controller
 {
     /**
      * API: Menampilkan daftar user (JSON).
-     * Query params: ?page=1&search=&per_page=5
+     * - Jika ?role=penjual → return seller
+     * - Jika ?role=user → return user biasa (default)
+     * - Jika tidak ada ?role → default = user
      */
     public function index(Request $request): JsonResponse
     {
         $perPage = $request->input('per_page', 5);
         $page = $request->input('page', 1);
         $search = trim($request->input('search', ''));
+        $role = $request->input('role', 'user'); // default: user
 
-        $query = User::query();
+        // ✅ Filter berdasarkan role
+        $query = User::where('role', $role);
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
@@ -71,30 +75,16 @@ class UserController extends Controller
         ]);
     }
 
-    // 🔒 Tambahkan method berikut — INI YANG ANDA PERLUKAN
-    /**
-     * API: Ban user.
-     */
+    // 🔒 Ban / Unban
     public function ban(User $user): JsonResponse
     {
         $user->update(['is_banned' => true]);
-
-        return response()->json([
-            'message' => 'User banned successfully',
-            'user' => $user
-        ]);
+        return response()->json(['message' => 'User banned successfully', 'user' => $user]);
     }
 
-    /**
-     * API: Unban user.
-     */
     public function unban(User $user): JsonResponse
     {
         $user->update(['is_banned' => false]);
-
-        return response()->json([
-            'message' => 'User unbanned successfully',
-            'user' => $user
-        ]);
+        return response()->json(['message' => 'User unbanned successfully', 'user' => $user]);
     }
 }

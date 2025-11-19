@@ -101,10 +101,17 @@ onMounted(async () => {
 const fetchSellers = async () => {
   loading.value = true
   try {
+    // ✅ Tambahkan params: role=penjual
     const res = await axios.get('/api/users', {
-      params: { role: 'penjual' }
+      params: { 
+        role: 'penjual',
+        search: searchQuery.value.trim(),
+        page: 1,
+        per_page: 10
+      }
     })
-    sellers.value = res.data
+    // Sesuaikan dengan struktur respons pagination
+    sellers.value = res.data.data || res.data
   } catch (error) {
     console.error('Gagal memuat seller:', error)
     alert('Gagal memuat data seller.')

@@ -32,6 +32,7 @@ Route::get('/products/{id_produk}', [ProductPageController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     // Logout
     Route::post('/logout', [LoginController::class, 'logout']);
+    
 
     // Dapatkan data user yang sedang login
     Route::get('/user', function (Request $request) {
