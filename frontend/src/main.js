@@ -5,7 +5,7 @@ import App from "./App.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import axios from "axios";
 
-// 🌐 Halaman publik (user biasa)
+// ✅ Semua halaman di src/views/pages/
 import HomePage from "./views/pages/Home.vue";
 import ProductPage from "./views/pages/Product.vue";
 import CategoryPage from "./views/pages/Category.vue";
@@ -29,6 +29,13 @@ import AdminLayout from "./layout/AdminLayout.vue"; // pastikan file ini ada di 
 import PcBuildIndex from "./views/manage_pages/pc_build/PcBuildIndex.vue";
 import PcBuildCreate from "./views/manage_pages/pc_build/PcBuildCreate.vue";
 import PcBuildEdit from "./views/manage_pages/pc_build/PcBuildEdit.vue";
+import ManageUser from "./views/manage_pages/user/ManageUser.vue";
+import CreateToko from "./views/manage_pages/toko/CreateToko.vue";
+import SellerRequests from "./views/manage_pages/admin/SellerRequests.vue";
+
+// Setup global axios
+axios.defaults.baseURL = "http://localhost:8000/api";
+axios.defaults.withCredentials = true;
 
 // 🌿 AOS
 import "aos/dist/aos.css";
@@ -58,6 +65,11 @@ const router = createRouter({
     { path: "/", name: "home", component: HomePage },
     { path: "/product", name: "product-list", component: ProductPage },
     {
+      path: "/product",
+      name: "product-list",
+      component: ProductPage,
+    },
+    {
       path: "/product/:id",
       name: "product-detail",
       component: ProductDetail,
@@ -73,10 +85,35 @@ const router = createRouter({
     { path: "/testimonial", name: "testimonial", component: TestimonialPage },
     { path: "/profile", name: "profile", component: Profile },
     {
+      path: "/about",
+      name: "about",
+      component: AboutPage,
+    },
+    {
+      path: "/testimonial",
+      name: "testimonial",
+      component: TestimonialPage,
+    },
+    {
       path: "/dashboard",
       name: "dashboard",
       component: Dashboard,
       children: [
+        {
+          path: "manage/users",
+          component: ManageUser,
+          name: "manage-user",
+        },
+        {
+          path: "manage/create-toko",
+          component: CreateToko,
+          name: "create-toko",
+        },
+        {
+          path: "manage/seller-requests",
+          component: SellerRequests,
+          name: "seller-requests",
+        },
         {
           path: "manage/pcBuild",
           name: "pc-build.index",
@@ -107,12 +144,16 @@ const router = createRouter({
       component: Login,
       meta: { hideLayout: true },
     },
-
-    // ❓ Fallback
-    { path: "/:pathMatch(.*)*", redirect: "/" },
+    // ✅ Fallback route (opsional tapi direkomendasikan)
+    {
+      path: "/:pathMatch(.*)*",
+      redirect: "/",
+    },
   ],
 });
 
+// ✅ Inisialisasi AOS
 AOS.init();
 
+// ✅ Mount aplikasi — ini HARUS baris terakhir!
 createApp(App).use(router).mount("#app");
