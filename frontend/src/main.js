@@ -13,10 +13,10 @@ import AboutPage from "./views/pages/About.vue";
 import TestimonialPage from "./views/pages/Testimonials.vue";
 import Login from "./views/pages/Login.vue";
 import ProductDetail from "./views/pages/ProductDetail.vue";
-import Register from "./views/pages/Register.vue";
-import Profile from "./views/pages/ProfileUser.vue";
-import Dashboard from "./views/pages/Dashboard.vue";
-import Cart from "./views/pages/Cart.vue"
+import Register from "./views/pages/Register.vue"; // ✅ Fixed: sesuai struktur folder
+import Dashboard from "./views/pages/Dashboard.vue"; // ✅ Fixed: sesuai struktur folder
+import CartPage from "./views/pages/Cart.vue";
+import CheckoutPage from "./views/pages/Checkout.vue";
 
 // 🔐 Halaman admin — SESUAI STRUKTUR FOLDER ANDA
 import AdminDashboard from "./views/admin/DashboardAdmin.vue";
@@ -89,6 +89,18 @@ const router = createRouter({
     { path: "/testimonial", name: "testimonial", component: TestimonialPage },
     { path: "/profile", name: "profile", component: Profile },
     { path: "/cart", name: "cart", component: Cart },
+    {
+      path: "/cart",
+      name: "cart-index",
+      component: CartPage,
+      // meta: { requiresAuth: true }
+    },
+    {
+      path: "/checkout",
+      name: "checkout",
+      component: CheckoutPage,
+      // meta: { requiresAuth: true }
+    },
     {
       path: "/about",
       name: "about",
