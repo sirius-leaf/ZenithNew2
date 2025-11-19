@@ -5,32 +5,31 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     /**
-     * Menampilkan daftar user.
+     * Menampilkan daftar user (API).
      */
     public function index()
     {
+        // Mengambil semua user
         $users = User::all();
-        return view('crud.user.index', compact('users'));
+
+        // Return JSON
+        return response()->json([
+            'status' => 'success',
+            'data' => $users
+        ], 200);
     }
 
     /**
-     * Form edit user.
+     * Update role user (API).
      */
-    public function edit(User $user)
+    public function update(Request $request, $id)
     {
-        return view('crud.user.edit', compact('user'));
-    }
+        $user = User::findOrFail($id);
 
-    /**
-     * Update user.
-     */
-    public function update(Request $request, User $user)
-    {
         $request->validate([
             'role' => 'required|in:admin,penjual,user',
         ]);
@@ -39,17 +38,24 @@ class UserController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->route('dashboard.manage.user.index')->with('success', 'Role user berhasil diubah!');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role user berhasil diubah!',
+            'data' => $user
+        ], 200);
     }
 
     /**
-     * Hapus user.
+     * Hapus user (API).
      */
     public function destroy($id)
     {
         $user = User::findOrFail($id);
         $user->delete();
 
-        return redirect()->back()->with('success', 'User berhasil dihapus!');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User berhasil dihapus!'
+        ], 200);
     }
 }
