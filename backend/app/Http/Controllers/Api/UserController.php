@@ -5,31 +5,47 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
     /**
-     * Menampilkan daftar user.
+     * API: Menampilkan daftar user (JSON).
+     * Query params: ?page=1&search=&per_page=5
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        $users = User::all();
-        return view('crud.user.index', compact('users'));
+        $perPage = $request->input('per_page', 5);
+        $page = $request->input('page', 1);
+        $search = trim($request->input('search', ''));
+
+        $query = User::query();
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'LIKE', "%{$search}%")
+                  ->orWhere('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $users = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+            ]
+        ]);
     }
 
     /**
-     * Form edit user.
+     * API: Update role user.
      */
-    public function edit(User $user)
-    {
-        return view('crud.user.edit', compact('user'));
-    }
-
-    /**
-     * Update user.
-     */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $user): JsonResponse
     {
         $request->validate([
             'role' => 'required|in:admin,penjual,user',
@@ -39,17 +55,46 @@ class UserController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->route('dashboard.manage.user.index')->with('success', 'Role user berhasil diubah!');
+        return response()->json($user);
     }
 
     /**
-     * Hapus user.
+     * API: Hapus user.
      */
-    public function destroy($id)
+    public function destroy(User $user): JsonResponse
     {
-        $user = User::findOrFail($id);
         $user->delete();
 
-        return redirect()->back()->with('success', 'User berhasil dihapus!');
+        return response()->json([
+            'message' => 'User deleted successfully',
+            'id' => $user->id
+        ]);
+    }
+
+    // 🔒 Tambahkan method berikut — INI YANG ANDA PERLUKAN
+    /**
+     * API: Ban user.
+     */
+    public function ban(User $user): JsonResponse
+    {
+        $user->update(['is_banned' => true]);
+
+        return response()->json([
+            'message' => 'User banned successfully',
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * API: Unban user.
+     */
+    public function unban(User $user): JsonResponse
+    {
+        $user->update(['is_banned' => false]);
+
+        return response()->json([
+            'message' => 'User unbanned successfully',
+            'user' => $user
+        ]);
     }
 }

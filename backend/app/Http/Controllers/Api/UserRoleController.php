@@ -5,38 +5,35 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 
-class UserRoleController extends Controller
+class UserController extends Controller
 {
-    /**
-     * User mengajukan permintaan menjadi penjual
-     */
-    public function requestSeller(Request $request)
-    {
-        $user = $request->user();
-        $user->update(['role' => 'penjual_pending']);
+    // ... existing methods ...
 
-        return back()->with('success', 'Permintaan menjadi penjual berhasil dikirim.');
+    /**
+     * API: Ban user.
+     */
+    public function ban(User $user): JsonResponse
+    {
+        $user->update(['is_banned' => true]);
+
+        return response()->json([
+            'message' => 'User banned successfully',
+            'user' => $user
+        ]);
     }
 
     /**
-     * Admin melihat semua request penjual
+     * API: Unban user.
      */
-    public function index()
+    public function unban(User $user): JsonResponse
     {
-        $sellerRequests = User::where('role', 'penjual_pending')->get();
+        $user->update(['is_banned' => false]);
 
-        return view('crud.admin.seller-requests', compact('sellerRequests'));
-    }
-
-    /**
-     * Admin menyetujui permintaan user menjadi penjual
-     */
-    public function approve($id)
-    {
-        $user = User::findOrFail($id);
-        $user->update(['role' => 'penjual']);
-
-        return back()->with('success', 'User berhasil disetujui menjadi penjual.');
+        return response()->json([
+            'message' => 'User unbanned successfully',
+            'user' => $user
+        ]);
     }
 }
