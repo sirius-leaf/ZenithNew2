@@ -6,7 +6,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\Api\PcBuildController;
-use App\Http\Controllers\Api\UserController; // ← tambahkan ini
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\UserRoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,7 +50,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{user}', [UserController::class, 'destroy']); // DELETE /api/users/1
     });
 
-        // 🔒 Ban / Unban
+    // 🔒 Ban / Unban
     Route::post('/users/{user}/ban', [UserController::class, 'ban']);
     Route::post('/users/{user}/unban', [UserController::class, 'unban']);
+
+    // 🔐 Manajemen Role (User → Seller) — ✅ DIPINDAH KE DALAM GROUP INI
+    Route::prefix('role')->name('role.')->group(function () {
+        Route::post('/request-seller', [UserRoleController::class, 'requestSeller']);
+        Route::get('/seller-requests', [UserRoleController::class, 'index']); // untuk admin
+        Route::post('/approve-seller/{id}', [UserRoleController::class, 'approve']);
+        Route::post('/reject-seller/{id}', [UserRoleController::class, 'reject']);
+    });
 });
