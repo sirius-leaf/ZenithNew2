@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\PcBuildController;
 use App\Http\Controllers\ProductPageController;
@@ -28,6 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/order/preview', [OrderController::class, 'preview']); // Untuk melihat ringkasan & cek stok
+    Route::post('/order/store', [OrderController::class, 'store']);     // Untuk final checkout
 
     Route::prefix('manage')->name('manage.')->group(function () {
         Route::apiResource('pcBuild', PcBuildController::class);
@@ -41,3 +44,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/seller-requests/{id}/approve', [UserRoleController::class, 'approve']);
     });
 });
+
+Route::get('/variant/check/{id_varian}', function($id_varian) {
+    $variant = Variant::with('product')->find($id_varian);
+    if (!$variant) {
+        return response()->json(['exists' => false], 404);
+    }
+    return response()->json(['exists' => true, 'variant' => $variant], 200);
+})->where('id_varian', '[0-9]+');

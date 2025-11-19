@@ -15,6 +15,8 @@ import Login from "./views/pages/Login.vue";
 import ProductDetail from "./views/pages/ProductDetail.vue";
 import Register from "./views/pages/Register.vue"; // ✅ Fixed: sesuai struktur folder
 import Dashboard from "./views/pages/Dashboard.vue"; // ✅ Fixed: sesuai struktur folder 
+import CartPage from "./views/pages/Cart.vue"; 
+import CheckoutPage from "./views/pages/Checkout.vue";
 
 // ✅ Manage pages tetap di lokasi semula
 import PcBuildIndex from "./views/manage_pages/pc_build/PcBuildIndex.vue";
@@ -56,6 +58,18 @@ const router = createRouter({
       name: "category",
       component: CategoryPage,
       props: true,
+    },
+    {
+        path: "/cart",
+        name: "cart-index",
+        component: CartPage,
+        // meta: { requiresAuth: true }
+    },
+    {
+        path: "/checkout",
+        name: "checkout",
+        component: CheckoutPage,
+        // meta: { requiresAuth: true }
     },
     {
       path: "/about",
