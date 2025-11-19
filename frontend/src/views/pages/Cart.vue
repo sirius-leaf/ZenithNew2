@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'; // Import computed
+import { ref, onMounted, computed } from 'vue'; 
 import { useCartStore } from '@/stores/cartStore'; 
 import axios from 'axios';
 import { useRouter } from 'vue-router';
@@ -11,7 +11,7 @@ const loading = ref(true);
 const cartSummary = ref(null); // Hasil dari API Order/Preview
 const totalPrice = ref(0);
 const apiError = ref(null);
-const checkedItems = ref({}); // State baru: { id_varian: true/false }
+const checkedItems = ref({}); // State: { id_varian: true/false }
 
 // Inisialisasi semua item di keranjang sebagai checked
 const initializeChecklist = (summary) => {
@@ -26,7 +26,7 @@ const initializeChecklist = (summary) => {
 };
 
 // =========================================================
-// COMPUTED PROPERTIES BARU (untuk filter harga dan item)
+// COMPUTED PROPERTIES (Filter Item yang Dicek)
 // =========================================================
 const filteredCartForCheckout = computed(() => {
     if (!cartSummary.value) return [];
@@ -40,6 +40,10 @@ const filteredTotalPrice = computed(() => {
 const totalCheckedItems = computed(() => {
     return filteredCartForCheckout.value.reduce((total, item) => total + item.kuantitas, 0);
 });
+
+// =========================================================
+// FUNGSI UTAMA
+// =========================================================
 
 // Fungsi memanggil API untuk mendapatkan ringkasan harga dan cek stok
 const fetchCartPreview = async () => {
@@ -71,8 +75,27 @@ const fetchCartPreview = async () => {
         initializeChecklist(response.data.cartItems); 
 
     } catch (error) {
-        console.error("Error preview cart:", error);
+        
+        // LOGIKA KOREKSI STOK HABIS (Sama seperti yang Anda minta)
+        if (error.response && error.response.status === 400 && error.response.data.variant_id) {
+            
+            const variantId = error.response.data.variant_id;
+            const item = cartItems.value.find(i => i.id_varian === variantId);
+            
+            if (item && item.variantDetail) {
+                // Hapus item dari Global Store (localStorage)
+                removeCartItem(variantId);
+                
+                alert(`⚠️ Stok untuk produk "${item.variantDetail.product_name} (${item.variantDetail.nama_varian})" tidak mencukupi atau sudah habis. Item dihapus dari keranjang.`);
+                
+                // Panggil ulang preview untuk me-refresh keranjang yang tersisa
+                return fetchCartPreview(); 
+            }
+        }
+        
+        // Tampilkan error umum jika bukan error stok 400
         apiError.value = error.response?.data?.message || 'Gagal memuat ringkasan keranjang.';
+        
     } finally {
         loading.value = false;
     }
@@ -135,13 +158,16 @@ onMounted(() => {
         </div>
 
         <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Kolom Kiri: Item Keranjang -->
             <div class="lg:col-span-2 space-y-4">
                 <div v-for="item in cartSummary" :key="item.variant.id_varian"
                     class="flex items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
                     
+                    <!-- Checkbox -->
                     <input type="checkbox" v-model="checkedItems[item.variant.id_varian]"
                            class="form-checkbox h-5 w-5 text-pink-600 rounded mr-4 transition duration-150 ease-in-out">
 
+                    <!-- Detail Produk -->
                     <div class="flex-1 min-w-0 pr-4">
                         <h3 class="text-lg font-semibold text-gray-900 truncate">
                             {{ item.variant.product.nama_produk }} <small class="text-gray-500">({{ item.variant.nama_varian }})</small>
@@ -150,6 +176,7 @@ onMounted(() => {
                         <p class="text-md font-medium text-green-600 mt-1">Rp {{ item.variant.harga.toLocaleString('id-ID') }}</p>
                     </div>
 
+                    <!-- Kuantitas -->
                     <div class="w-24 flex flex-col items-center">
                         <label class="text-xs text-gray-500 mb-1">Qty</label>
                         <input 
@@ -161,10 +188,12 @@ onMounted(() => {
                         >
                     </div>
 
+                    <!-- Subtotal -->
                     <div class="w-32 text-right px-4">
                         <p class="text-sm text-gray-700 font-bold">Rp {{ item.subtotal.toLocaleString('id-ID') }}</p>
                     </div>
 
+                    <!-- Hapus -->
                     <button @click="removeItem(item.variant.id_varian)"
                         class="text-red-500 hover:text-red-700 ml-4 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -172,6 +201,7 @@ onMounted(() => {
                 </div>
             </div>
 
+            <!-- Kolom Kanan: Ringkasan -->
             <div class="lg:col-span-1">
                 <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-100 sticky top-4">
                     <h2 class="text-xl font-bold mb-4 border-b pb-3">Ringkasan Pesanan</h2>
