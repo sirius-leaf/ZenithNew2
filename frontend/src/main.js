@@ -18,6 +18,7 @@ import Dashboard from "./views/pages/Dashboard.vue"; // ✅ Fixed: sesuai strukt
 import CartPage from "./views/pages/Cart.vue";
 import CheckoutPage from "./views/pages/Checkout.vue";
 import OrderSuccess from "./views/pages/OrderSuccess.vue";
+import Profile from "./views/pages/ProfileUser.vue";
 
 // ✅ Manage pages tetap di lokasi semula
 import PcBuildIndex from "./views/manage_pages/pc_build/PcBuildIndex.vue";
@@ -78,15 +79,11 @@ const router = createRouter({
       component: OrderSuccess,
       // meta: { requiresAuth: true }
     },
+    { path: "/profile", name: "profile", component: Profile },
     {
       path: "/about",
       name: "about",
       component: AboutPage,
-    },
-    {
-      path: "/testimonial",
-      name: "testimonial",
-      component: TestimonialPage,
     },
     {
       path: "/dashboard",
