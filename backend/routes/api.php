@@ -1,18 +1,18 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Models\Variant;
-use App\Http\Controllers\Api\TokoController;
-use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PcBuildController;
 use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\ProductPageController;
+use App\Http\Controllers\Api\TokoController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserRoleController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ProductPageController;
+use App\Models\Variant;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -30,7 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
     // Rute untuk cek user yang sedang login
     Route::post('/order/preview', [OrderController::class, 'preview']); // Untuk melihat ringkasan & cek stok
-    Route::post('/order/store', [OrderController::class, 'store']);     // Untuk final checkout
+    Route::post('/order/store', [OrderController::class, 'store']); // Untuk final checkout
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+
     Route::post('/payment/simulate/{order_id}', [PaymentController::class, 'simulate']);
 
     Route::prefix('manage')->name('manage.')->group(function () {
@@ -48,7 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-Route::get('/variant/check/{id_varian}', function($id_varian) {
+Route::get('/variant/check/{id_varian}', function ($id_varian) {
     $variant = Variant::with('product')->find($id_varian);
     if (!$variant) {
         return response()->json(['exists' => false], 404);

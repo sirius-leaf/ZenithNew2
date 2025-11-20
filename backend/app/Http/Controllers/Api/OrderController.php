@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Variant;
 use App\Models\Pesanan;
+use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +14,7 @@ class OrderController extends Controller
     /**
      * Menerima item keranjang dari frontend dan mengembalikan ringkasan pesanan.
      * Endpoint ini menggantikan CartController@index dan CheckoutController@index.
-     * * @param Request $request {cartItems: [{id_varian: X, kuantitas: Y}, ...]}
+     * @param Request $request {cartItems: [{id_varian: X, kuantitas: Y}, ...]}
      */
     public function preview(Request $request)
     {
@@ -30,9 +30,9 @@ class OrderController extends Controller
 
         // 2. Ambil data varian lengkap dari DB
         $variants = Variant::with('product.toko')
-                            ->whereIn('id_varian', $variantIds)
-                            ->get()
-                            ->keyBy('id_varian'); // Kunci hasil dengan id_varian
+            ->whereIn('id_varian', $variantIds)
+            ->get()
+            ->keyBy('id_varian'); // Kunci hasil dengan id_varian
 
         $cartSummary = [];
         $totalPrice = 0;
@@ -51,7 +51,7 @@ class OrderController extends Controller
             if ($variant->stok < $kuantitas) {
                 return response()->json([
                     'message' => 'Stok tidak mencukupi untuk ' . $variant->product->nama_produk . ' (' . $variant->nama_varian . ')',
-                    'variant_id' => $variant->id_varian
+                    'variant_id' => $variant->id_varian,
                 ], 400); // 400 Bad Request
             }
 
@@ -61,14 +61,14 @@ class OrderController extends Controller
             $cartSummary[] = [
                 'variant' => $variant,
                 'kuantitas' => $kuantitas,
-                'subtotal' => $subtotal
+                'subtotal' => $subtotal,
             ];
         }
 
         return response()->json([
             'status' => 'success',
             'cartItems' => $cartSummary,
-            'totalPrice' => $totalPrice
+            'totalPrice' => $totalPrice,
         ], 200);
     }
 
@@ -103,19 +103,19 @@ class OrderController extends Controller
             if ($variant->stok < $kuantitasDipesan) {
                 return response()->json([
                     'message' => 'Stok tidak mencukupi untuk ' . $variant->nama_varian,
-                    'variant_id' => $variant->id_varian
+                    'variant_id' => $variant->id_varian,
                 ], 400);
             }
 
             // Tambahkan pengecekan null safety
             if (!$variant->product || !$variant->product->toko) {
-                 return response()->json(['message' => 'Gagal mengidentifikasi toko untuk varian: ' . $variant->nama_varian], 400);
+                return response()->json(['message' => 'Gagal mengidentifikasi toko untuk varian: ' . $variant->nama_varian], 400);
             }
 
             $tokoId = $variant->product->toko->id;
             $itemsPerToko[$tokoId][] = [
                 'variant' => $variant,
-                'kuantitas' => $kuantitasDipesan
+                'kuantitas' => $kuantitasDipesan,
             ];
         }
 
@@ -137,7 +137,7 @@ class OrderController extends Controller
                         'toko_id' => $tokoId,
                         'total_harga' => $totalHargaPesanan,
                         'status' => 'pending',
-                        'alamat_pengiriman' => $validated['alamat_pengiriman']
+                        'alamat_pengiriman' => $validated['alamat_pengiriman'],
                     ]);
 
                     // KUNCI PERBAIKAN: Simpan pesanan yang baru dibuat
@@ -151,7 +151,7 @@ class OrderController extends Controller
                         $pesanan->detailPesanans()->create([
                             'id_varian' => $variant->id_varian,
                             'kuantitas' => $kuantitas,
-                            'harga' => $variant->harga
+                            'harga' => $variant->harga,
                         ]);
 
                         $variant->decrement('stok', $kuantitas);
@@ -172,4 +172,26 @@ class OrderController extends Controller
             'order_ids' => $orderIds, // <-- Mengirim ID ke Frontend
         ], 201);
     }
+
+    public function show($id)
+    {
+        $pesanan = Pesanan::with([
+            'user',
+            'toko',
+            'detailPesanans.variant',
+        ])->find($id);
+
+        if (!$pesanan) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pesanan tidak ditemukan',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $pesanan,
+        ], 200);
+    }
+
 }
