@@ -50,9 +50,9 @@
                 class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-2 focus:ring-pink-500 mr-4 flex-shrink-0"
               />
 
-              <!-- Gambar: pastikan ambil dari path yang benar -->
+              <!-- Gambar -->
               <img
-                :src="getProductImage(item.variant.product)"
+                :src="getProductImage(item.variant)"
                 :alt="item.variant.product.nama_produk"
                 class="w-16 h-16 object-cover rounded-md mr-4 flex-shrink-0"
               />
@@ -193,17 +193,12 @@ const selectAll = computed({
   }
 })
 
-// ✅ Helper: Ambil gambar dengan fallback
-const getProductImage = (product) => {
-  // Sesuaikan dengan struktur backend Anda
-  if (product.gambar_utama) {
-    // Jika URL relatif, tambahkan base URL
-    return product.gambar_utama.startsWith('http')
-      ? product.gambar_utama
-      : `http://127.0.0.1:8000/storage/${product.gambar_utama}`
+// ambil gambar
+const getProductImage = (variant) => {
+  if (variant?.gambar_varian) {
+    return `http://127.0.0.1:8000/storage/${variant.gambar_varian}`
   }
-  // Fallback
-  return 'https://placehold.co/144x161?text=Produk'
+  return 'https://via.placeholder.com/144x161/CCCCCC?text=No+Image'
 }
 
 const formatCurrency = (value) => {
@@ -239,7 +234,6 @@ const fetchCartPreview = async () => {
 
     cartSummary.value = response.data.cartItems
 
-    // ✅ Inisialisasi: SEMUA ITEM TIDAK DICENTANG SAAT PERTAMA KALI
     const newChecked = {}
     response.data.cartItems.forEach(item => {
       newChecked[item.variant.id_varian] = false // <-- ini kunci perbaikan Anda
