@@ -398,7 +398,7 @@ const submitForm = async () => {
       description: description.value,
     };
 
-    await axios.post("/api/role/request-seller", payload);
+    await axios.post("/role/request-seller", payload);
 
     alert(
       `Pendaftaran toko "${storeName.value}" berhasil diajukan! Menunggu konfirmasi admin.`

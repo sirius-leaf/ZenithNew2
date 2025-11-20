@@ -291,7 +291,7 @@ const confirmUnban = (id) => {
 
 const unbanUser = async (id) => {
   try {
-    await axios.post(`/api/users/${id}/unban`);
+    await axios.post(`/users/${id}/unban`);
     const userIndex = users.value.findIndex((u) => u.id === id);
     if (userIndex !== -1) {
       users.value[userIndex].is_banned = false;
