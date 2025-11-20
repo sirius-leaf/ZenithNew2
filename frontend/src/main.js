@@ -16,7 +16,7 @@ import ProductDetail from "./views/pages/ProductDetail.vue";
 import Register from "./views/pages/Register.vue";
 import Profile from "./views/pages/ProfileUser.vue";
 import Dashboard from "./views/pages/Dashboard.vue";
-import Cart from "./views/pages/Cart.vue"
+import Cart from "./views/pages/Cart.vue";
 
 // 🔐 Halaman admin — SESUAI STRUKTUR FOLDER ANDA
 import AdminDashboard from "./views/admin/DashboardAdmin.vue";
@@ -39,11 +39,11 @@ import AOS from "aos";
 //axios.defaults.baseURL = "http://localhost:8000/api";
 axios.defaults.withCredentials = true;
 
-axios.interceptors.response.use(null, error => {
+axios.interceptors.response.use(null, (error) => {
   if (error.response?.status === 403 && error.response.data?.banned) {
-    localStorage.removeItem('auth_token');
-    router.push('/login');
-    alert('🔒 ' + error.response.data.message);
+    localStorage.removeItem("auth_token");
+    router.push("/login");
+    alert("🔒 " + error.response.data.message);
   }
   return Promise.reject(error);
 });
@@ -87,24 +87,22 @@ const router = createRouter({
       path: "/dashboard",
       name: "dashboard",
       component: Dashboard,
-      children: [
-        {
-          path: "manage/pcBuild",
-          name: "pc-build.index",
-          component: PcBuildIndex,
-        },
-        {
-          path: "manage/pcBuild/create",
-          name: "pc-build.create",
-          component: PcBuildCreate,
-        },
-        {
-          path: "manage/pcBuild/:id/edit",
-          name: "pc-build.edit",
-          component: PcBuildEdit,
-          props: true,
-        },
-      ],
+    },
+    {
+      path: "/dashboard/manage/pcBuild",
+      name: "pc-build.index",
+      component: PcBuildIndex,
+    },
+    {
+      path: "/dashboard/manage/pcBuild/create",
+      name: "pc-build.create",
+      component: PcBuildCreate,
+    },
+    {
+      path: "/dashboard/manage/pcBuild/:id/edit",
+      name: "pc-build.edit",
+      component: PcBuildEdit,
+      props: true,
     },
     {
       path: "/register",
