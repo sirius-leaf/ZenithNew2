@@ -4,39 +4,40 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 
 class UserRoleController extends Controller
 {
     /**
-     * Mengajukan permintaan menjadi seller (untuk user yang login).
+     * Mengajukan permintaan menjadi seller.
      */
     public function requestSeller(Request $request): JsonResponse
     {
-        // Validasi input
         $request->validate([
             'store_name' => 'required|string|max:255',
             'address' => 'required|string',
             'description' => 'nullable|string',
         ]);
 
-        // Ambil user yang sedang login
         $user = $request->user();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User tidak ditemukan. Harap login kembali.'
-            ], 401);
-        }
-
-        // Update data user
+        // ✅ Simpan data ke database
         $user->update([
-            'role' => 'penjual_pending',
+            'role' => 'user',
+            'is_seller_requesting' => true,
             'store_name' => $request->store_name,
             'address' => $request->address,
             'description' => $request->description,
+        ]);
+
+        // 📝 Tambahkan log untuk debugging
+        \Log::info('User submitted seller request', [
+            'user_id' => $user->id,
+            'store_name' => $request->store_name,
+            'address' => $request->address,
+            'description' => $request->description,
+            'is_seller_requesting' => $user->is_seller_requesting
         ]);
 
         return response()->json([
@@ -51,7 +52,7 @@ class UserRoleController extends Controller
      */
     public function index(): JsonResponse
     {
-        $sellers = User::where('role', 'penjual_pending')
+        $sellers = User::where('is_seller_requesting', true)
             ->select('id', 'name', 'email', 'store_name', 'address', 'description')
             ->get();
 
@@ -63,23 +64,19 @@ class UserRoleController extends Controller
      */
     public function approve(int $id): JsonResponse
     {
-        $user = User::find($id); // Gunakan find() agar tidak error jika tidak ditemukan
+        $user = User::findOrFail($id);
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User tidak ditemukan.'
-            ], 404);
-        }
-
-        if ($user->role !== 'penjual_pending') {
+        if (!$user->is_seller_requesting) {
             return response()->json([
                 'success' => false,
                 'message' => 'User ini bukan dalam status pending.'
             ], 400);
         }
 
-        $user->update(['role' => 'penjual']);
+        $user->update([
+            'role' => 'penjual',
+            'is_seller_requesting' => false,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -89,20 +86,13 @@ class UserRoleController extends Controller
     }
 
     /**
-     * Menolak permintaan seller → kembalikan ke role 'user'.
+     * Menolak permintaan seller → reset flag.
      */
     public function reject(int $id): JsonResponse
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User tidak ditemukan.'
-            ], 404);
-        }
-
-        if ($user->role !== 'penjual_pending') {
+        if (!$user->is_seller_requesting) {
             return response()->json([
                 'success' => false,
                 'message' => 'User ini bukan dalam status pending.'
@@ -110,7 +100,7 @@ class UserRoleController extends Controller
         }
 
         $user->update([
-            'role' => 'user',
+            'is_seller_requesting' => false,
             'store_name' => null,
             'address' => null,
             'description' => null,

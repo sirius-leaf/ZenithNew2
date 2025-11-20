@@ -11,25 +11,30 @@ class UserController extends Controller
 {
     /**
      * API: Menampilkan daftar user (JSON).
-     * - Jika ?role=penjual → return seller
-     * - Jika ?role=user → return user biasa (default)
-     * - Jika tidak ada ?role → default = user
+     * - Jika ?role=user → hanya user biasa
+     * - Jika ?role=penjual → hanya seller
+     * - Jika ?role=penjual_pending → hanya pending
+     * - Jika tidak ada ?role → semua user (default)
      */
     public function index(Request $request): JsonResponse
     {
-        $perPage = $request->input('per_page', 5);
+        $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $search = trim($request->input('search', ''));
-        $role = $request->input('role', 'user'); // default: user
+        $role = $request->input('role'); // optional
 
-        // ✅ Filter berdasarkan role
-        $query = User::where('role', $role);
+        $query = User::query();
 
-        if ($search !== '') {
+        // ✅ Hanya filter jika parameter role dikirim
+        if ($role) {
+            $query->where('role', $role);
+        }
+
+        if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'LIKE', "%{$search}%")
-                  ->orWhere('name', 'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%");
+                ->orWhere('name', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
             });
         }
 
@@ -52,7 +57,7 @@ class UserController extends Controller
     public function update(Request $request, User $user): JsonResponse
     {
         $request->validate([
-            'role' => 'required|in:admin,penjual,user',
+            'role' => 'required|in:admin,penjual,user,penjual_pending',
         ]);
 
         $user->update([
