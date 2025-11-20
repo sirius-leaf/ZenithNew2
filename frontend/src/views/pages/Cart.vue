@@ -209,7 +209,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useCartStore } from "@/stores/cartStore";
 import axios from "axios";
@@ -256,8 +256,6 @@ const selectAll = computed({
     });
   },
 });
-
-const selectAll = ref(false);
 
 watch(selectAll, (newVal) => {
   cartItems.value.forEach((item) => (item.selected = newVal));
@@ -380,13 +378,13 @@ const updateQuantity = (id_varian, delta) => {
   fetchCartPreview();
 };
 
-const removeItem = (id_varian) => {
+/*const removeItem = (id_varian) => {
   if (confirm("Yakin ingin menghapus item ini?")) {
     removeCartItem(id_varian);
     delete checkedItems.value[id_varian];
     fetchCartPreview();
   }
-};
+};*/
 
 const goToCheckout = () => {
   if (filteredCartForCheckout.value.length === 0) {
