@@ -2,10 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Models\Variant;
 use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PcBuildController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\ProductPageController;
@@ -27,11 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rute 'logout' harus di dalam sini
     Route::post('/logout', [LoginController::class, 'logout']);
     // Rute untuk cek user yang sedang login
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
     Route::post('/order/preview', [OrderController::class, 'preview']); // Untuk melihat ringkasan & cek stok
     Route::post('/order/store', [OrderController::class, 'store']);     // Untuk final checkout
+    Route::post('/payment/simulate/{order_id}', [PaymentController::class, 'simulate']);
 
     Route::prefix('manage')->name('manage.')->group(function () {
         Route::apiResource('pcBuild', PcBuildController::class);

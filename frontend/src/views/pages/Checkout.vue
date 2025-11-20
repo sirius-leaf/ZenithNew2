@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const { clearCart } = useCartStore(); // Kita hanya butuh fungsi clearCart dari store
+const { clearCart } = useCartStore(); // Hanya butuh fungsi clearCart
 
 const loading = ref(true);
 const loadingCheckout = ref(false);
@@ -23,9 +23,7 @@ const form = ref({
     alamat_pengiriman: '',
 });
 
-// Computed untuk menghitung total item dari summary
 const totalItems = computed(() => cartSummary.value.length);
-
 
 // 1. Ambil data ringkasan & user
 const fetchCheckoutData = async () => {
@@ -56,7 +54,6 @@ const fetchCheckoutData = async () => {
         userDetails.value.name = userRes.data.name;
         userDetails.value.email = userRes.data.email;
     } catch (e) {
-        // Jika token invalid, tendang ke login
         router.push({ name: 'login' });
         return;
     }
@@ -88,31 +85,31 @@ const finalizeCheckout = async () => {
         return;
     }
     
-    // Persiapkan data lengkap untuk API store (ambil dari LocalStorage selection)
+    // Ambil data dari LocalStorage selection
     const selectedItemsJson = localStorage.getItem('checkout_selection');
     const cartItemsPayload = JSON.parse(selectedItemsJson);
 
     const payload = {
         alamat_pengiriman: form.value.alamat_pengiriman,
-        cartItems: cartItemsPayload
+        cartItems: cartItemsPayload // Data yang sudah difilter
     };
     
     const token = localStorage.getItem('authToken');
 
     try {
+        // Panggil API store yang sekarang mengembalikan order_ids
         const response = await axios.post('http://127.0.0.1:8000/api/order/store', payload, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
         // Sukses!
-        clearCart(); // Kosongkan keranjang (global store)
-        localStorage.removeItem('checkout_selection'); // Hapus seleksi
-        successMessage.value = response.data.message;
+        const firstOrderId = response.data.order_ids[0]; // Ambil ID pesanan pertama
         
-        // Redirect setelah pesan sukses terlihat sebentar
-        setTimeout(() => {
-            router.push({ name: 'home' }); 
-        }, 3000); 
+        clearCart(); // Kosongkan keranjang (global store)
+        localStorage.removeItem('checkout_selection'); // Hapus seleksi lokal
+        
+        // Redirect ke halaman sukses dengan ID pesanan yang valid
+        router.push({ name: 'checkout.success', query: { id: firstOrderId } });
 
     } catch (error) {
         console.error("Checkout Gagal:", error);
@@ -132,14 +129,6 @@ onMounted(() => {
     <div class="container mx-auto p-4 md:p-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-6">Proses Checkout</h1>
 
-        <div v-if="successMessage" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div class="bg-white p-8 rounded-xl shadow-2xl text-center">
-                <h2 class="text-2xl font-bold text-green-600 mb-3">Pesanan Berhasil!</h2>
-                <p>{{ successMessage }}</p>
-                <p class="text-sm text-gray-500 mt-1">Anda akan diarahkan dalam 3 detik.</p>
-            </div>
-        </div>
-
         <div v-if="loading" class="text-center py-10 text-gray-500">Memuat data checkout...</div>
 
         <div v-else-if="apiError && totalItems === 0" class="p-6 bg-red-50 border border-red-300 rounded-lg">
@@ -152,16 +141,11 @@ onMounted(() => {
                 <h2 class="text-xl font-bold mb-4 border-b pb-3">Detail Pengiriman</h2>
                 
                 <form @submit.prevent="finalizeCheckout" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Penerima</label>
-                        <input type="text" :value="userDetails.name" readonly 
-                            class="w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-gray-700" />
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Penerima</label>
+                        <input type="text" :value="userDetails.name" readonly class="w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-gray-700" />
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" :value="userDetails.email" readonly 
-                            class="w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-gray-700" />
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" :value="userDetails.email" readonly class="w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-gray-700" />
                     </div>
 
                     <div>

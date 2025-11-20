@@ -92,6 +92,7 @@ class OrderController extends Controller
         $variants = Variant::with('product.toko')->whereIn('id_varian', $variantIds)->get()->keyBy('id_varian');
 
         $itemsPerToko = [];
+        $createdOrders = collect(); // <-- Inisialisasi collection untuk menampung pesanan yang dibuat
 
         // 2. Cek Stok Final & Kelompokkan per Toko
         foreach ($cartItemsInput as $item) {
@@ -106,6 +107,11 @@ class OrderController extends Controller
                 ], 400);
             }
 
+            // Tambahkan pengecekan null safety
+            if (!$variant->product || !$variant->product->toko) {
+                 return response()->json(['message' => 'Gagal mengidentifikasi toko untuk varian: ' . $variant->nama_varian], 400);
+            }
+
             $tokoId = $variant->product->toko->id;
             $itemsPerToko[$tokoId][] = [
                 'variant' => $variant,
@@ -115,7 +121,8 @@ class OrderController extends Controller
 
         // 3. DB Transaction
         try {
-            DB::transaction(function () use ($itemsPerToko, $user, $validated) {
+            // Tambahkan &$createdOrders ke use() agar bisa diubah di dalam closure
+            DB::transaction(function () use ($itemsPerToko, $user, $validated, &$createdOrders) {
                 foreach ($itemsPerToko as $tokoId => $items) {
                     $totalHargaPesanan = 0;
 
@@ -132,6 +139,9 @@ class OrderController extends Controller
                         'status' => 'pending',
                         'alamat_pengiriman' => $validated['alamat_pengiriman']
                     ]);
+
+                    // KUNCI PERBAIKAN: Simpan pesanan yang baru dibuat
+                    $createdOrders->push($pesanan);
 
                     // B. Buat Detail Pesanan & Kurangi Stok
                     foreach ($items as $item) {
@@ -152,10 +162,14 @@ class OrderController extends Controller
             return response()->json(['message' => 'Gagal memproses pesanan: ' . $e->getMessage()], 500);
         }
 
+        // Ambil ID pesanan yang baru dibuat
+        $orderIds = $createdOrders->pluck('id');
+
         // 4. Sukses
         return response()->json([
             'status' => 'success',
-            'message' => 'Pesanan Anda berhasil dibuat!'
+            'message' => 'Pesanan Anda berhasil dibuat!',
+            'order_ids' => $orderIds, // <-- Mengirim ID ke Frontend
         ], 201);
     }
 }

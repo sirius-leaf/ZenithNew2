@@ -17,6 +17,8 @@ import Register from "./views/pages/Register.vue"; // ✅ Fixed: sesuai struktur
 import Dashboard from "./views/pages/Dashboard.vue"; // ✅ Fixed: sesuai struktur folder
 import CartPage from "./views/pages/Cart.vue";
 import CheckoutPage from "./views/pages/Checkout.vue";
+import OrderSuccess from "./views/pages/OrderSuccess.vue";
+import Profile from "./views/pages/ProfileUser.vue";
 
 // 🔐 Halaman admin — SESUAI STRUKTUR FOLDER ANDA
 import AdminDashboard from "./views/admin/DashboardAdmin.vue";
@@ -102,14 +104,16 @@ const router = createRouter({
       // meta: { requiresAuth: true }
     },
     {
+      path: "/checkout/success",
+      name: "checkout.success",
+      component: OrderSuccess,
+      // meta: { requiresAuth: true }
+    },
+    { path: "/profile", name: "profile", component: Profile },
+    {
       path: "/about",
       name: "about",
       component: AboutPage,
-    },
-    {
-      path: "/testimonial",
-      name: "testimonial",
-      component: TestimonialPage,
     },
     {
       path: "/dashboard",
