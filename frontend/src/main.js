@@ -90,7 +90,6 @@ const router = createRouter({
     { path: "/about", name: "about", component: AboutPage },
     { path: "/testimonial", name: "testimonial", component: TestimonialPage },
     { path: "/profile", name: "profile", component: Profile },
-    { path: "/cart", name: "cart", component: Cart },
     {
       path: "/cart",
       name: "cart-index",
