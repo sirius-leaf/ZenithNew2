@@ -377,13 +377,45 @@ const handleFileUpload = (event, field) => {
   if (field === "npwp") npwpFile.value = file;
 };
 
-const submitForm = () => {
-  if (!agreed.value || !ktpFile.value || !npwpFile.value) {
-    alert("Harap lengkapi semua persyaratan.");
+const submitForm = async () => {
+  if (!agreed.value || !storeName.value.trim() || !address.value.trim()) {
+    alert("Harap lengkapi semua data dan setujui syarat.");
     return;
   }
-  alert(`Pendaftaran toko ${storeName.value} berhasil diajukan!`);
-  closeModal();
+
+  // ✅ Validasi token sebelum kirim
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    alert("Token tidak ditemukan. Silakan login ulang.");
+    router.push("/login");
+    return;
+  }
+
+  try {
+    const payload = {
+      store_name: storeName.value,
+      address: address.value,
+      description: description.value,
+    };
+
+    await axios.post("/api/role/request-seller", payload);
+
+    alert(
+      `Pendaftaran toko "${storeName.value}" berhasil diajukan! Menunggu konfirmasi admin.`
+    );
+
+    if (user.value) {
+      user.value.role = "penjual_pending";
+    }
+
+    closeModal();
+  } catch (error) {
+    console.error(
+      "Gagal mengajukan jadi seller:",
+      error.response?.data || error
+    );
+    alert("Gagal mengajukan. Silakan coba lagi.");
+  }
 };
 </script>
 

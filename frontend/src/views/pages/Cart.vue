@@ -257,6 +257,52 @@ const selectAll = computed({
   },
 });
 
+const selectAll = ref(false);
+
+watch(selectAll, (newVal) => {
+  cartItems.value.forEach((item) => (item.selected = newVal));
+});
+
+const subtotal = computed(() => {
+  return cartItems.value
+    .filter((item) => item.selected)
+    .reduce((sum, item) => sum + item.price * item.quantity, 0);
+});
+
+const totalPrice = computed(() => subtotal.value);
+
+watch(
+  cartItems,
+  () => {
+    selectAll.value = cartItems.value.every((item) => item.selected);
+  },
+  { deep: true }
+);
+
+const decreaseQuantity = (index) => {
+  if (cartItems.value[index].quantity > 1) {
+    cartItems.value[index].quantity--;
+  }
+};
+
+const increaseQuantity = (index) => {
+  cartItems.value[index].quantity++;
+};
+
+const removeItem = (index) => {
+  cartItems.value.splice(index, 1);
+};
+
+const checkout = () => {
+  const selectedItems = cartItems.value.filter((item) => item.selected);
+  if (selectedItems.length === 0) {
+    alert("Pilih minimal 1 produk untuk checkout");
+    return;
+  }
+  console.log("Checkout:", selectedItems);
+  // Lanjutkan ke halaman checkout
+};
+
 // Helper
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("id-ID", {

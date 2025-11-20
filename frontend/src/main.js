@@ -48,8 +48,17 @@ import "aos/dist/aos.css";
 import AOS from "aos";
 
 // 📡 Axios setup
-axios.defaults.baseURL = "http://localhost:8000/api";
+//axios.defaults.baseURL = "http://localhost:8000/api";
 axios.defaults.withCredentials = true;
+
+axios.interceptors.response.use(null, error => {
+  if (error.response?.status === 403 && error.response.data?.banned) {
+    localStorage.removeItem('auth_token');
+    router.push('/login');
+    alert('🔒 ' + error.response.data.message);
+  }
+  return Promise.reject(error);
+});
 
 // 🧭 Router
 const router = createRouter({

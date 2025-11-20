@@ -5,57 +5,88 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
     /**
-     * Menampilkan daftar user (API).
+     * - Jika ?role=penjual_pending → hanya pending
+     * - Jika tidak ada ?role → semua user (default)
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        // Mengambil semua user
-        $users = User::all();
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+        $search = trim($request->input('search', ''));
+        $role = $request->input('role'); // optional
 
-        // Return JSON
+        $query = User::query();
+
+        // ✅ Hanya filter jika parameter role dikirim
+        if ($role) {
+            $query->where('role', $role);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'LIKE', "%{$search}%")
+                    ->orWhere('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $users = $query->paginate($perPage, ['*'], 'page', $page);
+
         return response()->json([
-            'status' => 'success',
-            'data' => $users
-        ], 200);
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+            ]
+        ]);
     }
 
     /**
-     * Update role user (API).
+     * API: Update role user.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user): JsonResponse
     {
-        $user = User::findOrFail($id);
-
         $request->validate([
-            'role' => 'required|in:admin,penjual,user',
+            'role' => 'required|in:admin,penjual,user,penjual_pending',
         ]);
 
         $user->update([
             'role' => $request->role,
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Role user berhasil diubah!',
-            'data' => $user
-        ], 200);
+        return response()->json($user);
     }
 
     /**
-     * Hapus user (API).
+     * API: Hapus user.
      */
-    public function destroy($id)
+    public function destroy(User $user): JsonResponse
     {
-        $user = User::findOrFail($id);
         $user->delete();
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'User berhasil dihapus!'
-        ], 200);
+            'message' => 'User deleted successfully',
+            'id' => $user->id
+        ]);
+    }
+
+    // 🔒 Ban / Unban
+    public function ban(User $user): JsonResponse
+    {
+        $user->update(['is_banned' => true]);
+        return response()->json(['message' => 'User banned successfully', 'user' => $user]);
+    }
+
+    public function unban(User $user): JsonResponse
+    {
+        $user->update(['is_banned' => false]);
+        return response()->json(['message' => 'User unbanned successfully', 'user' => $user]);
     }
 }

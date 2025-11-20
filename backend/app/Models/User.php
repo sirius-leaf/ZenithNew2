@@ -28,6 +28,7 @@ class User extends Authenticatable
         'no_telpon',
         'alamat',
         'role',
+        'is_banned',
     ];
 
     public function toko()
@@ -68,4 +69,5 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    
 }

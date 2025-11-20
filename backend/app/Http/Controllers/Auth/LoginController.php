@@ -2,64 +2,67 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\JsonResponse;
 
 class LoginController extends Controller
 {
-
-
-    public function login(Request $request)
+    /**
+     * Handle API login request with Sanctum token.
+     */
+    public function login(Request $request): JsonResponse
     {
-        // 1. Validasi (Ini sama, sudah bagus)
-        // Jika validasi gagal, Laravel otomatis kirim respon JSON 422
+        // Validasi input
         $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        // 2. Cek Otentikasi (Diganti dari Auth::attempt)
-        $user = User::where('email', $request->email)->first();
+        // ✅ Gunakan Auth::attempt() agar kompatibel dengan Sanctum & middleware
+        $credentials = $request->only('email', 'password');
 
-        // Cek jika user ada DAN password-nya benar
-        if (!$user || !Hash::check($request->password, $user->password)) {
-
-            // 3. Respon Gagal (Diganti dari throw ValidationException)
-            // Kirim respon JSON 401 (Unauthorized)
+        if (!Auth::attempt($credentials)) {
             return response()->json([
                 'message' => 'Email atau password salah.'
             ], 401);
         }
 
-        // 4. Respon Sukses (Diganti dari redirect)
-        // Hapus token lama jika ada (opsional, tapi bagus)
+        $user = Auth::user();
+
+        // 🔒 Cek banned
+        if ($user->is_banned) {
+            return response()->json([
+                'message' => 'Maaf, akun anda dibatasi. Mohon hubungi admin untuk masalah ini.',
+                'banned' => true
+            ], 403);
+        }
+
+        // ✅ Hapus token lama (opsional tapi aman — hindari token menumpuk)
         $user->tokens()->delete();
 
-        // Buat token baru
-        $token = $user->createToken('api-token-untuk-' . $user->name)->plainTextToken;
+        // ✅ Buat token Sanctum (Personal Access Token)
+        $token = $user->createToken('auth-token')->plainTextToken;
 
-        // Kirim respon JSON 200 (OK)
         return response()->json([
-            'message' => 'Login berhasil',
-            'user' => $user,
+            'message' => 'Login berhasil!',
+            'user' => $user->only('id', 'name', 'email', 'role', 'store_name'), // aman: jangan kirim password, dll
             'token' => $token,
         ]);
     }
 
-    public function logout(Request $request)
+    /**
+     * Handle API logout request.
+     */
+    public function logout(Request $request): JsonResponse
     {
-        // 1. Logika Logout (Diganti dari Auth::logout())
-        // Ini akan menghapus token yang dipakai untuk request ini
-        // Method ini HARUS diproteksi middleware 'auth:sanctum' di file route
+        // Hapus token saat ini
         $request->user()->currentAccessToken()->delete();
 
-        // 2. Respon Sukses (Diganti dari redirect)
         return response()->json([
-            'message' => 'Logout berhasil'
+            'message' => 'Logout berhasil.'
         ]);
     }
 }
