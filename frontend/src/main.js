@@ -51,11 +51,11 @@ import AOS from "aos";
 //axios.defaults.baseURL = "http://localhost:8000/api";
 axios.defaults.withCredentials = true;
 
-axios.interceptors.response.use(null, error => {
+axios.interceptors.response.use(null, (error) => {
   if (error.response?.status === 403 && error.response.data?.banned) {
-    localStorage.removeItem('auth_token');
-    router.push('/login');
-    alert('🔒 ' + error.response.data.message);
+    localStorage.removeItem("auth_token");
+    router.push("/login");
+    alert("🔒 " + error.response.data.message);
   }
   return Promise.reject(error);
 });
@@ -144,22 +144,6 @@ const router = createRouter({
           name: "seller-requests",
         },
         {
-          path: "manage/pcBuild",
-          name: "pc-build.index",
-          component: PcBuildIndex,
-        },
-        {
-          path: "manage/pcBuild/create",
-          name: "pc-build.create",
-          component: PcBuildCreate,
-        },
-        {
-          path: "manage/pcBuild/:id/edit",
-          name: "pc-build.edit",
-          component: PcBuildEdit,
-          props: true,
-        },
-        {
           path: "manage/produk",
           name: "produk.index",
           component: ProdukIndex,
@@ -175,6 +159,22 @@ const router = createRouter({
           component: ProdukEdit,
         },
       ],
+    },
+    {
+      path: "/dashboard/manage/pcBuild",
+      name: "pc-build.index",
+      component: PcBuildIndex,
+    },
+    {
+      path: "/dashboard/manage/pcBuild/create",
+      name: "pc-build.create",
+      component: PcBuildCreate,
+    },
+    {
+      path: "/dashboard/manage/pcBuild/:id/edit",
+      name: "pc-build.edit",
+      component: PcBuildEdit,
+      props: true,
     },
     {
       path: "/register",
