@@ -5,7 +5,7 @@
       <!-- Header -->
       <h1 class="text-2xl font-bold text-pink-600 mb-6">KERANJANG</h1>
 
-      <!-- Error Handling (Stok/Koneksi) -->
+      <!-- Error Handling -->
       <div v-if="apiError" class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
         <strong>Error:</strong> {{ apiError }}
         <p class="mt-1">Harap hapus atau kurangi item yang bermasalah.</p>
@@ -50,9 +50,9 @@
                 class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-2 focus:ring-pink-500 mr-4 flex-shrink-0"
               />
 
-              <!-- Gambar -->
+              <!-- Gambar: pastikan ambil dari path yang benar -->
               <img
-                :src="item.variant.product.gambar_utama || 'https://placehold.co/144x161?text=Produk'"
+                :src="getProductImage(item.variant.product)"
                 :alt="item.variant.product.nama_produk"
                 class="w-16 h-16 object-cover rounded-md mr-4 flex-shrink-0"
               />
@@ -60,7 +60,7 @@
               <!-- Detail -->
               <div class="flex-1 min-w-0">
                 <h3 class="font-semibold text-blue-900 text-sm">
-                  {{ item.variant.product.toko?.toko_name || 'Toko Tidak Tersedia' }}
+                  {{ item.variant.product.toko?.toko_name || 'Toko' }}
                 </h3>
                 <p class="text-gray-800 font-medium mt-1 text-sm line-clamp-2">
                   {{ item.variant.product.nama_produk }}
@@ -68,7 +68,7 @@
                 <p class="text-gray-500 text-xs mt-1">{{ item.variant.nama_varian }}</p>
               </div>
 
-              <!-- Kolom Kanan: Harga, Quantity & Hapus -->
+              <!-- Kolom Kanan -->
               <div class="flex items-center gap-3 ml-4 flex-shrink-0">
                 <!-- Harga -->
                 <p class="font-bold text-gray-800 text-sm">
@@ -110,11 +110,10 @@
           </div>
         </div>
 
-        <!-- Kolom Kanan: Ringkasan Belanja -->
+        <!-- Kolom Kanan: Ringkasan -->
         <div class="bg-pink-50 rounded-lg border border-pink-200 p-5 h-fit lg:sticky lg:top-4">
           <h2 class="text-lg font-bold text-blue-900 mb-4">Ringkasan Order</h2>
 
-          <!-- Item dipilih -->
           <div class="space-y-3 max-h-60 overflow-y-auto pr-2">
             <div
               v-for="item in filteredCartForCheckout"
@@ -132,14 +131,12 @@
             </div>
           </div>
 
-          <!-- Total -->
           <div class="border-t border-pink-300 pt-4 mt-4">
             <div class="flex justify-between mb-2 text-sm font-medium text-gray-700">
               <span>Total ({{ totalCheckedItems }} item)</span>
               <span>{{ formatCurrency(filteredTotalPrice) }}</span>
             </div>
 
-            <!-- Tombol Buat Pesanan -->
             <button
               @click="goToCheckout"
               :disabled="filteredCartForCheckout.length === 0 || loading || apiError"
@@ -170,13 +167,11 @@ import axios from 'axios'
 const router = useRouter()
 const { cartItems, removeCartItem, updateCartItem } = useCartStore()
 
-// State
 const loading = ref(true)
 const cartSummary = ref([])
 const apiError = ref(null)
-const checkedItems = ref({})
+const checkedItems = ref({}) // default: semua false
 
-// Computed
 const filteredCartForCheckout = computed(() => {
   return cartSummary.value.filter(item => checkedItems.value[item.variant.id_varian])
 })
@@ -198,7 +193,19 @@ const selectAll = computed({
   }
 })
 
-// Helper
+// ✅ Helper: Ambil gambar dengan fallback
+const getProductImage = (product) => {
+  // Sesuaikan dengan struktur backend Anda
+  if (product.gambar_utama) {
+    // Jika URL relatif, tambahkan base URL
+    return product.gambar_utama.startsWith('http')
+      ? product.gambar_utama
+      : `http://127.0.0.1:8000/storage/${product.gambar_utama}`
+  }
+  // Fallback
+  return 'https://placehold.co/144x161?text=Produk'
+}
+
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -207,7 +214,6 @@ const formatCurrency = (value) => {
   }).format(value)
 }
 
-// API: Preview Keranjang (dengan penanganan stok habis)
 const fetchCartPreview = async () => {
   apiError.value = null
   loading.value = true
@@ -233,40 +239,33 @@ const fetchCartPreview = async () => {
 
     cartSummary.value = response.data.cartItems
 
-    // Inisialisasi checkbox
+    // ✅ Inisialisasi: SEMUA ITEM TIDAK DICENTANG SAAT PERTAMA KALI
     const newChecked = {}
     response.data.cartItems.forEach(item => {
-      newChecked[item.variant.id_varian] = checkedItems.value[item.variant.id_varian] ?? true
+      newChecked[item.variant.id_varian] = false // <-- ini kunci perbaikan Anda
     })
     checkedItems.value = newChecked
   } catch (error) {
-    // 🔥 PENANGANAN KHUSUS: STOK HABIS
     if (error.response?.status === 400 && error.response.data?.variant_id) {
       const variantId = error.response.data.variant_id
       const item = cartItems.value.find(i => i.id_varian === variantId)
-
       if (item?.variantDetail) {
         removeCartItem(variantId)
-        alert(`⚠️ Stok untuk produk "${item.variantDetail.product_name} (${item.variantDetail.nama_varian})" tidak mencukupi atau sudah habis. Item dihapus dari keranjang.`)
-        return fetchCartPreview() // Refresh ulang
+        alert(`⚠️ Stok untuk produk "${item.variantDetail.product_name} (${item.variantDetail.nama_varian})" tidak mencukupi. Item dihapus dari keranjang.`)
+        return fetchCartPreview()
       }
     }
-
-    // Error umum
     apiError.value = error.response?.data?.message || 'Gagal memuat data keranjang.'
   } finally {
     loading.value = false
   }
 }
 
-// Aksi
 const updateQuantity = (id_varian, delta) => {
   const item = cartItems.value.find(i => i.id_varian === id_varian)
   if (!item) return
-
   const newQty = item.kuantitas + delta
   if (newQty < 1) return
-
   updateCartItem(id_varian, delta)
   fetchCartPreview()
 }
@@ -284,8 +283,6 @@ const goToCheckout = () => {
     alert('Pilih minimal 1 produk untuk checkout')
     return
   }
-
-  // Simpan ke localStorage untuk halaman checkout
   const selectedItems = filteredCartForCheckout.value.map(item => ({
     id_varian: item.variant.id_varian,
     kuantitas: item.kuantitas
@@ -303,18 +300,10 @@ onMounted(() => {
 .animate-fade-in {
   animation: fadeIn 0.6s ease-out;
 }
-
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
