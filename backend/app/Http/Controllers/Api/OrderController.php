@@ -178,7 +178,7 @@ class OrderController extends Controller
         $pesanan = Pesanan::with([
             'user',
             'toko',
-            'detailPesanans.variant',
+            'detailPesanans.variant.product',
         ])->find($id);
 
         if (!$pesanan) {

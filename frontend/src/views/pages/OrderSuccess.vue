@@ -45,6 +45,8 @@ const simulatePayment = async () => {
 
     simulationMessage.value = response.data.message;
     orderStatus.value = "paid"; // Update status UI
+    console.log(orderDetails.value.detail_pesanans);
+    console.log(JSON.stringify(orderDetails.value.detail_pesanans, null, 2));
 
     // Refresh detailnya
     await getOrderDetails();
@@ -63,6 +65,13 @@ onMounted(async () => {
   }
 
   await getOrderDetails();
+  console.log(
+    "DEBUG detailPesanans:",
+    orderDetails.value.detail_pesanans.map((item) => ({
+      variant: item.variant,
+      product: item.variant?.product,
+    }))
+  );
 });
 console.log("Order ID dari URL:", orderId.value);
 </script>
@@ -148,7 +157,10 @@ console.log("Order ID dari URL:", orderId.value);
           <hr class="my-3" />
           <h4 class="font-semibold mb-2">Pesanan Anda:</h4>
 
-          <div v-for="item in orderDetails.detail_pesanans" :key="item.id" class="border rounded-lg p-3 bg-gray-50">
+          <div
+            v-for="item in orderDetails.detail_pesanans"
+            :key="item.id_detail_pesanan"
+            class="border rounded-lg p-3 bg-gray-50">
             <p class="text-sm font-medium">{{ item.variant?.product?.nama_produk || "-" }}</p>
             <p class="text-gray-500 text-sm">Qty: {{ item.kuantitas }}</p>
             <p class="text-gray-700 font-semibold mt-2">Rp {{ item.harga }}</p>

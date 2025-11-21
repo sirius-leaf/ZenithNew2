@@ -27,7 +27,7 @@ class DetailPesanan extends Model
     // Relasi: Detail ini merujuk ke varian produk mana
     public function variant()
     {
-        return $this->belongsTo(Variant::class, 'variant_id', 'id_varian');
+        return $this->belongsTo(Variant::class, 'id_varian', 'id_varian');
     }
 
 }
