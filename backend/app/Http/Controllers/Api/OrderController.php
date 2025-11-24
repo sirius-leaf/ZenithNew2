@@ -8,17 +8,15 @@ use App\Models\Pesanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+// ✅ 1. Import Library Midtrans
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class OrderController extends Controller
 {
-    /**
-     * Menerima item keranjang dari frontend dan mengembalikan ringkasan pesanan.
-     * Endpoint ini menggantikan CartController@index dan CheckoutController@index.
-     * * @param Request $request {cartItems: [{id_varian: X, kuantitas: Y}, ...]}
-     */
     public function preview(Request $request)
     {
-        // 1. Validasi input keranjang dari Vue
+        // ... (Bagian preview tidak berubah, biarkan sama seperti sebelumnya) ...
         $request->validate([
             'cartItems' => 'required|array|min:1',
             'cartItems.*.id_varian' => 'required|exists:variants,id_varian',
@@ -28,31 +26,25 @@ class OrderController extends Controller
         $cartItemsInput = $request->input('cartItems');
         $variantIds = collect($cartItemsInput)->pluck('id_varian')->toArray();
 
-        // 2. Ambil data varian lengkap dari DB
         $variants = Variant::with('product.toko')
                             ->whereIn('id_varian', $variantIds)
                             ->get()
-                            ->keyBy('id_varian'); // Kunci hasil dengan id_varian
+                            ->keyBy('id_varian');
 
         $cartSummary = [];
         $totalPrice = 0;
 
-        // 3. Hitung total harga dan cek stok
         foreach ($cartItemsInput as $item) {
             $variant = $variants->get($item['id_varian']);
             $kuantitas = $item['kuantitas'];
 
-            if (!$variant) {
-                // Seharusnya tidak terjadi karena sudah divalidasi
-                continue;
-            }
+            if (!$variant) continue;
 
-            // Cek Stok
             if ($variant->stok < $kuantitas) {
                 return response()->json([
                     'message' => 'Stok tidak mencukupi untuk ' . $variant->product->nama_produk . ' (' . $variant->nama_varian . ')',
                     'variant_id' => $variant->id_varian
-                ], 400); // 400 Bad Request
+                ], 400);
             }
 
             $subtotal = $variant->harga * $kuantitas;
@@ -73,18 +65,20 @@ class OrderController extends Controller
     }
 
     /**
-     * Memproses pesanan.
+     * Memproses pesanan dan Generate Midtrans Token.
      */
     public function store(Request $request)
     {
         $user = Auth::user();
 
-        // 1. Validasi input keranjang dan alamat
+        // 1. Validasi
         $validated = $request->validate([
             'alamat_pengiriman' => 'required|string|max:500',
             'cartItems' => 'required|array|min:1',
             'cartItems.*.id_varian' => 'required|exists:variants,id_varian',
             'cartItems.*.kuantitas' => 'required|integer|min:1',
+            // Pastikan frontend mengirim 'payment_method'
+            'payment_method' => 'required|string',
         ]);
 
         $cartItemsInput = $validated['cartItems'];
@@ -92,14 +86,13 @@ class OrderController extends Controller
         $variants = Variant::with('product.toko')->whereIn('id_varian', $variantIds)->get()->keyBy('id_varian');
 
         $itemsPerToko = [];
-        $createdOrders = collect(); // <-- Inisialisasi collection untuk menampung pesanan yang dibuat
+        $createdOrders = collect();
 
-        // 2. Cek Stok Final & Kelompokkan per Toko
+        // 2. Cek Stok & Kelompokkan
         foreach ($cartItemsInput as $item) {
             $variant = $variants->get($item['id_varian']);
             $kuantitasDipesan = $item['kuantitas'];
 
-            // Cek stok
             if ($variant->stok < $kuantitasDipesan) {
                 return response()->json([
                     'message' => 'Stok tidak mencukupi untuk ' . $variant->nama_varian,
@@ -107,9 +100,8 @@ class OrderController extends Controller
                 ], 400);
             }
 
-            // Tambahkan pengecekan null safety
             if (!$variant->product || !$variant->product->toko) {
-                 return response()->json(['message' => 'Gagal mengidentifikasi toko untuk varian: ' . $variant->nama_varian], 400);
+                 return response()->json(['message' => 'Gagal mengidentifikasi toko.'], 400);
             }
 
             $tokoId = $variant->product->toko->id;
@@ -119,31 +111,27 @@ class OrderController extends Controller
             ];
         }
 
-        // 3. DB Transaction
+        // 3. DB Transaction (Buat Pesanan di Database)
         try {
-            // Tambahkan &$createdOrders ke use() agar bisa diubah di dalam closure
             DB::transaction(function () use ($itemsPerToko, $user, $validated, &$createdOrders) {
                 foreach ($itemsPerToko as $tokoId => $items) {
                     $totalHargaPesanan = 0;
 
-                    // Hitung total
                     foreach ($items as $item) {
                         $totalHargaPesanan += $item['variant']->harga * $item['kuantitas'];
                     }
 
-                    // A. Buat Pesanan
                     $pesanan = Pesanan::create([
                         'user_id' => $user->id,
                         'toko_id' => $tokoId,
                         'total_harga' => $totalHargaPesanan,
                         'status' => 'pending',
-                        'alamat_pengiriman' => $validated['alamat_pengiriman']
+                        'alamat_pengiriman' => $validated['alamat_pengiriman'],
+                        'payment_method' => $validated['payment_method'] // Simpan metode pembayaran
                     ]);
 
-                    // KUNCI PERBAIKAN: Simpan pesanan yang baru dibuat
                     $createdOrders->push($pesanan);
 
-                    // B. Buat Detail Pesanan & Kurangi Stok
                     foreach ($items as $item) {
                         $variant = $item['variant'];
                         $kuantitas = $item['kuantitas'];
@@ -162,14 +150,60 @@ class OrderController extends Controller
             return response()->json(['message' => 'Gagal memproses pesanan: ' . $e->getMessage()], 500);
         }
 
-        // Ambil ID pesanan yang baru dibuat
         $orderIds = $createdOrders->pluck('id');
 
-        // 4. Sukses
+        // ============================================================
+        // ✅ 4. INTEGRASI MIDTRANS (Hanya jika bukan COD)
+        // ============================================================
+        $snapToken = null;
+
+        // Kita hanya generate token jika metode pembayaran adalah transfer/midtrans
+        if ($validated['payment_method'] !== 'cod') {
+
+            // A. Konfigurasi Midtrans
+            Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+            Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+            Config::$isSanitized = env('MIDTRANS_IS_SANITIZED', true);
+            Config::$is3ds = env('MIDTRANS_IS_3DS', true);
+
+            // B. Hitung Total Pembayaran (Gabungan semua pesanan toko)
+            $totalGrossAmount = 0;
+            foreach ($createdOrders as $order) {
+                $totalGrossAmount += $order->total_harga;
+            }
+
+            // C. Buat ID Transaksi Unik Gabungan
+            // Format: TRX-{TIMESTAMP}-{USER_ID}
+            $transactionId = 'TRX-' . time() . '-' . $user->id;
+
+            // D. Siapkan Parameter Midtrans
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $transactionId,
+                    'gross_amount' => (int) $totalGrossAmount,
+                ],
+                'customer_details' => [
+                    'first_name' => $user->name,
+                    'email' => $user->email,
+                    // 'phone' => $user->no_telpon, // Tambahkan jika ada kolom no_telpon
+                ],
+                // Opsional: Item details bisa ditambahkan jika ingin detail di email Midtrans
+            ];
+
+            try {
+                // E. Minta Snap Token ke Midtrans
+                $snapToken = Snap::getSnapToken($params);
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Gagal menghubungi gateway pembayaran: ' . $e->getMessage()], 500);
+            }
+        }
+
+        // 5. Sukses Return JSON
         return response()->json([
             'status' => 'success',
             'message' => 'Pesanan Anda berhasil dibuat!',
-            'order_ids' => $orderIds, // <-- Mengirim ID ke Frontend
+            'order_ids' => $orderIds,
+            'snap_token' => $snapToken, // <-- Kirim token ke Vue
         ], 201);
     }
 }
