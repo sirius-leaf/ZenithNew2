@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PcBuildController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\Api\UserRoleController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -47,6 +48,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     })->name('api.user');
+
+    Route::apiResource('review', ReviewController::class)->only('store', 'update', 'destroy');
+    Route::get('/review/product/{productId}', [ReviewController::class, 'getReview']);
+    Route::get('/review/can-review/{productId}', [ReviewController::class, 'canReview']);
 
     // Manajemen PC Build
     Route::prefix('manage')->name('manage.')->group(function () {

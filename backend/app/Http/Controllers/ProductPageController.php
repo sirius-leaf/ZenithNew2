@@ -13,8 +13,8 @@ class ProductPageController extends Controller
     public function index()
     {
         $products = Product::with('variant')
-                            ->latest()
-                            ->paginate(12);
+            ->latest()
+            ->paginate(12);
 
         // UBAH INI:
         // return view('shop.index', compact('products'));
@@ -29,8 +29,8 @@ class ProductPageController extends Controller
      */
     public function show($id_produk)
     {
-        $product = Product::with('variant')
-                            ->findOrFail($id_produk);
+        $product = Product::with('variant', 'reviews.user')
+            ->findOrFail($id_produk);
 
         // UBAH INI:
         // return view('shop.show', compact('product'));

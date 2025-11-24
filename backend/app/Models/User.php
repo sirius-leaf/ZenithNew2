@@ -46,6 +46,11 @@ class User extends Authenticatable
         return $this->hasMany(PcBuild::class, 'id_user');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'id_user');
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -69,5 +74,5 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    
+
 }

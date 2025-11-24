@@ -9,9 +9,12 @@ const { updateCartItem, cartItems } = useCartStore();
 
 const product = ref(null);
 const loading = ref(true);
+const loggedIn = ref(localStorage.getItem("authToken") != null);
 const error = ref(null);
 const successMessage = ref(null);
 const quantities = ref({});
+const canReview = ref(false);
+const checkingReviewPermission = ref(false);
 
 // 1. COMPUTED PROPERTY untuk mendapatkan URL Gambar Utama
 const mainImage = computed(() => {
@@ -67,6 +70,7 @@ const fetchProductDetail = async () => {
 
     product.value = response.data;
     initializeQuantities(response.data.variant);
+    console.log();
   } catch (err) {
     error.value = err;
     console.error("Error fetching product detail:", err);
@@ -75,9 +79,149 @@ const fetchProductDetail = async () => {
   }
 };
 
+// Tambahkan reactive state untuk ulasan
+const reviewForm = ref({
+  rating: 5, // default bintang
+  komentar: "",
+});
+
+const reviewMessage = ref(null);
+const reviewError = ref(null);
+
+// State untuk ulasan user (jika ada)
+const userReview = ref(null);
+
+var isEditing = false;
+
+// Fetch ulasan user untuk produk ini
+const fetchUserReview = async () => {
+  try {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+
+    const response = await axios.get(
+      `http://127.0.0.1:8000/api/review/product/${product.value.id_produk}`
+    );
+
+    userReview.value = response.data; // bisa null atau object review
+    isEditing = Object.keys(userReview.value).length > 0;
+
+    // Jika ada ulasan, isi form dengan data tersebut
+    if (userReview.value && isEditing) {
+      reviewForm.value.rating = userReview.value.rating;
+      reviewForm.value.komentar = userReview.value.komentar;
+    }
+  } catch (err) {
+    console.warn("Gagal memuat ulasan Anda:", err);
+    // Tidak perlu error fatal — biarkan tetap tampilkan form
+  }
+};
+
+const checkReviewPermission = async () => {
+  const token = localStorage.getItem("authToken");
+  if (!token || !product.value?.id_produk) return;
+
+  checkingReviewPermission.value = true;
+  try {
+    const response = await axios.get(
+      `http://127.0.0.1:8000/api/review/can-review/${product.value.id_produk}`
+    );
+    canReview.value = response.data.can_review;
+    console.log(canReview.value);
+  } catch (err) {
+    console.warn("Gagal memeriksa izin ulasan:", err);
+    canReview.value = false;
+  } finally {
+    checkingReviewPermission.value = false;
+  }
+};
+
+const submitReview = async () => {
+  reviewError.value = null;
+  reviewMessage.value = null;
+
+  if (!reviewForm.value.komentar.trim()) {
+    reviewError.value = "Komentar tidak boleh kosong.";
+    return;
+  }
+
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    reviewError.value = "Silakan login untuk memberi ulasan.";
+    return;
+  }
+
+  try {
+    if (isEditing) {
+      // ✏️ Mode EDIT
+      await axios.put(
+        `http://127.0.0.1:8000/api/review/${userReview.value.id_ulasan}`,
+        {
+          rating: reviewForm.value.rating,
+          komentar: reviewForm.value.komentar,
+        }
+      );
+      reviewMessage.value = "Ulasan berhasil diperbarui!";
+    } else {
+      // ➕ Mode TAMBAH
+      await axios.post("http://127.0.0.1:8000/api/review", {
+        rating: reviewForm.value.rating,
+        komentar: reviewForm.value.komentar,
+        id_produk: product.value.id_produk,
+      });
+      reviewMessage.value = "Ulasan berhasil dikirim!";
+      // Setelah sukses kirim, update userReview agar berpindah ke mode edit
+      await fetchUserReview(); // opsional: refresh data ulasan
+    }
+
+    // Reset pesan setelah 3 detik
+    setTimeout(() => {
+      reviewMessage.value = null;
+    }, 3000);
+  } catch (err) {
+    console.error("Error:", err);
+    reviewError.value = err.response?.data?.message || "Terjadi kesalahan.";
+  }
+};
+
+const deleteReview = async () => {
+  if (!confirm("Apakah Anda yakin ingin menghapus ulasan ini?")) {
+    return;
+  }
+
+  const token = localStorage.getItem("authToken");
+  if (!token || !userReview.value) return;
+
+  try {
+    await axios.delete(
+      `http://127.0.0.1:8000/api/review/${userReview.value.id_ulasan}`
+    );
+
+    // Reset state
+    userReview.value = null;
+    reviewForm.value.rating = 5;
+    reviewForm.value.komentar = "";
+    reviewMessage.value = "Ulasan berhasil dihapus.";
+
+    // Sembunyikan pesan setelah 3 detik
+    setTimeout(() => {
+      reviewMessage.value = null;
+    }, 3000);
+  } catch (err) {
+    console.error("Gagal menghapus ulasan:", err);
+    reviewError.value =
+      err.response?.data?.message || "Gagal menghapus ulasan.";
+  }
+};
+
 onMounted(() => {
-  console.log(cartItems.value);
-  fetchProductDetail();
+  fetchProductDetail().then(() => {
+    // Setelah produk dimuat, cek ulasan user
+    if (localStorage.getItem("authToken")) {
+      fetchUserReview();
+      checkReviewPermission();
+    }
+  });
 });
 </script>
 
@@ -179,6 +323,139 @@ onMounted(() => {
         </div>
         <div v-else>
           <p class="text-gray-600">Belum ada varian untuk produk ini.</p>
+        </div>
+
+        <!-- Bagian Ulasan (Rating & Komentar) -->
+        <div
+          v-if="loggedIn && canReview"
+          class="mt-12 pt-8 border-t border-gray-300"
+        >
+          <h2 class="text-2xl font-semibold mb-4 text-gray-800">
+            {{ isEditing ? "Edit Ulasan Anda" : "Beri Ulasan" }}
+          </h2>
+
+          <div
+            v-if="reviewMessage"
+            class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg"
+          >
+            {{ reviewMessage }}
+          </div>
+          <div
+            v-if="reviewError"
+            class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg"
+          >
+            {{ reviewError }}
+          </div>
+
+          <form @submit.prevent="submitReview" class="space-y-4">
+            <!-- Rating (1–5 bintang via radio) -->
+            <div>
+              <label class="block text-gray-700 font-medium mb-2"
+                >Rating:</label
+              >
+              <div class="flex items-center space-x-2">
+                <label
+                  v-for="star in 5"
+                  :key="star"
+                  class="flex cursor-pointer items-center"
+                >
+                  <input
+                    type="radio"
+                    v-model="reviewForm.rating"
+                    :value="star"
+                    class="sr-only"
+                  />
+                  <span
+                    class="text-2xl"
+                    :class="
+                      reviewForm.rating >= star
+                        ? 'text-yellow-500'
+                        : 'text-gray-300'
+                    "
+                  >
+                    ★
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Komentar -->
+            <div>
+              <label for="komentar" class="block text-gray-700 font-medium mb-2"
+                >Komentar:</label
+              >
+              <textarea
+                id="komentar"
+                v-model="reviewForm.komentar"
+                rows="4"
+                class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                placeholder="Tulis ulasan Anda di sini..."
+              ></textarea>
+            </div>
+
+            <!-- Tombol Submit -->
+            <button
+              type="submit"
+              class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition duration-150 font-medium"
+            >
+              {{ isEditing ? "Simpan Perubahan" : "Kirim Ulasan" }}
+            </button>
+
+            <div v-if="isEditing" class="mt-2">
+              <button
+                type="button"
+                @click="deleteReview"
+                class="text-red-600 hover:text-red-800 font-medium text-sm"
+              >
+                Hapus Ulasan
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Daftar Semua Ulasan -->
+        <div class="mt-12 pt-8 border-t border-gray-300">
+          <h2 class="text-2xl font-semibold mb-4 text-gray-800">
+            Ulasan Pelanggan ({{ product.reviews.length }})
+          </h2>
+
+          <div v-if="loading" class="text-gray-500">Memuat ulasan...</div>
+
+          <div v-else-if="product.reviews.length === 0" class="text-gray-500">
+            Belum ada ulasan untuk produk ini.
+          </div>
+
+          <div v-else class="space-y-6">
+            <div
+              v-for="review in product.reviews"
+              :key="review.id"
+              class="bg-gray-50 p-4 rounded-lg border border-gray-200"
+            >
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-medium text-gray-900">
+                    {{ review.user.name }}
+                  </h3>
+                  <p class="text-sm text-gray-500">{{ review.created_at }}</p>
+                </div>
+                <div class="flex">
+                  <span
+                    v-for="star in 5"
+                    :key="star"
+                    class="text-xl"
+                    :class="
+                      review.rating >= star
+                        ? 'text-yellow-500'
+                        : 'text-gray-300'
+                    "
+                  >
+                    ★
+                  </span>
+                </div>
+              </div>
+              <p class="mt-3 text-gray-700 italic">"{{ review.komentar }}"</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
