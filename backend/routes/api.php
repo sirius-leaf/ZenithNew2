@@ -1,8 +1,8 @@
 <?php
 
+use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\Variant;
 use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\PcBuildController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\Api\UserRoleController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Api\MidtransCallbackController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -23,6 +24,7 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::get('/products', [ProductPageController::class, 'index']);
 Route::get('/productAll', [PcBuildController::class, 'products']);
 Route::get('/products/{id_produk}', [ProductPageController::class, 'show']);
+Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Rute 'logout' harus di dalam sini
@@ -31,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order/preview', [OrderController::class, 'preview']); // Untuk melihat ringkasan & cek stok
     Route::post('/order/store', [OrderController::class, 'store']);     // Untuk final checkout
     Route::post('/payment/simulate/{order_id}', [PaymentController::class, 'simulate']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
 
     Route::prefix('manage')->name('manage.')->group(function () {
         Route::apiResource('pcBuild', PcBuildController::class);

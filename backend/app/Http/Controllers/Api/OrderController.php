@@ -206,4 +206,27 @@ class OrderController extends Controller
             'snap_token' => $snapToken, // <-- Kirim token ke Vue
         ], 201);
     }
+
+    public function show($id)
+    {
+        $user = Auth::user();
+
+        // Cari pesanan berdasarkan ID dan pastikan milik user yang login
+        $pesanan = Pesanan::with(['detailPesanans.variant.product', 'toko'])
+            ->where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$pesanan) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pesanan tidak ditemukan atau akses ditolak.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $pesanan
+        ], 200);
+    }
 }
