@@ -19,6 +19,7 @@ import CartPage from "./views/pages/Cart.vue";
 import CheckoutPage from "./views/pages/Checkout.vue";
 import OrderSuccess from "./views/pages/OrderSuccess.vue";
 import Profile from "./views/pages/ProfileUser.vue";
+import OrderHistory from "./views/pages/OrderHistory.vue";
 
 // 🔐 Halaman admin — SESUAI STRUKTUR FOLDER ANDA
 import AdminDashboard from "./views/admin/DashboardAdmin.vue";
@@ -99,6 +100,7 @@ const router = createRouter({
     { path: "/about", name: "about", component: AboutPage },
     { path: "/testimonial", name: "testimonial", component: TestimonialPage },
     { path: "/profile", name: "profile", component: Profile },
+    { path: "/orderHistory", name: "orderHistory", component: OrderHistory },
     {
       path: "/cart",
       name: "cart-index",

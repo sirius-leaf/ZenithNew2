@@ -30,9 +30,9 @@ class OrderController extends Controller
 
         // 2. Ambil data varian lengkap dari DB
         $variants = Variant::with('product.toko')
-                            ->whereIn('id_varian', $variantIds)
-                            ->get()
-                            ->keyBy('id_varian'); // Kunci hasil dengan id_varian
+            ->whereIn('id_varian', $variantIds)
+            ->get()
+            ->keyBy('id_varian'); // Kunci hasil dengan id_varian
 
         $cartSummary = [];
         $totalPrice = 0;
@@ -72,6 +72,17 @@ class OrderController extends Controller
         ], 200);
     }
 
+    public function index()
+    {
+        $orders = Auth::user()->pesanans()->with('detailPesanans')->get();
+        //
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders
+        ]);
+    }
+
     /**
      * Memproses pesanan.
      */
@@ -109,7 +120,7 @@ class OrderController extends Controller
 
             // Tambahkan pengecekan null safety
             if (!$variant->product || !$variant->product->toko) {
-                 return response()->json(['message' => 'Gagal mengidentifikasi toko untuk varian: ' . $variant->nama_varian], 400);
+                return response()->json(['message' => 'Gagal mengidentifikasi toko untuk varian: ' . $variant->nama_varian], 400);
             }
 
             $tokoId = $variant->product->toko->id;

@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rute untuk cek user yang sedang login
     Route::post('/order/preview', [OrderController::class, 'preview']); // Untuk melihat ringkasan & cek stok
     Route::post('/order/store', [OrderController::class, 'store']);     // Untuk final checkout
+    Route::get('/order/history', [OrderController::class, 'index']);     // Untuk final checkout
     Route::post('/payment/simulate/{order_id}', [PaymentController::class, 'simulate']);
 
     // Dapatkan data user yang sedang login
