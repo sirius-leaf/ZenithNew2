@@ -9,6 +9,7 @@ const router = useRouter();
 
 // State
 const products = ref([]);
+const variants = ref([]);
 const form = ref({
   id_user: null,
   nama_build: "",
@@ -36,7 +37,13 @@ const isLoading = ref(false);
 const token = localStorage.getItem("authToken");
 
 function getProductName(id) {
-  return products.value.find((p) => p.id_produk === id)?.nama_produk || "-";
+  const varian = variants.value.find((p) => p.id_varian === id);
+  const idProduk = varian?.id_produk || -1;
+  const namaVarian = varian?.nama_varian || "-";
+  const namaProduk =
+    products.value.find((p) => p.id_produk === idProduk)?.nama_produk || "-";
+
+  return namaProduk + " (" + namaVarian + ")";
 }
 
 // Ambil daftar produk + user login
@@ -51,6 +58,8 @@ onMounted(async () => {
     const productRes = await axios.get("http://127.0.0.1:8000/api/productAll");
 
     products.value = productRes.data.data;
+    variants.value = productRes.data.variants;
+    console.log(variants.value);
   } catch (err) {
     console.error("Gagal memuat data:", err);
     if (err.response?.status === 401) router.push("/login");
@@ -67,6 +76,7 @@ const submitForm = async () => {
 
     router.push("/dashboard/manage/pcBuild");
   } catch (err) {
+    console.error("Gagal memuat data:", err);
     if (err.response?.status === 422) {
       errors.value = err.response.data.errors;
     } else {

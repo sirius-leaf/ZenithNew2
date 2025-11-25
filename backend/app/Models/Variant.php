@@ -20,7 +20,12 @@ class Variant extends Model
     }
 
     public function detailPesanans()
-{
-    return $this->hasMany(DetailPesanan::class,'variant_id', 'id_varian');
-}
+    {
+        return $this->hasMany(DetailPesanan::class, 'variant_id', 'id_varian');
+    }
+
+    public function buildDetail()
+    {
+        return $this->hasMany(BuildDetail::class, 'id_varian', 'id_varian');
+    }
 }

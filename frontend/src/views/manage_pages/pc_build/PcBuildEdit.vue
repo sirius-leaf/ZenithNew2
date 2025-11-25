@@ -13,6 +13,7 @@ const id = route.params.id;
 
 const isLoading = ref(false);
 const products = ref([]);
+const variants = ref([]);
 const form = ref({
   nama_build: "",
   komponen: {
@@ -36,7 +37,13 @@ const errorMessage = ref(null);
 const successMessage = ref(null);
 
 function getProductName(id) {
-  return products.value.find((p) => p.id_produk === id)?.nama_produk || "-";
+  const varian = variants.value.find((p) => p.id_varian === id);
+  const idProduk = varian?.id_produk || -1;
+  const namaVarian = varian?.nama_varian || "-";
+  const namaProduk =
+    products.value.find((p) => p.id_produk === idProduk)?.nama_produk || "-";
+
+  return namaProduk + " (" + namaVarian + ")";
 }
 
 onMounted(async () => {
@@ -47,6 +54,7 @@ onMounted(async () => {
 const loadProducts = async () => {
   const res = await axios.get("http://127.0.0.1:8000/api/productAll");
   products.value = res.data.data;
+  variants.value = res.data.variants;
 };
 
 const loadBuildData = async () => {
@@ -55,11 +63,10 @@ const loadBuildData = async () => {
 
   const komponen = res.data.data.build_detail;
   komponen.forEach((e) => {
-    form.value.komponen[e.bagian_komponen] = { id: e.id, produk: e.id_produk };
+    form.value.komponen[e.bagian_komponen] = { id: e.id, produk: e.id_varian };
   });
 
   //form.value.komponen = res.data.data.build_detail;
-  console.log(form);
 };
 
 const updateBuild = async () => {
@@ -118,7 +125,7 @@ const updateBuild = async () => {
           class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
         >
           {{
-            form.komponen.motherboard
+            form.komponen.motherboard.produk
               ? getProductName(form.komponen.motherboard.produk)
               : "Pilih Motherboard"
           }}
@@ -148,7 +155,7 @@ const updateBuild = async () => {
           class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
         >
           {{
-            form.komponen.cpu
+            form.komponen.cpu.produk
               ? getProductName(form.komponen.cpu.produk)
               : "Pilih CPU"
           }}
@@ -178,7 +185,7 @@ const updateBuild = async () => {
           class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
         >
           {{
-            form.komponen.ram
+            form.komponen.ram.produk
               ? getProductName(form.komponen.ram.produk)
               : "Pilih RAM"
           }}
@@ -208,7 +215,7 @@ const updateBuild = async () => {
           class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
         >
           {{
-            form.komponen.psu
+            form.komponen.psu.produk
               ? getProductName(form.komponen.psu.produk)
               : "Pilih Power Supply"
           }}
@@ -238,7 +245,7 @@ const updateBuild = async () => {
           class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
         >
           {{
-            form.komponen.storage
+            form.komponen.storage.produk
               ? getProductName(form.komponen.storage.produk)
               : "Pilih Storage"
           }}

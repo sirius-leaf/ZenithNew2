@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\PcBuild;
 use App\Models\Product;
+use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,7 +19,7 @@ class PcBuildController extends Controller
     {
         $pcBuild = Auth::user()
             ->pcBuild()
-            ->with('buildDetail.product')
+            ->with('buildDetail.variant')
             ->get();
 
         return response()->json([
@@ -33,11 +34,13 @@ class PcBuildController extends Controller
      */
     public function products()
     {
-        $products = Product::all();
+        $products = Product::with('variant')->get();
+        $variants = Variant::all();
 
         return response()->json([
             'status' => 'success',
-            'data' => $products
+            'data' => $products,
+            'variants' => $variants,
         ]);
     }
 
@@ -64,7 +67,7 @@ class PcBuildController extends Controller
 
         foreach ($validated['komponen'] as $bagian => $produk) {
             $build->buildDetail()->create([
-                'id_produk' => $produk,
+                'id_varian' => $produk,
                 'bagian_komponen' => $bagian,
             ]);
         }
@@ -72,7 +75,7 @@ class PcBuildController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'PC build berhasil disimpan!',
-            'data' => $build->load('buildDetail.product')
+            'data' => $build->load('buildDetail.variant')
         ]);
     }
 
@@ -82,7 +85,7 @@ class PcBuildController extends Controller
      */
     public function show($id)
     {
-        $build = PcBuild::with('buildDetail.product')->findOrFail($id);
+        $build = PcBuild::with('buildDetail.variant')->findOrFail($id);
 
         return response()->json([
             'status' => 'success',
@@ -109,7 +112,7 @@ class PcBuildController extends Controller
             $detail = $build->buildDetail()->find($item['id']);
             if ($detail) {
                 $detail->update([
-                    'id_produk' => $item['produk'],
+                    'id_varian' => $item['produk'],
                     'bagian_komponen' => $bagian,
                 ]);
             }
@@ -122,7 +125,7 @@ class PcBuildController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'PC build berhasil diperbarui!',
-            'data' => $build->load('buildDetail.product')
+            'data' => $build->load('buildDetail.variant')
         ]);
     }
 

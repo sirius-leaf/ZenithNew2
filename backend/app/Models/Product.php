@@ -24,11 +24,6 @@ class Product extends Model
         return $this->hasMany(CategoryDetail::class, 'id_produk', 'id_produk');
     }
 
-    public function buildDetail()
-    {
-        return $this->hasMany(BuildDetail::class, 'id_produk', 'id_produk');
-    }
-
     public function toko()
     {
         return $this->belongsTo(Toko::class, 'id_toko');

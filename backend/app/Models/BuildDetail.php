@@ -9,11 +9,11 @@ class BuildDetail extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_build', 'id_produk', 'bagian_komponen'];
+    protected $fillable = ['id_build', 'bagian_komponen', 'id_varian'];
 
-    public function product()
+    public function variant()
     {
-        return $this->belongsTo(Product::class, 'id_produk');
+        return $this->belongsTo(Product::class, 'id_varian');
     }
 
     public function pcBuild()

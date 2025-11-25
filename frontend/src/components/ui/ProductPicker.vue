@@ -29,12 +29,26 @@
         <div
           v-for="p in filteredProducts"
           :key="p.id_produk"
-          @click="chooseProduct(p)"
-          class="p-3 border rounded-lg cursor-pointer hover:bg-gray-100"
+          class="p-3 border rounded-lg"
         >
           <p class="font-semibold">{{ p.nama_produk }}</p>
           <p class="text-sm text-gray-600">{{ p.merek }}</p>
-          <p class="text-sm text-gray-500">Rp {{ p.harga }}</p>
+          <div
+            v-for="v in p.variant"
+            @click="chooseProduct(v)"
+            class="flex gap-4 p-3 border rounded-lg cursor-pointer hover:bg-gray-100"
+          >
+            <div class="w-20">
+              <img
+                :src="`http://127.0.0.1:8000/storage/${v.gambar_varian}`"
+                class="w-20"
+              />
+            </div>
+            <div>
+              <p class="font-semibold">{{ v.nama_varian }}</p>
+              <p class="text-sm text-gray-600">Rp. {{ v.harga }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -71,7 +85,7 @@ const filteredProducts = computed(() => {
 
 // Ketika user memilih produk
 function chooseProduct(product) {
-  emit("select", product.id_produk);
+  emit("select", product.id_varian);
   emit("close");
 }
 </script>
