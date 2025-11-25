@@ -5,111 +5,65 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
 
 class UserRoleController extends Controller
 {
     /**
-     * Mengajukan permintaan menjadi seller.
+     * User mengajukan permintaan menjadi penjual (API)
      */
-    public function requestSeller(Request $request): JsonResponse
+    public function requestSeller(Request $request)
     {
-        $request->validate([
-            'store_name' => 'required|string|max:255',
-            'address' => 'required|string',
-            'description' => 'nullable|string',
-        ]);
-
         $user = $request->user();
 
-        // ✅ Simpan data ke database
-        $user->update([
-            'role' => 'user',
-            'is_seller_requesting' => true,
-            'store_name' => $request->store_name,
-            'address' => $request->address,
-            'description' => $request->description,
-        ]);
+        // Validasi agar tidak request berulang
+        if ($user->role === 'penjual_pending') {
+            return response()->json(['message' => 'Permintaan Anda sedang diproses.'], 409);
+        }
+        if ($user->role === 'penjual' || $user->role === 'admin') {
+            return response()->json(['message' => 'Anda sudah memiliki akses penjual/admin.'], 409);
+        }
 
-        // 📝 Tambahkan log untuk debugging
-        \Log::info('User submitted seller request', [
-            'user_id' => $user->id,
-            'store_name' => $request->store_name,
-            'address' => $request->address,
-            'description' => $request->description,
-            'is_seller_requesting' => $user->is_seller_requesting
-        ]);
+        $user->update(['role' => 'penjual_pending']);
 
         return response()->json([
-            'success' => true,
-            'message' => 'Permintaan menjadi seller berhasil diajukan!',
-            'user' => $user
-        ]);
+            'status' => 'success',
+            'message' => 'Permintaan menjadi penjual berhasil dikirim. Tunggu konfirmasi admin.',
+            'data' => $user
+        ], 200);
     }
 
     /**
-     * Menampilkan daftar permintaan seller (untuk admin).
+     * Admin melihat semua request penjual (API)
      */
-    public function index(): JsonResponse
+    public function index()
     {
-        $sellers = User::where('is_seller_requesting', true)
-            ->select('id', 'name', 'email', 'store_name', 'address', 'description')
-            ->get();
+        // Mengambil user dengan role 'penjual_pending'
+        $sellerRequests = User::where('role', 'penjual_pending')->get();
 
-        return response()->json($sellers);
+        return response()->json([
+            'status' => 'success',
+            'data' => $sellerRequests
+        ], 200);
     }
 
     /**
-     * Menyetujui permintaan seller → ubah role jadi 'penjual'.
+     * Admin menyetujui permintaan user menjadi penjual (API)
      */
-    public function approve(int $id): JsonResponse
+    public function approve($id)
     {
         $user = User::findOrFail($id);
 
-        if (!$user->is_seller_requesting) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User ini bukan dalam status pending.'
-            ], 400);
+        // Pastikan yang diapprove memang sedang pending
+        if ($user->role !== 'penjual_pending') {
+             return response()->json(['message' => 'Status user tidak valid untuk disetujui.'], 400);
         }
 
-        $user->update([
-            'role' => 'penjual',
-            'is_seller_requesting' => false,
-        ]);
+        $user->update(['role' => 'penjual']);
 
         return response()->json([
-            'success' => true,
-            'message' => 'Seller berhasil disetujui!',
-            'user' => $user
-        ]);
-    }
-
-    /**
-     * Menolak permintaan seller → reset flag.
-     */
-    public function reject(int $id): JsonResponse
-    {
-        $user = User::findOrFail($id);
-
-        if (!$user->is_seller_requesting) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User ini bukan dalam status pending.'
-            ], 400);
-        }
-
-        $user->update([
-            'is_seller_requesting' => false,
-            'store_name' => null,
-            'address' => null,
-            'description' => null,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Permintaan seller ditolak.',
-            'user' => $user
-        ]);
+            'status' => 'success',
+            'message' => 'User berhasil disetujui menjadi penjual.',
+            'data' => $user
+        ], 200);
     }
 }

@@ -1,18 +1,19 @@
 <?php
 
+use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\Variant;
 use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PcBuildController;
 use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\Api\UserRoleController;
+use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
 /*
@@ -43,6 +44,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order/store', [OrderController::class, 'store']);     // Untuk final checkout
     Route::get('/order/history', [OrderController::class, 'index']);     // Untuk final checkout
     Route::post('/payment/simulate/{order_id}', [PaymentController::class, 'simulate']);
+    
+    Route::get('/profile', [UserProfileController::class, 'me']);
+    // Update profile user
+    Route::put('/profile/update', [UserProfileController::class, 'updateProfile']);
+    // Update password
+    Route::put('/profile/update-password', [UserProfileController::class, 'updatePassword']);
 
     // Dapatkan data user yang sedang login
     Route::get('/user', function (Request $request) {
@@ -95,5 +102,3 @@ Route::prefix('role')->name('role.')->group(function () {
     Route::post('/approve-seller/{id}', [UserRoleController::class, 'approve']);
     Route::post('/reject-seller/{id}', [UserRoleController::class, 'reject']);
 });
-
-
