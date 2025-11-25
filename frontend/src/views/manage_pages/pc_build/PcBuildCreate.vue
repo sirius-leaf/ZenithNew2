@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 
-import ComponentSelect from "../../../components/ui/ComponentSelect.vue";
+import ProductPicker from "../../../components/ui/ProductPicker.vue";
 
 const router = useRouter();
 
@@ -21,11 +21,23 @@ const form = ref({
   },
 });
 
+const modal = ref({
+  motherboard: false,
+  cpu: false,
+  ram: false,
+  psu: false,
+  storage: false,
+});
+
 const errors = ref({});
 const isLoading = ref(false);
 
 // Ambil token
 const token = localStorage.getItem("authToken");
+
+function getProductName(id) {
+  return products.value.find((p) => p.id_produk === id)?.nama_produk || "-";
+}
 
 // Ambil daftar produk + user login
 onMounted(async () => {
@@ -39,8 +51,6 @@ onMounted(async () => {
     const productRes = await axios.get("http://127.0.0.1:8000/api/productAll");
 
     products.value = productRes.data.data;
-
-    console.log(products);
   } catch (err) {
     console.error("Gagal memuat data:", err);
     if (err.response?.status === 401) router.push("/login");
@@ -94,40 +104,155 @@ const submitForm = async () => {
       <div>
         <h3 class="text-lg font-semibold mb-2">Komponen</h3>
 
-        <ComponentSelect
-          label="Motherboard"
-          v-model="form.komponen.motherboard"
-          :products="products"
-          :error="errors['komponen.motherboard']"
-        />
+        <div>
+          <label class="block mb-1 font-medium">Motherboard</label>
 
-        <ComponentSelect
-          label="CPU"
-          v-model="form.komponen.cpu"
-          :products="products"
-          :error="errors['komponen.cpu']"
-        />
+          <button
+            type="button"
+            @click="modal.motherboard = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.motherboard
+                ? getProductName(form.komponen.motherboard)
+                : "Pilih Motherboard"
+            }}
+          </button>
 
-        <ComponentSelect
-          label="RAM"
-          v-model="form.komponen.ram"
-          :products="products"
-          :error="errors['komponen.ram']"
-        />
+          <!-- Error -->
+          <p v-if="errors['komponen.motherboard']" class="text-red-500 text-sm">
+            {{ errors["komponen.motherboard"][0] }}
+          </p>
 
-        <ComponentSelect
-          label="Power Supply"
-          v-model="form.komponen.psu"
-          :products="products"
-          :error="errors['komponen.psu']"
-        />
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.motherboard"
+            label="Motherboard"
+            :products="products"
+            @close="modal.motherboard = false"
+            @select="(id) => (form.komponen.motherboard = id)"
+          />
+        </div>
 
-        <ComponentSelect
-          label="Storage"
-          v-model="form.komponen.storage"
-          :products="products"
-          :error="errors['komponen.storage']"
-        />
+        <div>
+          <label class="block mb-1 font-medium">CPU</label>
+
+          <button
+            type="button"
+            @click="modal.cpu = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.cpu
+                ? getProductName(form.komponen.cpu)
+                : "Pilih CPU"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.cpu']" class="text-red-500 text-sm">
+            {{ errors["komponen.cpu"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.cpu"
+            label="CPU"
+            :products="products"
+            @close="modal.cpu = false"
+            @select="(id) => (form.komponen.cpu = id)"
+          />
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">RAM</label>
+
+          <button
+            type="button"
+            @click="modal.ram = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.ram
+                ? getProductName(form.komponen.ram)
+                : "Pilih RAM"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.ram']" class="text-red-500 text-sm">
+            {{ errors["komponen.ram"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.ram"
+            label="RAM"
+            :products="products"
+            @close="modal.ram = false"
+            @select="(id) => (form.komponen.ram = id)"
+          />
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Power Supply</label>
+
+          <button
+            type="button"
+            @click="modal.psu = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.psu
+                ? getProductName(form.komponen.psu)
+                : "Pilih Power Supply"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.psu']" class="text-red-500 text-sm">
+            {{ errors["komponen.psu"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.psu"
+            label="Power Supply"
+            :products="products"
+            @close="modal.psu = false"
+            @select="(id) => (form.komponen.psu = id)"
+          />
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Storage</label>
+
+          <button
+            type="button"
+            @click="modal.storage = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.storage
+                ? getProductName(form.komponen.storage)
+                : "Pilih Storage"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.storage']" class="text-red-500 text-sm">
+            {{ errors["komponen.storage"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.storage"
+            label="Storage"
+            :products="products"
+            @close="modal.storage = false"
+            @select="(id) => (form.komponen.storage = id)"
+          />
+        </div>
       </div>
 
       <!-- Tombol -->
