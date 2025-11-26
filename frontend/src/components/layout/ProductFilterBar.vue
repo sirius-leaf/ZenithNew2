@@ -9,12 +9,12 @@
       <button
         v-for="tag in popularTags"
         :key="tag.id"
-        @click="selectCategory(tag.name)"
+        @click="toggleCategory(tag.name)"
         :class="[
           'px-3 py-2 rounded-md text-sm font-medium transition',
           selectedCategory === tag.name
             ? 'bg-pink-600 text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
         ]"
       >
         {{ tag.name }}
@@ -56,9 +56,16 @@ const popularTags = ref([
 const selectedCategory = ref(null);
 const sortByPrice = ref('');
 
-const selectCategory = (categoryName) => {
-  selectedCategory.value = categoryName;
-  emit('category-selected', categoryName);
+// Toggle category: jika sudah dipilih, hapus filter; jika belum, set filter.
+const toggleCategory = (categoryName) => {
+  if (selectedCategory.value === categoryName) {
+    // Jika sudah dipilih, hapus filter (set null)
+    selectedCategory.value = null;
+  } else {
+    // Jika belum, set sebagai filter
+    selectedCategory.value = categoryName;
+  }
+  emit('category-selected', selectedCategory.value);
 };
 
 const sortProducts = () => {

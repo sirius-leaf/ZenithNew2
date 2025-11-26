@@ -20,8 +20,8 @@
         @sort-changed="applySortOrder"
       />
 
-      <!-- Product Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Product Grid atau Pesan Tidak Ditemukan -->
+      <div v-if="paginatedProducts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div
           v-for="product in paginatedProducts"
           :key="product.id_produk"
@@ -62,13 +62,18 @@
         </div>
       </div>
 
+      <!-- Pesan Tidak Ditemukan -->
+      <div v-else class="text-center py-10">
+        <p class="text-xl font-medium text-gray-700">Maaf produk yang anda cari tidak ditemukan</p>
+      </div>
+
       <!-- Pagination -->
-      <div class="mt-8 flex justify-center">
+      <div v-if="paginatedProducts.length > 0" class="mt-8 flex justify-center">
         <nav class="inline-flex rounded-md shadow">
           <button
             @click="prevPage"
             :disabled="currentPage === 1"
-            class="px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+            class="px-4 py-2 rounded-l-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50 disabled:opacity-50"
           >
             Sebelumnya
           </button>
@@ -77,10 +82,10 @@
             :key="page"
             @click="goToPage(page)"
             :class="[
-              'px-4 py-2 border border-gray-300 bg-white text-sm font-medium',
+              'px-4 py-2 border border-pink-300 text-sm font-medium',
               currentPage === page
                 ? 'bg-pink-600 text-white'
-                : 'text-gray-500 hover:bg-gray-50'
+                : 'text-pink-600 hover:bg-pink-50'
             ]"
           >
             {{ page }}
@@ -88,7 +93,7 @@
           <button
             @click="nextPage"
             :disabled="currentPage === totalPages"
-            class="px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+            class="px-4 py-2 rounded-r-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50 disabled:opacity-50"
           >
             Selanjutnya
           </button>
