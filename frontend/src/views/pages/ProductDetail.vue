@@ -179,7 +179,7 @@ onMounted(fetchProductDetail);
             </div>
           </div>
 
-          <!-- Pilih Kategori (sebelumnya: Kapasitas) -->
+          <!-- Pilih Kategori -->
           <div v-if="product.variant && product.variant.length > 0">
             <h3 class="font-semibold text-gray-800 mb-2">Pilih Kategori:</h3>
             <div class="flex flex-wrap gap-2 mb-4">
@@ -243,6 +243,46 @@ onMounted(fetchProductDetail);
               Keranjang
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- Profil Toko (Statis) -->
+      <div class="mt-12 pt-8 border-t border-gray-300">
+        <div class="flex items-center gap-4">
+          <!-- Logo Toko -->
+          <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14a7 7 0 007 7h0a7 7 0 007-7M12 14a7 7 0 00-7-7h0a7 7 0 00-7 7M12 14l-4 4m8-8l4 4" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-800">Samsung Indonesia</h3>
+            <p class="text-sm text-gray-500">Toko Resmi Samsung</p>
+            <div class="flex items-center mt-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2z" clip-rule="evenodd" />
+              </svg>
+              <span class="ml-1 text-xs text-gray-600">5 total barang</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deskripsi Produk (Statis) -->
+      <div class="mt-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Deskripsi Produk</h2>
+        <div class="prose max-w-none">
+          <p class="text-gray-700 leading-relaxed">
+            Quickly transfer your favorite content.
+            Featuring high-speed USB 3.2 Gen1 performance and transfer speeds up to 130MB/s¹ read, quickly and easily move your files to your smartphone, tablets and computers.
+            Secure your files with Lexar DataShield.
+            Easily create a password-protected safe that automatically encrypts data. And for peace of mind, files deleted from the safe are securely erased and can’t be recovered.
+            Compatible with Android™, PC and Mac® systems.
+            Compatible with USB Type-C and Type-A connectors, the Lexar® JumpDrive® Dual Drive D400 USB 3.2 Type-C™ allows you to easily transfer your files between your USB Type-C smartphones, tablets, laptops, Macs and traditional Type-A devices.
+            Stylish metal housing and swivel design.
+            The stylish metal housing design with the key ring loop provides outstanding durability while protecting the connectors while on-the-go.
+          </p>
         </div>
       </div>
 
