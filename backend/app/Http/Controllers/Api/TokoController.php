@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Toko;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -73,5 +74,30 @@ class TokoController extends Controller
             'message' => 'Toko berhasil dibuat!',
             'data' => $toko
         ], 201); // 201 Created
+    }
+
+    public function show($id_toko)
+    {
+        $toko = Toko::findOrFail($id_toko);
+
+        $products = $toko->products()->get();
+        $dataToko = $toko->with('user')->get();
+        $ratings = Review::whereHas('product', function ($q) use ($id_toko) {
+            $q->where('id_toko', $id_toko);
+        });
+
+        $avgRating = floor($ratings->avg('rating') * 10) / 10;
+        $countRating = $ratings->count();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Toko berhasil dibuat!',
+            'data' => $dataToko,
+            'products' => $products,
+            'ratingToko' => [
+                'rata-rata' => $avgRating,
+                'jumlah' => $countRating
+            ]
+        ], 201);
     }
 }

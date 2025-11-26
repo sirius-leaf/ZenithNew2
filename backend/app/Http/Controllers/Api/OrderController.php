@@ -27,9 +27,9 @@ class OrderController extends Controller
         $variantIds = collect($cartItemsInput)->pluck('id_varian')->toArray();
 
         $variants = Variant::with('product.toko')
-                            ->whereIn('id_varian', $variantIds)
-                            ->get()
-                            ->keyBy('id_varian');
+            ->whereIn('id_varian', $variantIds)
+            ->get()
+            ->keyBy('id_varian');
 
         $cartSummary = [];
         $totalPrice = 0;
@@ -38,7 +38,8 @@ class OrderController extends Controller
             $variant = $variants->get($item['id_varian']);
             $kuantitas = $item['kuantitas'];
 
-            if (!$variant) continue;
+            if (!$variant)
+                continue;
 
             if ($variant->stok < $kuantitas) {
                 return response()->json([
@@ -62,6 +63,17 @@ class OrderController extends Controller
             'cartItems' => $cartSummary,
             'totalPrice' => $totalPrice
         ], 200);
+    }
+
+    public function index()
+    {
+        $orders = Auth::user()->pesanans()->with('detailPesanans')->get();
+        //
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders
+        ]);
     }
 
     /**
@@ -101,7 +113,7 @@ class OrderController extends Controller
             }
 
             if (!$variant->product || !$variant->product->toko) {
-                 return response()->json(['message' => 'Gagal mengidentifikasi toko.'], 400);
+                return response()->json(['message' => 'Gagal mengidentifikasi toko.'], 400);
             }
 
             $tokoId = $variant->product->toko->id;

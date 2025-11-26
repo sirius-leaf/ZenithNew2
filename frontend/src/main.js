@@ -38,6 +38,7 @@ import OrderSuccess from "./views/pages/OrderSuccess.vue";
 import Profile from "./views/pages/ProfileUser.vue";
 import EditProfile from "./views/pages/EditProfile.vue";
 import OrderHistory from "./views/pages/OrderHistory.vue";
+import DetailToko from "./views/pages/DetailToko.vue";
 
 /* =========================================================
    📌 IMPORT DASHBOARD USER
@@ -109,6 +110,11 @@ const router = createRouter({
       name: "product-detail",
       component: ProductDetail,
       props: true,
+    },
+    {
+      path: "/toko/:id",
+      name: "toko.detail",
+      component: DetailToko,
     },
     { path: "/categories/:category", component: CategoryPage, props: true },
     { path: "/about", component: AboutPage },

@@ -37,6 +37,8 @@ Route::get('/productAll', [PcBuildController::class, 'products']);
 Route::get('/products/{id_produk}', [ProductPageController::class, 'show']);
 Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
 
+Route::get('/toko/{id_toko}', [TokoController::class, 'show']);
+
 
 // Rute yang memerlukan autentikasi (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
