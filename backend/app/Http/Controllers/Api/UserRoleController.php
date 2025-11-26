@@ -55,7 +55,7 @@ class UserRoleController extends Controller
 
         // Pastikan yang diapprove memang sedang pending
         if ($user->role !== 'penjual_pending') {
-             return response()->json(['message' => 'Status user tidak valid untuk disetujui.'], 400);
+            return response()->json(['message' => 'Status user tidak valid untuk disetujui.'], 400);
         }
 
         $user->update(['role' => 'penjual']);
@@ -63,6 +63,24 @@ class UserRoleController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'User berhasil disetujui menjadi penjual.',
+            'data' => $user
+        ], 200);
+    }
+
+    public function reject($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Pastikan yang diapprove memang sedang pending
+        if ($user->role !== 'penjual_pending') {
+            return response()->json(['message' => 'Status user tidak valid untuk disetujui.'], 400);
+        }
+
+        $user->update(['role' => 'user']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User berhasil ditolak menjadi penjual.',
             'data' => $user
         ], 200);
     }

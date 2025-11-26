@@ -20,7 +20,22 @@
 </template>
 
 <script setup>
-import NavbarAdmin from '@/components/layout/NavbarAdmin.vue'
-import SidebarAdmin from '@/components/layout/SidebarAdmin.vue'
-import FooterAdmin from '@/components/layout/FooterAdmin.vue'
+import { onMounted } from "vue";
+
+import NavbarAdmin from "@/components/layout/NavbarAdmin.vue";
+import SidebarAdmin from "@/components/layout/SidebarAdmin.vue";
+import FooterAdmin from "@/components/layout/FooterAdmin.vue";
+
+onMounted(() => {
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+
+  if (localStorage.getItem("userRole") !== "penjual") {
+    alert("Akses ditolak, Anda bukan admin");
+    router.push("/dashboard");
+  }
+});
 </script>
