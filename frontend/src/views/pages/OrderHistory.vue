@@ -10,7 +10,6 @@
             <th class="p-2 border">Total Harga</th>
             <th class="p-2 border">Status</th>
             <th class="p-2 border">Alamat Pengiriman</th>
-            <th class="p-2 border">Detail</th>
           </tr>
         </thead>
         <tbody>
@@ -19,14 +18,6 @@
             <td class="p-2 border">{{ order.total_harga }}</td>
             <td class="p-2 border">{{ order.status }}</td>
             <td class="p-2 border">{{ order.alamat_pengiriman }}</td>
-            <td class="p-2 border">
-              <button
-                @click="toggleDetail(order.id)"
-                class="px-3 py-1 bg-blue-500 text-white rounded"
-              >
-                Lihat
-              </button>
-            </td>
           </tr>
 
           <!-- detail pesanan -->

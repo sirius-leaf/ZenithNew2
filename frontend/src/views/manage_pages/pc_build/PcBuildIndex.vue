@@ -38,6 +38,12 @@ const deleteBuild = async (id) => {
 };
 
 onMounted(() => {
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+
   fetchBuild();
 });
 </script>

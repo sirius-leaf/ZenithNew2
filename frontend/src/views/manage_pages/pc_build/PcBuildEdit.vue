@@ -47,6 +47,12 @@ function getProductName(id) {
 }
 
 onMounted(async () => {
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+
   await loadProducts();
   await loadBuildData();
 });

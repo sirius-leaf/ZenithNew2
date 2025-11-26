@@ -6,16 +6,30 @@
       Memuat produk...
     </div>
 
-    <div v-else-if="error" class="text-center text-red-500 py-10">Terjadi kesalahan saat memuat produk: {{ error.message }}</div>
+    <div v-else-if="error" class="text-center text-red-500 py-10">
+      Terjadi kesalahan saat memuat produk: {{ error.message }}
+    </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="product in products" :key="product.id_produk" class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-lg">
-        <div class="h-48 w-full overflow-hidden bg-gray-100 flex items-center justify-center">
-          <img :src="product.main_image_url" :alt="product.nama_produk" class="w-full h-full object-cover transition duration-500 group-hover:scale-105" />
+      <div
+        v-for="product in products"
+        :key="product.id_produk"
+        class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-lg"
+      >
+        <div
+          class="h-48 w-full overflow-hidden bg-gray-100 flex items-center justify-center"
+        >
+          <img
+            :src="product.main_image_url"
+            :alt="product.nama_produk"
+            class="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+          />
         </div>
 
         <div class="p-6">
-          <h2 class="text-xl font-semibold mb-2 text-gray-800">{{ product.nama_produk }}</h2>
+          <h2 class="text-xl font-semibold mb-2 text-gray-800">
+            {{ product.nama_produk }}
+          </h2>
           <p class="text-gray-600 mb-4 truncate">{{ product.deskripsi }}</p>
 
           <div v-if="product.variant && product.variant.length > 0">
@@ -23,7 +37,9 @@
             <ul class="list-disc list-inside text-gray-500 text-sm">
               <li v-for="variant in product.variant" :key="variant.id_variant">
                 {{ variant.nama_variant }} -
-                <span class="font-bold text-green-600"> Rp {{ variant.harga.toLocaleString("id-ID") }} </span>
+                <span class="font-bold text-green-600">
+                  Rp {{ variant.harga.toLocaleString("id-ID") }}
+                </span>
               </li>
             </ul>
           </div>
@@ -31,7 +47,10 @@
             <p class="text-sm text-gray-500">Belum ada varian produk.</p>
           </div>
 
-          <router-link :to="{ name: 'product-detail', params: { id: product.id_produk } }" class="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition duration-200">
+          <router-link
+            :to="{ name: 'product-detail', params: { id: product.id_produk } }"
+            class="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition duration-200"
+          >
             Lihat Detail
           </router-link>
         </div>

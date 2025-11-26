@@ -48,6 +48,12 @@ function getProductName(id) {
 
 // Ambil daftar produk + user login
 onMounted(async () => {
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+
   try {
     const userRes = await axios.get("http://127.0.0.1:8000/api/user", {
       headers: { Authorization: `Bearer ${token}` },

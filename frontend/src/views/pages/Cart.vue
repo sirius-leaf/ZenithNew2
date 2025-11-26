@@ -7,6 +7,13 @@
       <!-- Header -->
       <h1 class="text-2xl font-bold text-pink-600 mb-6">KERANJANG</h1>
 
+      <router-link
+        to="/orderHistory"
+        class="mt-4 inline-block text-blue-600 hover:underline font-medium"
+      >
+        Lihat Riwayat Belanja
+      </router-link>
+
       <!-- Error Handling (Stok/Koneksi) -->
       <div
         v-if="apiError"

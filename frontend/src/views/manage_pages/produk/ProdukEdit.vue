@@ -426,6 +426,12 @@ const submitProduct = async () => {
 };
 
 onMounted(() => {
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+  
   fetchProduct();
 });
 </script>

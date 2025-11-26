@@ -104,7 +104,12 @@ const router = createRouter({
     /* ---------- Public Routes ---------- */
     { path: "/", component: HomePage },
     { path: "/product", component: ProductPage },
-    { path: "/product/:id", component: ProductDetail, props: true },
+    {
+      path: "/product/:id",
+      name: "product-detail",
+      component: ProductDetail,
+      props: true,
+    },
     { path: "/categories/:category", component: CategoryPage, props: true },
     { path: "/about", component: AboutPage },
     { path: "/testimonial", component: TestimonialPage },
@@ -113,8 +118,12 @@ const router = createRouter({
     { path: "/orderHistory", component: OrderHistory },
 
     { path: "/cart", component: CartPage },
-    { path: "/checkout", component: CheckoutPage },
-    { path: "/checkout/success", component: OrderSuccess },
+    { path: "/checkout", name: "checkout", component: CheckoutPage },
+    {
+      path: "/checkout/success",
+      name: "checkout.success",
+      component: OrderSuccess,
+    },
 
     /* ---------- Dashboard User ---------- */
     {
@@ -124,15 +133,30 @@ const router = createRouter({
         { path: "manage/users", component: ManageUser },
         { path: "manage/create-toko", component: CreateToko },
         { path: "manage/seller-requests", component: SellerRequests },
-
-        { path: "manage/produk", component: ProdukIndex },
-        { path: "manage/produk/create", component: ProdukCreate },
-        { path: "manage/produk/:id/edit", component: ProdukEdit },
-
-        { path: "manage/pcBuild", component: PcBuildIndex },
-        { path: "manage/pcBuild/create", component: PcBuildCreate },
-        { path: "manage/pcBuild/:id/edit", component: PcBuildEdit, props: true },
       ],
+    },
+    {
+      path: "/dashboard/manage/produk",
+      name: "produk.index",
+      component: ProdukIndex,
+    },
+    {
+      path: "/dashboard/manage/produk/create",
+      name: "produk.create",
+      component: ProdukCreate,
+    },
+    {
+      path: "/dashboard/manage/produk/:id/edit",
+      name: "produk.edit",
+      component: ProdukEdit,
+    },
+
+    { path: "/dashboard/manage/pcBuild", component: PcBuildIndex },
+    { path: "/dashboard/manage/pcBuild/create", component: PcBuildCreate },
+    {
+      path: "/dashboard/manage/pcBuild/:id/edit",
+      component: PcBuildEdit,
+      props: true,
     },
 
     /* ---------- Auth ---------- */
@@ -152,7 +176,4 @@ AOS.init();
 /* =========================================================
    📌 MOUNT APLIKASI (HARUS PALING BAWAH)
 ========================================================= */
-createApp(App)
-  .use(router)
-  .use(Toast)
-  .mount("#app");
+createApp(App).use(router).use(Toast).mount("#app");

@@ -142,6 +142,12 @@ const deleteProduct = async (id) => {
 };
 
 onMounted(() => {
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+
   if (localStorage.getItem("userRole") !== "penjual") {
     alert("Akses ditolak, Anda bukan penjual");
     router.push("/dashboard");
