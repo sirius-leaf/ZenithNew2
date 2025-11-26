@@ -117,11 +117,53 @@ onMounted(async () => {
       localStorage.setItem("userRole", res.data.role);
       role = res.data.role;
     }
+
+    // Fetch Products
+    const productRes = await axios.get("http://127.0.0.1:8000/api/products");
+    if (productRes.data && productRes.data.data) {
+      recommendedProducts.value = productRes.data.data.map((product) => {
+        const variant = product.variant && product.variant.length > 0 ? product.variant[0] : null;
+        let image = "https://via.placeholder.com/200/FFFFFF/000000?text=No+Image";
+        let price = "Rp 0";
+
+        if (variant) {
+          // Handle image path
+          if (variant.gambar_varian) {
+             // Check if it starts with http or https
+             if (variant.gambar_varian.startsWith('http')) {
+                 image = variant.gambar_varian;
+             } else {
+                 // Remove leading ../ if present and prepend base URL
+                 const cleanPath = variant.gambar_varian.replace(/^\.\.\//, '');
+                 image = `http://127.0.0.1:8000/${cleanPath}`;
+             }
+          }
+          price = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(variant.harga);
+        }
+
+        return {
+          id: product.id_produk,
+          name: product.nama_produk,
+          price: price,
+          rating: 0, // Default rating as it's not in the main list API
+          brand: product.merek,
+          image: image,
+        };
+      });
+    }
+
   } catch (error) {
-    console.error("Gagal mengambil data user:", error);
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userRole");
-    router.push("/login");
+    console.error("Gagal mengambil data:", error);
+    // Don't force logout on product fetch fail, only on user fetch fail if 401
+    if (error.response && error.response.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userRole");
+        router.push("/login");
+    }
   }
 });
 
