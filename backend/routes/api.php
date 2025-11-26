@@ -15,6 +15,7 @@ use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\Api\UserRoleController;
 use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Api\MidtransCallbackController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,8 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::get('/products', [ProductPageController::class, 'index']);
 Route::get('/productAll', [PcBuildController::class, 'products']);
 Route::get('/products/{id_produk}', [ProductPageController::class, 'show']);
+Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
+
 
 // Rute yang memerlukan autentikasi (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
@@ -43,8 +46,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order/preview', [OrderController::class, 'preview']); // Untuk melihat ringkasan & cek stok
     Route::post('/order/store', [OrderController::class, 'store']);     // Untuk final checkout
     Route::get('/order/history', [OrderController::class, 'index']);     // Untuk final checkout
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::post('/payment/simulate/{order_id}', [PaymentController::class, 'simulate']);
-    
+
     Route::get('/profile', [UserProfileController::class, 'me']);
     // Update profile user
     Route::put('/profile/update', [UserProfileController::class, 'updateProfile']);

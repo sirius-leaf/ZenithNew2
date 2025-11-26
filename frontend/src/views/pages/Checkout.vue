@@ -5,23 +5,20 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const { clearCart } = useCartStore(); // Hanya butuh fungsi clearCart
+const { clearCart } = useCartStore(); 
 
+// State
 const loading = ref(true);
 const loadingCheckout = ref(false);
 const apiError = ref(null);
-const cartSummary = ref([]); // Hasil dari API Preview
+const cartSummary = ref([]); 
 const totalPrice = ref(0);
 const successMessage = ref(null);
 
 // Form & User State
-const userDetails = ref({
-    name: '',
-    email: '',
-});
-const form = ref({
-    alamat_pengiriman: '',
-});
+const userDetails = ref({ name: '', email: '' });
+const form = ref({ alamat_pengiriman: '' });
+const paymentMethod = ref('transfer'); // State untuk pilihan metode pembayaran (Default: Transfer/Midtrans)
 
 const totalItems = computed(() => cartSummary.value.length);
 
@@ -30,10 +27,9 @@ const fetchCheckoutData = async () => {
     loading.value = true;
     apiError.value = null;
     
-    // --- 1.1 Ambil data item yang DIPILIH dari Cart.vue ---
     const selectedItemsJson = localStorage.getItem('checkout_selection');
     if (!selectedItemsJson) {
-        apiError.value = "Keranjang kosong atau belum memilih item. Silakan kembali ke keranjang.";
+        apiError.value = "Keranjang kosong atau belum memilih item.";
         loading.value = false;
         return;
     }
@@ -45,21 +41,16 @@ const fetchCheckoutData = async () => {
         return;
     }
 
-    // --- 1.2 Ambil data user (untuk display) ---
     const token = localStorage.getItem('authToken');
+    if (!token) { router.push({ name: 'login' }); return; }
+
     try {
         const userRes = await axios.get('http://127.0.0.1:8000/api/user', {
             headers: { Authorization: `Bearer ${token}` }
         });
         userDetails.value.name = userRes.data.name;
         userDetails.value.email = userRes.data.email;
-    } catch (e) {
-        router.push({ name: 'login' });
-        return;
-    }
 
-    // --- 1.3 Ambil preview cart untuk validasi akhir & ringkasan ---
-    try {
         const response = await axios.post('http://127.0.0.1:8000/api/order/preview', {
             cartItems: cartDataForApi
         }, { headers: { Authorization: `Bearer ${token}` } });
@@ -68,13 +59,13 @@ const fetchCheckoutData = async () => {
         totalPrice.value = response.data.totalPrice;
 
     } catch (error) {
-        apiError.value = error.response?.data?.message || 'Gagal memuat ringkasan keranjang. Cek stok Anda.';
+        apiError.value = error.response?.data?.message || 'Gagal memuat ringkasan keranjang.';
     } finally {
         loading.value = false;
     }
 };
 
-// 2. Proses Checkout
+// 2. Proses Checkout (INTEGRASI MIDTRANS)
 const finalizeCheckout = async () => {
     loadingCheckout.value = true;
     apiError.value = null;
@@ -91,25 +82,52 @@ const finalizeCheckout = async () => {
 
     const payload = {
         alamat_pengiriman: form.value.alamat_pengiriman,
-        cartItems: cartItemsPayload // Data yang sudah difilter
+        cartItems: cartItemsPayload,
+        payment_method: paymentMethod.value // Kirim metode pembayaran (transfer/cod)
     };
     
     const token = localStorage.getItem('authToken');
 
     try {
-        // Panggil API store yang sekarang mengembalikan order_ids
+        // A. Panggil API Store ke Backend
         const response = await axios.post('http://127.0.0.1:8000/api/order/store', payload, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
-        // Sukses!
-        const firstOrderId = response.data.order_ids[0]; // Ambil ID pesanan pertama
-        
-        clearCart(); // Kosongkan keranjang (global store)
-        localStorage.removeItem('checkout_selection'); // Hapus seleksi lokal
-        
-        // Redirect ke halaman sukses dengan ID pesanan yang valid
-        router.push({ name: 'checkout.success', query: { id: firstOrderId } });
+        const orderIds = response.data.order_ids;
+        const snapToken = response.data.snap_token; // Token dari Midtrans (jika ada)
+
+        // B. Cek Metode Pembayaran
+        if (paymentMethod.value === 'cod') {
+            // Jika COD, langsung sukses tanpa popup
+            handleSuccess(orderIds);
+        } else {
+            // Jika Transfer/Online, Buka Popup Midtrans Snap
+            if (window.snap && snapToken) {
+                window.snap.pay(snapToken, {
+                    onSuccess: function(result) {
+                        console.log('Payment Success:', result);
+                        handleSuccess(orderIds);
+                    },
+                    onPending: function(result) {
+                        console.log('Payment Pending:', result);
+                        handleSuccess(orderIds); // Tetap dianggap sukses order (status pending)
+                    },
+                    onError: function(result) {
+                        console.error('Payment Error:', result);
+                        apiError.value = "Pembayaran gagal atau dibatalkan.";
+                    },
+                    onClose: function() {
+                        console.warn('Customer closed the popup without finishing the payment');
+                        // Opsional: Arahkan ke riwayat transaksi
+                        alert('Anda menutup pembayaran. Silakan cek riwayat pesanan untuk membayar ulang.');
+                        router.push({ name: 'dashboard' });
+                    }
+                });
+            } else {
+                apiError.value = "Gagal memuat sistem pembayaran. Token tidak ditemukan.";
+            }
+        }
 
     } catch (error) {
         console.error("Checkout Gagal:", error);
@@ -119,6 +137,14 @@ const finalizeCheckout = async () => {
     }
 };
 
+// Fungsi Helper setelah order berhasil
+const handleSuccess = (orderIds) => {
+    clearCart(); // Hapus item dari keranjang global
+    localStorage.removeItem('checkout_selection'); // Hapus seleksi
+    
+    // Redirect ke halaman sukses dengan ID pesanan pertama
+    router.push({ name: 'checkout.success', query: { id: orderIds[0] } });
+};
 
 onMounted(() => {
     fetchCheckoutData();
@@ -160,11 +186,32 @@ onMounted(() => {
                     </div>
                     
                     <hr class="mt-6 border-gray-200">
-                    <p class="text-md font-semibold text-gray-800">Metode Pembayaran: Transfer Bank (Default)</p>
+                    <h3 class="text-md font-semibold text-gray-800 mb-3">Pilih Metode Pembayaran</h3>
+
+                    <div class="space-y-3">
+                        <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition" :class="{'border-blue-500 bg-blue-50': paymentMethod === 'transfer'}">
+                            <input type="radio" v-model="paymentMethod" value="transfer" name="payment_method" class="form-radio h-5 w-5 text-blue-600 focus:ring-blue-500 mr-3">
+                            <div>
+                                <p class="font-medium text-gray-800">Pembayaran Online (Midtrans)</p>
+                                <p class="text-xs text-gray-500">Transfer Bank (BCA, Mandiri, BNI, BRI), GoPay, ShopeePay, QRIS.</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition" :class="{'border-blue-500 bg-blue-50': paymentMethod === 'cod'}">
+                            <input type="radio" v-model="paymentMethod" value="cod" name="payment_method" class="form-radio h-5 w-5 text-blue-600 focus:ring-blue-500 mr-3">
+                            <div>
+                                <p class="font-medium text-gray-800">COD (Bayar di Tempat)</p>
+                                <p class="text-xs text-gray-500">Bayar tunai kepada kurir saat barang sampai di alamat Anda.</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <hr class="mb-4 mt-5 border-gray-200">
                     
                     <button type="submit" :disabled="loadingCheckout || apiError"
-                        class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition disabled:bg-gray-400">
-                        {{ loadingCheckout ? 'Membuat Pesanan...' : 'Buat Pesanan Sekarang' }}
+                        class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition disabled:bg-gray-400 flex justify-center items-center gap-2">
+                        <span v-if="loadingCheckout">Memproses...</span>
+                        <span v-else>Bayar Sekarang</span>
                     </button>
                 </form>
             </div>
