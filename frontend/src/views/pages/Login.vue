@@ -150,8 +150,6 @@ const loginUser = async () => {
       password: form.value.password,
     });
 
-    console.log("Login berhasil:", response.data);
-
     const role = response.data.user.role;
 
     // Simpan token

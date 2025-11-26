@@ -25,6 +25,8 @@ const form = ref({
   },
 });
 
+const totalHarga = ref(0);
+
 const modal = ref({
   motherboard: false,
   cpu: false,
@@ -36,12 +38,26 @@ const modal = ref({
 const errorMessage = ref(null);
 const successMessage = ref(null);
 
+function updateHarga() {
+  let tempTotal = 0;
+
+  Object.values(form.value.komponen).forEach((element) => {
+    tempTotal += Number(
+      variants.value.find((p) => p.id_varian === element.produk)?.harga || "0"
+    );
+  });
+
+  totalHarga.value = tempTotal;
+}
+
 function getProductName(id) {
   const varian = variants.value.find((p) => p.id_varian === id);
   const idProduk = varian?.id_produk || -1;
   const namaVarian = varian?.nama_varian || "-";
   const namaProduk =
     products.value.find((p) => p.id_produk === idProduk)?.nama_produk || "-";
+
+  updateHarga();
 
   return namaProduk + " (" + namaVarian + ")";
 }
@@ -150,6 +166,49 @@ const updateBuild = async () => {
           @close="modal.motherboard = false"
           @select="(id) => (form.komponen.motherboard.produk = id)"
         />
+
+        <div v-if="form.komponen.motherboard.produk">
+          <table class="min-w-full border border-gray-300">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2 border">Harga</th>
+                <th class="p-2 border">Stok</th>
+                <th class="p-2 border">Toko</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border">
+                  Rp.
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.motherboard.produk
+                    )?.harga
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.motherboard.produk
+                    )?.stok ?? "0"
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    products.find(
+                      (pr) =>
+                        pr.id_produk ===
+                        variants.find(
+                          (p) =>
+                            p.id_varian === form.komponen.motherboard.produk
+                        )?.id_produk
+                    )?.toko.toko_name ?? "-"
+                  }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div>
@@ -180,6 +239,48 @@ const updateBuild = async () => {
           @close="modal.cpu = false"
           @select="(id) => (form.komponen.cpu.produk = id)"
         />
+
+        <div v-if="form.komponen.cpu.produk">
+          <table class="min-w-full border border-gray-300">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2 border">Harga</th>
+                <th class="p-2 border">Stok</th>
+                <th class="p-2 border">Toko</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border">
+                  Rp.
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.cpu.produk
+                    )?.harga
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.cpu.produk
+                    )?.stok ?? "0"
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    products.find(
+                      (pr) =>
+                        pr.id_produk ===
+                        variants.find(
+                          (p) => p.id_varian === form.komponen.cpu.produk
+                        )?.id_produk
+                    )?.toko.toko_name ?? "-"
+                  }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div>
@@ -210,6 +311,48 @@ const updateBuild = async () => {
           @close="modal.ram = false"
           @select="(id) => (form.komponen.ram.produk = id)"
         />
+
+        <div v-if="form.komponen.ram.produk">
+          <table class="min-w-full border border-gray-300">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2 border">Harga</th>
+                <th class="p-2 border">Stok</th>
+                <th class="p-2 border">Toko</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border">
+                  Rp.
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.ram.produk
+                    )?.harga
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.ram.produk
+                    )?.stok ?? "0"
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    products.find(
+                      (pr) =>
+                        pr.id_produk ===
+                        variants.find(
+                          (p) => p.id_varian === form.komponen.ram.produk
+                        )?.id_produk
+                    )?.toko.toko_name ?? "-"
+                  }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div>
@@ -240,6 +383,48 @@ const updateBuild = async () => {
           @close="modal.psu = false"
           @select="(id) => (form.komponen.psu.produk = id)"
         />
+
+        <div v-if="form.komponen.psu.produk">
+          <table class="min-w-full border border-gray-300">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2 border">Harga</th>
+                <th class="p-2 border">Stok</th>
+                <th class="p-2 border">Toko</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border">
+                  Rp.
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.psu.produk
+                    )?.harga
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.psu.produk
+                    )?.stok ?? "0"
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    products.find(
+                      (pr) =>
+                        pr.id_produk ===
+                        variants.find(
+                          (p) => p.id_varian === form.komponen.psu.produk
+                        )?.id_produk
+                    )?.toko.toko_name ?? "-"
+                  }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div>
@@ -270,6 +455,48 @@ const updateBuild = async () => {
           @close="modal.storage = false"
           @select="(id) => (form.komponen.storage.produk = id)"
         />
+
+        <div v-if="form.komponen.storage.produk">
+          <table class="min-w-full border border-gray-300">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2 border">Harga</th>
+                <th class="p-2 border">Stok</th>
+                <th class="p-2 border">Toko</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border">
+                  Rp.
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.storage.produk
+                    )?.harga
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    variants.find(
+                      (p) => p.id_varian === form.komponen.storage.produk
+                    )?.stok ?? "0"
+                  }}
+                </td>
+                <td class="p-2 border">
+                  {{
+                    products.find(
+                      (pr) =>
+                        pr.id_produk ===
+                        variants.find(
+                          (p) => p.id_varian === form.komponen.storage.produk
+                        )?.id_produk
+                    )?.toko.toko_name ?? "-"
+                  }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- COMBO SELECT COMPONENT 
@@ -295,6 +522,10 @@ const updateBuild = async () => {
           </select>
         </div>
       </template> -->
+
+      <h2 class="text-lg font-semibold mb-2">
+        Total Harga : Rp. {{ totalHarga }}
+      </h2>
 
       <button
         type="submit"

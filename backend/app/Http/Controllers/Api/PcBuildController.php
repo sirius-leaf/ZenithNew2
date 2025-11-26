@@ -34,7 +34,7 @@ class PcBuildController extends Controller
      */
     public function products()
     {
-        $products = Product::with('variant')->get();
+        $products = Product::with('variant', 'toko')->get();
         $variants = Variant::all();
 
         return response()->json([
