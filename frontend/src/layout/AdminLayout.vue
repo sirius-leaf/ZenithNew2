@@ -21,6 +21,9 @@
 
 <script setup>
 import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 import NavbarAdmin from "@/components/layout/NavbarAdmin.vue";
 import SidebarAdmin from "@/components/layout/SidebarAdmin.vue";
@@ -33,9 +36,9 @@ onMounted(() => {
     return;
   }
 
-  if (localStorage.getItem("userRole") !== "penjual") {
+  if (localStorage.getItem("userRole") !== "admin") {
     alert("Akses ditolak, Anda bukan admin");
-    router.push("/dashboard");
+    router.push("/");
   }
 });
 </script>

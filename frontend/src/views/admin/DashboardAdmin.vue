@@ -24,7 +24,7 @@ onMounted(() => {
 
   if (localStorage.getItem("userRole") !== "admin") {
     alert("Akses ditolak, Anda bukan admin");
-    router.push("/dashboard");
+    router.push("/");
   }
 });
 </script>

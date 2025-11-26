@@ -88,14 +88,18 @@
             :disabled="isLoading"
             class="w-full max-w-[208px] h-8 px-8 sm:px-16 py-2 bg-white rounded-2xl flex justify-center items-center hover:bg-gray-100 transition-colors disabled:opacity-75 disabled:cursor-not-allowed"
           >
-            <span class="text-blue-900 text-sm sm:text-base font-medium font-['Ubuntu']">
+            <span
+              class="text-blue-900 text-sm sm:text-base font-medium font-['Ubuntu']"
+            >
               {{ isLoading ? "Loading..." : "Login" }}
             </span>
           </button>
 
           <!-- Register Prompt: Text + Link on new line -->
           <div class="mt-4 flex flex-col items-center gap-1">
-            <span class="text-white/80 text-xs sm:text-sm font-normal font-['Ubuntu']">
+            <span
+              class="text-white/80 text-xs sm:text-sm font-normal font-['Ubuntu']"
+            >
               Belom punya akun?
             </span>
             <router-link
@@ -148,8 +152,11 @@ const loginUser = async () => {
 
     console.log("Login berhasil:", response.data);
 
+    const role = response.data.user.role;
+
     // Simpan token
     localStorage.setItem("authToken", response.data.token);
+    localStorage.setItem("userRole", role);
     axios.defaults.headers.common[
       "Authorization"
     ] = `Bearer ${response.data.token}`;
@@ -158,7 +165,8 @@ const loginUser = async () => {
     form.value = { email: "", password: "" };
 
     // Redirect
-    router.push("/dashboard");
+    if (role === "admin") router.push("/admin");
+    else router.push("/dashboard");
   } catch (error) {
     if (error.response?.data?.message) {
       errorMessage.value = error.response.data.message;
