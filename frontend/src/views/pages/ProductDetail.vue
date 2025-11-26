@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { useRoute } from "vue-router";
 import { useCartStore } from "@/stores/cartStore";
+import ProductReviews from "@/components/product/ProductReviews.vue";
 
 const route = useRoute();
 const { updateCartItem } = useCartStore();
@@ -14,6 +15,7 @@ const error = ref(null);
 // State untuk varian yang dipilih
 const selectedVariant = ref(null);
 const quantity = ref(1);
+const activeTab = ref('detail');
 
 // Computed: URL Gambar Utama
 const mainImage = computed(() => {
@@ -111,217 +113,258 @@ onMounted(fetchProductDetail);
 <template>
   <main class="px-4 py-6 md:px-6 lg:px-8 max-w-7xl mx-auto w-full">
     <!-- Back Link -->
-    <router-link
-      to="/"
-      class="inline-block mb-4 text-indigo-600 hover:text-indigo-800 transition duration-200"
+    <!-- Back Link -->
+    <button
+      @click="$router.back()"
+      class="inline-block mb-4 text-gray-500 hover:text-pink-600 transition duration-200 text-sm font-medium"
     >
-      &larr; Kembali ke Daftar Produk
-    </router-link>
+      &larr; Kembali
+    </button>
 
     <div v-if="loading" class="text-center text-gray-600 py-12">
       Memuat detail produk...
     </div>
 
     <div v-else-if="error" class="text-center text-red-500 py-12">
-      Terjadi kesalahan saat memuat detail produk: {{ error.message }}
+      Terjadi kesalahan: {{ error.message }}
     </div>
 
-    <div v-else-if="product" class="bg-white rounded-lg shadow-lg p-6 md:p-8">
-      <!-- Main Content -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <!-- Kolom Kiri: Gambar Produk -->
-        <div class="md:col-span-5">
-          <img
-            :src="mainImage"
-            :alt="product.nama_produk"
-            class="w-full h-auto object-contain rounded-lg shadow-md"
-          />
-          <p class="text-xs text-gray-500 mt-2 text-center">Gambar utama</p>
+    <div v-else-if="product" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- KOLOM KIRI: GALERI GAMBAR (3 cols) -->
+      <div class="lg:col-span-3">
+        <div class="sticky top-24">
+          <!-- Main Image -->
+          <div class="rounded-xl overflow-hidden border border-gray-200 mb-4">
+            <img
+              :src="mainImage"
+              :alt="product.nama_produk"
+              class="w-full h-auto object-contain bg-white"
+            />
+          </div>
+          <!-- Thumbnails (Mocked for now) -->
+          <div class="grid grid-cols-4 gap-2">
+            <div 
+              v-for="i in 4" 
+              :key="i"
+              class="aspect-square rounded-md border border-gray-200 overflow-hidden cursor-pointer hover:border-pink-500 transition"
+              :class="{'border-pink-500 ring-1 ring-pink-500': i === 1}"
+            >
+              <img :src="mainImage" class="w-full h-full object-cover" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KOLOM TENGAH: INFO PRODUK (6 cols) -->
+      <div class="lg:col-span-6">
+        <!-- Nama Produk -->
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ product.nama_produk }}</h1>
+        
+        <!-- Rating & Sold -->
+        <div class="flex items-center text-sm mb-4">
+          <span class="text-gray-600 mr-2">Terjual <span class="text-gray-900 font-medium">15</span></span>
+          <span class="text-gray-300 mx-2">•</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 111.838.616l-1.07 3.292a1 1 0 00.919.592l3.181.45a1 1 0 01-.736 1.715l-1.07 3.292a1 1 0 101.838.616l1.07-3.292a1 1 0 01.919.592l1.07 3.292a1 1 0 01-1.028.684H9.049a1 1 0 01-1.028-.684l-1.07-3.292a1 1 0 00-1.028-.684l-3.181-.45a1 1 0 01-.736-1.715l1.07-3.292a1 1 0 10-1.838-.616l1.07 3.292a1 1 0 01-.919.592l-3.181.45z" />
+          </svg>
+          <span class="ml-1 font-medium text-gray-900">5</span>
+          <span class="text-gray-500 ml-1">(5 rating)</span>
         </div>
 
-        <!-- Kolom Kanan: Detail Produk -->
-        <div class="md:col-span-7 space-y-6">
-          <!-- Nama Produk & Rating -->
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900">{{ product.nama_produk }}</h1>
-            <div class="flex items-center mt-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 111.838.616l-1.07 3.292a1 1 0 00.919.592l3.181.45a1 1 0 01-.736 1.715l-1.07 3.292a1 1 0 101.838.616l1.07-3.292a1 1 0 01.919.592l1.07 3.292a1 1 0 01-1.028.684H9.049a1 1 0 01-1.028-.684l-1.07-3.292a1 1 0 00-1.028-.684l-3.181-.45a1 1 0 01-.736-1.715l1.07-3.292a1 1 0 10-1.838-.616l1.07 3.292a1 1 0 01-.919.592l-3.181.45z" />
-              </svg>
-              <span class="ml-1 text-sm text-gray-600">4.8</span>
-            </div>
-          </div>
+        <!-- Harga -->
+        <div class="mb-6">
+          <h2 class="text-3xl font-bold text-gray-900">
+            Rp {{ (product.variant?.[0]?.harga ?? 0).toLocaleString('id-ID') }}
+          </h2>
+        </div>
 
-          <!-- Harga -->
-          <div>
-            <p class="text-3xl font-bold text-pink-600">
-              Rp {{ (product.variant?.[0]?.harga ?? 0).toLocaleString('id-ID') }}
-            </p>
-          </div>
+        <!-- Tabs Navigation -->
+        <div class="border-b border-gray-200 mb-6">
+          <nav class="flex space-x-8">
+            <button
+              @click="activeTab = 'detail'"
+              :class="[
+                'pb-3 text-sm font-bold border-b-2 transition-colors',
+                activeTab === 'detail' ? 'border-pink-600 text-pink-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+              ]"
+            >
+              Detail Produk
+            </button>
+            <button
+              @click="activeTab = 'spesifikasi'"
+              :class="[
+                'pb-3 text-sm font-bold border-b-2 transition-colors',
+                activeTab === 'spesifikasi' ? 'border-pink-600 text-pink-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+              ]"
+            >
+              Spesifikasi
+            </button>
+            <button
+              @click="activeTab = 'info'"
+              :class="[
+                'pb-3 text-sm font-bold border-b-2 transition-colors',
+                activeTab === 'info' ? 'border-pink-600 text-pink-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+              ]"
+            >
+              Info Penting
+            </button>
+          </nav>
+        </div>
 
-          <!-- Pilih Warna -->
-          <div v-if="product.variant && product.variant.length > 0">
-            <h3 class="font-semibold text-gray-800 mb-2">Pilih Warna:</h3>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <button
-                v-for="variant in product.variant"
-                :key="variant.id_varian"
-                @click="selectVariant(variant)"
-                :class="[
-                  'px-4 py-2 rounded-md text-sm font-medium transition',
-                  selectedVariant?.id_varian === variant.id_varian
-                    ? 'bg-pink-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
-                ]"
-              >
-                {{ variant.nama_varian }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Pilih Kategori -->
-          <div v-if="product.variant && product.variant.length > 0">
-            <h3 class="font-semibold text-gray-800 mb-2">Pilih Kategori:</h3>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <button
-                v-for="variant in product.variant"
-                :key="variant.id_varian"
-                @click="selectVariant(variant)"
-                :class="[
-                  'px-4 py-2 rounded-md text-sm font-medium transition',
-                  selectedVariant?.id_varian === variant.id_varian
-                    ? 'bg-pink-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
-                ]"
-              >
-                {{ variant.nama_varian }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Kuantitas & Stok -->
-          <div class="flex items-center gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Kuantitas:</label>
-              <div class="flex items-center border border-gray-300 rounded-md">
-                <button
-                  @click="decrementQuantity"
-                  class="px-3 py-2 bg-gray-100 hover:bg-gray-200 transition"
-                  :disabled="quantity <= 1"
-                >
-                  –
-                </button>
-                <span class="w-12 text-center py-2">{{ quantity }}</span>
-                <button
-                  @click="incrementQuantity"
-                  class="px-3 py-2 bg-gray-100 hover:bg-gray-200 transition"
-                  :disabled="quantity >= (selectedVariant?.stok || 1)"
-                >
-                  +
-                </button>
+        <!-- Tab Content -->
+        <div class="mb-8 min-h-[200px]">
+          <!-- Detail Tab -->
+          <div v-if="activeTab === 'detail'">
+            <div class="space-y-3 text-sm text-gray-700">
+              <p><span class="text-gray-500 w-32 inline-block">Kondisi:</span> <span class="font-medium text-gray-900">Baru</span></p>
+              <p><span class="text-gray-500 w-32 inline-block">Min. Pemesanan:</span> <span class="font-medium text-gray-900">1 Buah</span></p>
+              <p><span class="text-gray-500 w-32 inline-block">Etalase:</span> <span class="font-medium text-pink-600 font-bold">GAMING LAPTOP</span></p>
+              
+              <div class="mt-4 prose prose-sm max-w-none text-gray-700">
+                <p>
+                  Quickly transfer your favorite content.
+                  Featuring high-speed USB 3.2 Gen1 performance and transfer speeds up to 130MB/s¹ read, quickly and easily move your files to your smartphone, tablets and computers.
+                </p>
+                <p>
+                  Secure your files with Lexar DataShield.
+                  Easily create a password-protected safe that automatically encrypts data. And for peace of mind, files deleted from the safe are securely erased and can’t be recovered.
+                </p>
               </div>
             </div>
-            <div class="mt-6">
-              <span class="inline-block px-3 py-1 text-sm font-medium text-gray-700">
-                Stok: {{ selectedVariant?.stok || 0 }}
-              </span>
+          </div>
+
+          <!-- Spesifikasi Tab -->
+          <div v-else-if="activeTab === 'spesifikasi'">
+            <p class="text-gray-500 text-sm">Spesifikasi lengkap produk akan ditampilkan di sini.</p>
+          </div>
+
+          <!-- Info Penting Tab -->
+          <div v-else-if="activeTab === 'info'">
+            <p class="text-gray-500 text-sm">Informasi penting mengenai pengiriman dan garansi.</p>
+          </div>
+        </div>
+
+        <!-- Shop Info -->
+        <div class="flex items-center gap-4 pt-6 border-t border-gray-200">
+          <div class="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
+             <img src="@/assets/logo.png" alt="Zenith Logo" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-gray-900">Zenith Store</h3>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-gray-500 mt-1">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 111.838.616l-1.07 3.292a1 1 0 00.919.592l3.181.45a1 1 0 01-.736 1.715l-1.07 3.292a1 1 0 101.838.616l1.07-3.292a1 1 0 01.919.592l1.07 3.292a1 1 0 01-1.028.684H9.049a1 1 0 01-1.028-.684l-1.07-3.292a1 1 0 00-1.028-.684l-3.181-.45a1 1 0 01-.736-1.715l1.07-3.292a1 1 0 10-1.838-.616l1.07 3.292a1 1 0 01-.919.592l-3.181.45z"/></svg>
+                4.9
+              </div>
+            </div>
+          </div>
+          <button class="px-6 py-1.5 border border-pink-600 text-pink-600 font-semibold rounded-lg text-sm hover:bg-pink-50 transition">
+            Lihat Toko
+          </button>
+        </div>
+      </div>
+
+      <!-- KOLOM KANAN: PURCHASE CARD (3 cols) -->
+      <div class="lg:col-span-3">
+        <div class="sticky top-24 border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
+          <h3 class="font-bold text-gray-900 mb-4">Atur jumlah dan catatan</h3>
+          
+          <!-- Variant Selection (Simplified for UI match) -->
+          <div v-if="product.variant && product.variant.length > 0" class="mb-4">
+             <div class="flex flex-wrap gap-2">
+              <button
+                v-for="variant in product.variant"
+                :key="variant.id_varian"
+                @click="selectVariant(variant)"
+                :class="[
+                  'px-3 py-1.5 rounded-md text-xs font-medium transition border',
+                  selectedVariant?.id_varian === variant.id_varian
+                    ? 'bg-pink-50 border-pink-500 text-pink-600'
+                    : 'bg-white border-gray-300 text-gray-600 hover:border-pink-500'
+                ]"
+              >
+                {{ variant.nama_varian }}
+              </button>
             </div>
           </div>
 
-          <!-- Tombol Aksi -->
-          <div class="flex gap-3 mt-6">
+          <!-- Quantity -->
+          <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center border border-gray-300 rounded-md">
+              <button
+                @click="decrementQuantity"
+                class="px-3 py-1 text-gray-500 hover:bg-gray-100 disabled:opacity-50"
+                :disabled="quantity <= 1"
+              >
+                –
+              </button>
+              <input 
+                type="text" 
+                v-model="quantity" 
+                class="w-10 text-center text-sm border-none focus:ring-0 p-1" 
+                readonly
+              />
+              <button
+                @click="incrementQuantity"
+                class="px-3 py-1 text-pink-600 hover:bg-gray-100 disabled:opacity-50"
+                :disabled="quantity >= (selectedVariant?.stok || 1)"
+              >
+                +
+              </button>
+            </div>
+            <span class="text-sm text-gray-500">Stok Total: <span class="font-bold text-gray-900">{{ selectedVariant?.stok || 0 }}</span></span>
+          </div>
+
+          <!-- Subtotal -->
+          <div class="flex justify-between items-center mb-6">
+            <span class="text-gray-500 text-sm">Subtotal</span>
+            <span class="font-bold text-lg text-gray-900">Rp {{ ((selectedVariant?.harga || 0) * quantity).toLocaleString('id-ID') }}</span>
+          </div>
+
+          <!-- Buttons -->
+          <div class="space-y-3">
+            <button
+              @click="handleAddToCart"
+              class="w-full bg-pink-600 text-white font-bold py-2.5 rounded-lg hover:bg-pink-700 transition flex items-center justify-center gap-2"
+            >
+              <span>+</span> Keranjang
+            </button>
             <button
               @click="handleBuyNow"
-              class="flex-1 bg-pink-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-pink-700 transition"
+              class="w-full border border-pink-600 text-pink-600 font-bold py-2.5 rounded-lg hover:bg-pink-50 transition"
             >
               Beli Langsung
             </button>
-            <button
-              @click="handleAddToCart"
-              class="flex-1 bg-pink-100 text-pink-700 px-6 py-3 rounded-md font-semibold hover:bg-pink-200 transition"
-            >
-              Keranjang
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-between mt-6 pt-4 border-t border-gray-100 text-sm font-medium text-gray-700">
+            <button class="flex items-center gap-1 hover:text-pink-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+              Chat
+            </button>
+            <button class="flex items-center gap-1 hover:text-pink-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              Wishlist
+            </button>
+            <button class="flex items-center gap-1 hover:text-pink-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Share
             </button>
           </div>
+
         </div>
       </div>
 
-      <!-- Profil Toko (Statis) -->
-      <div class="mt-12 pt-8 border-t border-gray-300">
-        <div class="flex items-center gap-4">
-          <!-- Logo Toko -->
-          <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14a7 7 0 007 7h0a7 7 0 007-7M12 14a7 7 0 00-7-7h0a7 7 0 00-7 7M12 14l-4 4m8-8l4 4" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-gray-800">Samsung Indonesia</h3>
-            <p class="text-sm text-gray-500">Toko Resmi Samsung</p>
-            <div class="flex items-center mt-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2z" clip-rule="evenodd" />
-              </svg>
-              <span class="ml-1 text-xs text-gray-600">5 total barang</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Deskripsi Produk (Statis) -->
-      <div class="mt-8">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">Deskripsi Produk</h2>
-        <div class="prose max-w-none">
-          <p class="text-gray-700 leading-relaxed">
-            Quickly transfer your favorite content.
-            Featuring high-speed USB 3.2 Gen1 performance and transfer speeds up to 130MB/s¹ read, quickly and easily move your files to your smartphone, tablets and computers.
-            Secure your files with Lexar DataShield.
-            Easily create a password-protected safe that automatically encrypts data. And for peace of mind, files deleted from the safe are securely erased and can’t be recovered.
-            Compatible with Android™, PC and Mac® systems.
-            Compatible with USB Type-C and Type-A connectors, the Lexar® JumpDrive® Dual Drive D400 USB 3.2 Type-C™ allows you to easily transfer your files between your USB Type-C smartphones, tablets, laptops, Macs and traditional Type-A devices.
-            Stylish metal housing and swivel design.
-            The stylish metal housing design with the key ring loop provides outstanding durability while protecting the connectors while on-the-go.
-          </p>
-        </div>
-      </div>
-
-      <!-- Ulasan Pelanggan -->
-      <div class="mt-12 pt-8 border-t border-gray-300">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Ulasan Pelanggan ({{ product.reviews.length }})</h2>
-        <div v-if="product.reviews.length === 0" class="text-gray-500">
-          Belum ada ulasan untuk produk ini.
-        </div>
-        <div v-else class="space-y-6">
-          <div
-            v-for="review in product.reviews"
-            :key="review.id"
-            class="bg-gray-50 p-4 rounded-lg border border-gray-200"
-          >
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 class="font-medium text-gray-900">{{ review.user.name }}</h3>
-                <p class="text-sm text-gray-500">{{ review.created_at }}</p>
-              </div>
-              <div class="flex">
-                <span
-                  v-for="star in 5"
-                  :key="star"
-                  class="text-xl"
-                  :class="
-                    review.rating >= star
-                      ? 'text-yellow-500'
-                      : 'text-gray-300'
-                  "
-                >
-                  ★
-                </span>
-              </div>
-            </div>
-            <p class="mt-3 text-gray-700 italic">"{{ review.komentar }}"</p>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div v-else class="text-center text-gray-600 py-12">

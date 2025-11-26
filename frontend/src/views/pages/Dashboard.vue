@@ -246,8 +246,12 @@ const handleLogout = () => {
           <h3 class="font-bold text-pink-600 mb-4 text-lg text-center uppercase tracking-wider border-b-2 border-pink-300 pb-2">Rekomendasi</h3>
           
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div v-for="product in paginatedProducts" :key="product.id" class="bg-gray-50 rounded-lg p-3 shadow-sm hover:shadow-md transition cursor-pointer group">
-              <div class="relative overflow-hidden rounded-md mb-3">
+            <div
+        v-for="product in paginatedProducts"
+        :key="product.id_produk"
+        class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition cursor-pointer group"
+        @click="$router.push({ name: 'product-detail', params: { id: product.id } })"
+      >        <div class="relative overflow-hidden rounded-md mb-3">
                 <img :src="product.image" :alt="product.name" class="w-full h-32 object-cover transform group-hover:scale-110 transition-transform duration-500" />
               </div>
               <h4 class="font-semibold text-gray-800 text-sm mb-1 line-clamp-1 group-hover:text-pink-600 transition-colors">{{ product.name }}</h4>
