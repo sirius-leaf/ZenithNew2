@@ -25,7 +25,7 @@ import AOS from "aos";
    📌 IMPORT HALAMAN PAGES (PUBLIC)
 ========================================================= */
 import HomePage from "./views/pages/Home.vue";
-import ProductPage from "./views/pages/Product.vue";
+import SearchingPage from "./views/pages/Searching.vue";
 import CategoryPage from "./views/pages/Category.vue";
 import AboutPage from "./views/pages/About.vue";
 import TestimonialPage from "./views/pages/Testimonials.vue";
@@ -104,7 +104,7 @@ const router = createRouter({
 
     /* ---------- Public Routes ---------- */
     { path: "/", component: HomePage },
-    { path: "/product", component: ProductPage },
+    { path: "/searching", component: SearchingPage },
     {
       path: "/product/:id",
       name: "product-detail",

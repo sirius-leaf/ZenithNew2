@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-fit">
+  <div class="bg-white rounded-xl border-2 border-blue-500 p-6 h-fit">
     <h3 class="font-bold text-gray-800 text-lg mb-4">Kategori</h3>
     <div class="flex flex-col space-y-2">
       <button
@@ -7,10 +7,10 @@
         :key="tag.id"
         @click="toggleCategory(tag.name)"
         :class="[
-          'text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200',
+          'text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 cursor-pointer',
           selectedCategory === tag.name
-            ? 'bg-pink-50 text-pink-600'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            ? 'bg-pink-500 text-white'
+            : 'text-gray-600 hover:bg-pink-500 hover:text-white'
         ]"
       >
         {{ tag.name }}

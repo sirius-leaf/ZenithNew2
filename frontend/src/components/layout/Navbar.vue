@@ -62,7 +62,7 @@ const logout = (e) => {
 const searchQuery = ref('')
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    router.push({ path: '/product', query: { q: searchQuery.value } })
+    router.push({ path: '/searching', query: { q: searchQuery.value } })
   }
 }
 </script>
