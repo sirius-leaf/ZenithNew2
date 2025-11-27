@@ -19,6 +19,12 @@ const form = ref({
     ram: "",
     psu: "",
     storage: "",
+    cooler: "",
+    "video-card": "",
+    case: "",
+    monitor: "",
+    mouse: "",
+    keyboard: "",
   },
 });
 
@@ -30,6 +36,12 @@ const modal = ref({
   ram: false,
   psu: false,
   storage: false,
+  cooler: false,
+  "video-card": false,
+  case: false,
+  monitor: false,
+  mouse: false,
+  keyboard: false,
 });
 
 const errors = ref({});
@@ -482,6 +494,432 @@ const submitForm = async () => {
                           pr.id_produk ===
                           variants.find(
                             (p) => p.id_varian === form.komponen.storage
+                          )?.id_produk
+                      )?.toko.toko_name ?? "-"
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">CPU Cooler</label>
+
+          <button
+            type="button"
+            @click="modal.cooler = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.cooler
+                ? getProductName(form.komponen.cooler)
+                : "Pilih CPU Cooler"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.cooler']" class="text-red-500 text-sm">
+            {{ errors["komponen.cooler"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.cooler"
+            label="CPU Cooler"
+            :products="products"
+            @close="modal.cooler = false"
+            @select="(id) => (form.komponen.cooler = id)"
+          />
+
+          <div v-if="form.komponen.cooler">
+            <table class="min-w-full border border-gray-300">
+              <thead>
+                <tr class="bg-gray-200">
+                  <th class="p-2 border">Harga</th>
+                  <th class="p-2 border">Stok</th>
+                  <th class="p-2 border">Toko</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-2 border">
+                    Rp.
+                    {{
+                      variants.find((p) => p.id_varian === form.komponen.cooler)
+                        ?.harga
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      variants.find((p) => p.id_varian === form.komponen.cooler)
+                        ?.stok ?? "0"
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      products.find(
+                        (pr) =>
+                          pr.id_produk ===
+                          variants.find(
+                            (p) => p.id_varian === form.komponen.cooler
+                          )?.id_produk
+                      )?.toko.toko_name ?? "-"
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Video Card</label>
+
+          <button
+            type="button"
+            @click="modal['video-card'] = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen["video-card"]
+                ? getProductName(form.komponen["video-card"])
+                : "Pilih Video Card"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.video-card']" class="text-red-500 text-sm">
+            {{ errors["komponen.video-card"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal['video-card']"
+            label="Video Card"
+            :products="products"
+            @close="modal['video-card'] = false"
+            @select="(id) => (form.komponen['video-card'] = id)"
+          />
+
+          <div v-if="form.komponen['video-card']">
+            <table class="min-w-full border border-gray-300">
+              <thead>
+                <tr class="bg-gray-200">
+                  <th class="p-2 border">Harga</th>
+                  <th class="p-2 border">Stok</th>
+                  <th class="p-2 border">Toko</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-2 border">
+                    Rp.
+                    {{
+                      variants.find(
+                        (p) => p.id_varian === form.komponen["video-card"]
+                      )?.harga
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      variants.find(
+                        (p) => p.id_varian === form.komponen["video-card"]
+                      )?.stok ?? "0"
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      products.find(
+                        (pr) =>
+                          pr.id_produk ===
+                          variants.find(
+                            (p) => p.id_varian === form.komponen["video-card"]
+                          )?.id_produk
+                      )?.toko.toko_name ?? "-"
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Case</label>
+
+          <button
+            type="button"
+            @click="modal.case = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.case
+                ? getProductName(form.komponen.case)
+                : "Pilih Case"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.case']" class="text-red-500 text-sm">
+            {{ errors["komponen.case"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.case"
+            label="Case"
+            :products="products"
+            @close="modal.case = false"
+            @select="(id) => (form.komponen.case = id)"
+          />
+
+          <div v-if="form.komponen.case">
+            <table class="min-w-full border border-gray-300">
+              <thead>
+                <tr class="bg-gray-200">
+                  <th class="p-2 border">Harga</th>
+                  <th class="p-2 border">Stok</th>
+                  <th class="p-2 border">Toko</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-2 border">
+                    Rp.
+                    {{
+                      variants.find((p) => p.id_varian === form.komponen.case)
+                        ?.harga
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      variants.find((p) => p.id_varian === form.komponen.case)
+                        ?.stok ?? "0"
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      products.find(
+                        (pr) =>
+                          pr.id_produk ===
+                          variants.find(
+                            (p) => p.id_varian === form.komponen.case
+                          )?.id_produk
+                      )?.toko.toko_name ?? "-"
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Monitor</label>
+
+          <button
+            type="button"
+            @click="modal.monitor = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.monitor
+                ? getProductName(form.komponen.monitor)
+                : "Pilih Monitor"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.monitor']" class="text-red-500 text-sm">
+            {{ errors["komponen.monitor"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.monitor"
+            label="Monitor"
+            :products="products"
+            @close="modal.monitor = false"
+            @select="(id) => (form.komponen.monitor = id)"
+          />
+
+          <div v-if="form.komponen.monitor">
+            <table class="min-w-full border border-gray-300">
+              <thead>
+                <tr class="bg-gray-200">
+                  <th class="p-2 border">Harga</th>
+                  <th class="p-2 border">Stok</th>
+                  <th class="p-2 border">Toko</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-2 border">
+                    Rp.
+                    {{
+                      variants.find(
+                        (p) => p.id_varian === form.komponen.monitor
+                      )?.harga
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      variants.find(
+                        (p) => p.id_varian === form.komponen.monitor
+                      )?.stok ?? "0"
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      products.find(
+                        (pr) =>
+                          pr.id_produk ===
+                          variants.find(
+                            (p) => p.id_varian === form.komponen.monitor
+                          )?.id_produk
+                      )?.toko.toko_name ?? "-"
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Mouse</label>
+
+          <button
+            type="button"
+            @click="modal.mouse = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.mouse
+                ? getProductName(form.komponen.mouse)
+                : "Pilih Mouse"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.mouse']" class="text-red-500 text-sm">
+            {{ errors["komponen.mouse"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.mouse"
+            label="Mouse"
+            :products="products"
+            @close="modal.mouse = false"
+            @select="(id) => (form.komponen.mouse = id)"
+          />
+
+          <div v-if="form.komponen.mouse">
+            <table class="min-w-full border border-gray-300">
+              <thead>
+                <tr class="bg-gray-200">
+                  <th class="p-2 border">Harga</th>
+                  <th class="p-2 border">Stok</th>
+                  <th class="p-2 border">Toko</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-2 border">
+                    Rp.
+                    {{
+                      variants.find((p) => p.id_varian === form.komponen.mouse)
+                        ?.harga
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      variants.find((p) => p.id_varian === form.komponen.mouse)
+                        ?.stok ?? "0"
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      products.find(
+                        (pr) =>
+                          pr.id_produk ===
+                          variants.find(
+                            (p) => p.id_varian === form.komponen.mouse
+                          )?.id_produk
+                      )?.toko.toko_name ?? "-"
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Keyboard</label>
+
+          <button
+            type="button"
+            @click="modal.keyboard = true"
+            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+          >
+            {{
+              form.komponen.keyboard
+                ? getProductName(form.komponen.keyboard)
+                : "Pilih Keyboard"
+            }}
+          </button>
+
+          <!-- Error -->
+          <p v-if="errors['komponen.keyboard']" class="text-red-500 text-sm">
+            {{ errors["komponen.keyboard"][0] }}
+          </p>
+
+          <!-- Modal -->
+          <ProductPicker
+            :open="modal.keyboard"
+            label="Keyboard"
+            :products="products"
+            @close="modal.keyboard = false"
+            @select="(id) => (form.komponen.keyboard = id)"
+          />
+
+          <div v-if="form.komponen.keyboard">
+            <table class="min-w-full border border-gray-300">
+              <thead>
+                <tr class="bg-gray-200">
+                  <th class="p-2 border">Harga</th>
+                  <th class="p-2 border">Stok</th>
+                  <th class="p-2 border">Toko</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-2 border">
+                    Rp.
+                    {{
+                      variants.find(
+                        (p) => p.id_varian === form.komponen.keyboard
+                      )?.harga
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      variants.find(
+                        (p) => p.id_varian === form.komponen.keyboard
+                      )?.stok ?? "0"
+                    }}
+                  </td>
+                  <td class="p-2 border">
+                    {{
+                      products.find(
+                        (pr) =>
+                          pr.id_produk ===
+                          variants.find(
+                            (p) => p.id_varian === form.komponen.keyboard
                           )?.id_produk
                       )?.toko.toko_name ?? "-"
                     }}

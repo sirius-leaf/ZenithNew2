@@ -58,6 +58,12 @@ class PcBuildController extends Controller
             'komponen.ram' => 'required',
             'komponen.psu' => 'required',
             'komponen.storage' => 'required',
+            'komponen.cooler' => 'required',
+            'komponen.video-card' => 'required',
+            'komponen.case' => 'required',
+            'komponen.monitor' => 'required',
+            'komponen.mouse' => 'required',
+            'komponen.keyboard' => 'required',
         ]);
 
         $build = PcBuild::create([
