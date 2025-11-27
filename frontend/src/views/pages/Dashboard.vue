@@ -185,7 +185,7 @@ onMounted(async () => {
               image = variant.gambar_varian;
             } else {
               // Remove leading ../ if present and prepend base URL (jgn dihapus, penting!)
-              const cleanPath = variant.gambar_varian.replace(/^\.\.\//, "");
+              //const cleanPath = variant.gambar_varian.replace(/^\.\.\//, "");
               image = `http://127.0.0.1:8000/storage/${variant.gambar_varian}`;
             }
           }
