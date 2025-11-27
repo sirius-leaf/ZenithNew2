@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-gray-50 p-4 sm:p-4">
+  <div class="w-full bg-gray-50 p-4 sm:p-4 font-ubuntu">
 
     <!-- Header -->
     <div class="mb-8 flex items-center gap-2">
@@ -215,17 +215,12 @@ onMounted(async () => {
   user.value = res.data;
 });
 
-/* =============================
-   REQUEST MENJADI PENJUAL
-============================= */
 const requestSeller = async () => {
-  // 🔥 Validasi profil lengkap dulu
   if (!user.value.no_telpon || !user.value.alamat) {
     toast.error("Isi nomor telepon & alamat terlebih dahulu di Profil.", {
       timeout: 3000,
       closeOnClick: true,
     });
-
     router.push("/profile/edit");
     return;
   }
@@ -234,14 +229,11 @@ const requestSeller = async () => {
 
   try {
     const token = localStorage.getItem("authToken");
-    if (token && !axios.defaults.headers.common["Authorization"]) {
+    if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
 
-    // Kirim request menjadi penjual
-    const res = await axios.post(
-      "http://127.0.0.1:8000/api/manage/become-seller"
-    );
+    const res = await axios.post("http://127.0.0.1:8000/api/manage/become-seller");
 
     user.value.role = "penjual_pending";
     localStorage.setItem("userRole", "penjual_pending");
@@ -251,16 +243,8 @@ const requestSeller = async () => {
     });
   } catch (error) {
     console.error("Request seller failed:", error);
-
-    if (error.response) {
-      const data = error.response.data;
-
-      toast.error(data.message ?? "Terjadi kesalahan.", {
-        timeout: 3000,
-      });
-    } else {
-      toast.error("Kesalahan jaringan. Coba lagi.", { timeout: 3000 });
-    }
+    const msg = error.response?.data?.message || "Terjadi kesalahan.";
+    toast.error(msg, { timeout: 3000 });
   } finally {
     loadingSeller.value = false;
   }
@@ -307,3 +291,11 @@ const handlePhotoUpload = async (event) => {
   }
 };
 </script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
+
+.font-ubuntu {
+  font-family: 'Ubuntu', sans-serif;
+}
+</style>
