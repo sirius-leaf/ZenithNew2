@@ -44,6 +44,20 @@ const modal = ref({
   keyboard: false,
 });
 
+const componentList = [
+  { key: 'motherboard', label: 'Motherboard' },
+  { key: 'cpu', label: 'CPU' },
+  { key: 'ram', label: 'RAM' },
+  { key: 'psu', label: 'Power Supply' },
+  { key: 'storage', label: 'Storage' },
+  { key: 'cooler', label: 'CPU Cooler' },
+  { key: 'video-card', label: 'Video Card' },
+  { key: 'case', label: 'Case' },
+  { key: 'monitor', label: 'Monitor' },
+  { key: 'mouse', label: 'Mouse' },
+  { key: 'keyboard', label: 'Keyboard' },
+];
+
 const errors = ref({});
 const isLoading = ref(false);
 
@@ -60,20 +74,22 @@ function updateHarga() {
   });
 
   totalHarga.value = tempTotal;
-
-  console.log(totalHarga.value);
 }
 
-function getProductName(id) {
-  const varian = variants.value.find((p) => p.id_varian === id);
-  const idProduk = varian?.id_produk || -1;
-  const namaVarian = varian?.nama_varian || "-";
-  const namaProduk =
-    products.value.find((p) => p.id_produk === idProduk)?.nama_produk || "-";
-
-  updateHarga();
-
-  return namaProduk + " (" + namaVarian + ")";
+function getVariantDetails(id) {
+  if (!id) return null;
+  const varian = variants.value.find((v) => v.id_varian === id);
+  if (!varian) return null;
+  
+  const product = products.value.find((p) => p.id_produk === varian.id_produk);
+  
+  return {
+    image: varian.gambar_varian,
+    name: varian.nama_varian,
+    productName: product?.nama_produk || '-',
+    price: varian.harga,
+    stock: varian.stok
+  };
 }
 
 // Ambil daftar produk + user login
@@ -95,7 +111,6 @@ onMounted(async () => {
 
     products.value = productRes.data.data;
     variants.value = productRes.data.variants;
-    console.log(products.value);
   } catch (err) {
     console.error("Gagal memuat data:", err);
     if (err.response?.status === 401) router.push("/login");
@@ -125,871 +140,124 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto p-6">
-    <h2 class="text-2xl font-bold mb-6">Tambah PC Build Baru</h2>
+  <div class="max-w-5xl mx-auto my-10 p-6 bg-white rounded-xl shadow-lg">
+    <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">Rakit PC Impianmu</h2>
 
-    <form
-      @submit.prevent="submitForm"
-      class="space-y-6 bg-white p-6 rounded-xl shadow"
-    >
-      <!-- Nama Build -->
-      <div>
-        <label class="block mb-1 font-medium">Nama Build</label>
-        <input
-          v-model="form.nama_build"
-          type="text"
-          class="w-full border p-2 rounded"
-          required
-        />
-        <p v-if="errors.nama_build" class="text-red-500 text-sm">
+    <!-- Nama Build Input -->
+    <div class="mb-8">
+      <label class="block mb-2 font-semibold text-gray-700">Nama Build</label>
+      <input 
+        v-model="form.nama_build" 
+        type="text" 
+        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+        placeholder="Contoh: PC Gaming 2024"
+        required 
+      />
+      <p v-if="errors.nama_build" class="text-red-500 text-sm mt-1">
           {{ errors.nama_build[0] }}
-        </p>
+      </p>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="border-b-2 border-gray-200 text-left">
+            <th class="py-4 px-4 font-semibold text-gray-600">Komponen</th>
+            <th class="py-4 px-4 font-semibold text-gray-600">Gambar</th>
+            <th class="py-4 px-4 font-semibold text-gray-600">Nama Produk</th>
+            <th class="py-4 px-4 font-semibold text-gray-600">Harga</th>
+            <th class="py-4 px-4 font-semibold text-gray-600 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="comp in componentList" :key="comp.key" class="border-b border-gray-100 hover:bg-gray-50 transition">
+            <td class="py-4 px-4 font-medium text-gray-800">{{ comp.label }}</td>
+            
+            <!-- Gambar -->
+            <td class="py-4 px-4">
+              <div v-if="form.komponen[comp.key]" class="w-20 h-20 bg-gray-100 rounded-md overflow-hidden border border-gray-200 flex items-center justify-center">
+                 <img 
+                  :src="`http://127.0.0.1:8000/storage/${getVariantDetails(form.komponen[comp.key])?.image}`" 
+                  class="w-full h-full object-cover"
+                  alt="Component"
+                 />
+              </div>
+              <div v-else class="w-20 h-20 bg-gray-50 rounded-md border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs">
+                No Image
+              </div>
+            </td>
+
+            <!-- Nama Produk -->
+            <td class="py-4 px-4">
+              <div v-if="form.komponen[comp.key]">
+                <p class="font-bold text-pink-600 text-lg">
+                  {{ getVariantDetails(form.komponen[comp.key])?.productName }}
+                </p>
+                <p class="text-sm text-gray-500">
+                  {{ getVariantDetails(form.komponen[comp.key])?.name }}
+                </p>
+              </div>
+              <span v-else class="text-gray-400 italic">Belum dipilih</span>
+              <p v-if="errors['komponen.' + comp.key]" class="text-red-500 text-xs mt-1">
+                {{ errors["komponen." + comp.key][0] }}
+              </p>
+            </td>
+
+            <!-- Harga -->
+            <td class="py-4 px-4 font-medium text-gray-700">
+              {{ form.komponen[comp.key] ? 'Rp ' + Number(getVariantDetails(form.komponen[comp.key])?.price).toLocaleString('id-ID') : '-' }}
+            </td>
+
+            <!-- Aksi -->
+            <td class="py-4 px-4 text-center">
+              <button 
+                type="button"
+                @click="modal[comp.key] = true"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition shadow-sm hover:shadow-md whitespace-nowrap"
+              >
+                {{ form.komponen[comp.key] ? 'Ubah' : 'Pilih' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="mt-10 border-t pt-6 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="text-center md:text-left">
+        <p class="text-gray-500 text-sm mb-1">Total Estimasi Harga</p>
+        <p class="text-3xl font-bold text-gray-900">Rp {{ totalHarga.toLocaleString('id-ID') }}</p>
       </div>
 
-      <!-- Dropdown Komponen -->
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Komponen</h3>
-
-        <div>
-          <label class="block mb-1 font-medium">Motherboard</label>
-
-          <button
-            type="button"
-            @click="modal.motherboard = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.motherboard
-                ? getProductName(form.komponen.motherboard)
-                : "Pilih Motherboard"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.motherboard']" class="text-red-500 text-sm">
-            {{ errors["komponen.motherboard"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.motherboard"
-            label="Motherboard"
-            :products="products"
-            @close="modal.motherboard = false"
-            @select="(id) => (form.komponen.motherboard = id)"
-          />
-
-          <div v-if="form.komponen.motherboard">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen.motherboard
-                      )?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen.motherboard
-                      )?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.motherboard
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">CPU</label>
-
-          <button
-            type="button"
-            @click="modal.cpu = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.cpu
-                ? getProductName(form.komponen.cpu)
-                : "Pilih CPU"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.cpu']" class="text-red-500 text-sm">
-            {{ errors["komponen.cpu"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.cpu"
-            label="CPU"
-            :products="products"
-            @close="modal.cpu = false"
-            @select="(id) => (form.komponen.cpu = id)"
-          />
-
-          <div v-if="form.komponen.cpu">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.cpu)
-                        ?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.cpu)
-                        ?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.cpu
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">RAM</label>
-
-          <button
-            type="button"
-            @click="modal.ram = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.ram
-                ? getProductName(form.komponen.ram)
-                : "Pilih RAM"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.ram']" class="text-red-500 text-sm">
-            {{ errors["komponen.ram"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.ram"
-            label="RAM"
-            :products="products"
-            @close="modal.ram = false"
-            @select="(id) => (form.komponen.ram = id)"
-          />
-
-          <div v-if="form.komponen.ram">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.ram)
-                        ?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.ram)
-                        ?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.ram
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">Power Supply</label>
-
-          <button
-            type="button"
-            @click="modal.psu = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.psu
-                ? getProductName(form.komponen.psu)
-                : "Pilih Power Supply"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.psu']" class="text-red-500 text-sm">
-            {{ errors["komponen.psu"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.psu"
-            label="Power Supply"
-            :products="products"
-            @close="modal.psu = false"
-            @select="(id) => (form.komponen.psu = id)"
-          />
-
-          <div v-if="form.komponen.psu">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.psu)
-                        ?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.psu)
-                        ?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.psu
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">Storage</label>
-
-          <button
-            type="button"
-            @click="modal.storage = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.storage
-                ? getProductName(form.komponen.storage)
-                : "Pilih Storage"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.storage']" class="text-red-500 text-sm">
-            {{ errors["komponen.storage"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.storage"
-            label="Storage"
-            :products="products"
-            @close="modal.storage = false"
-            @select="(id) => (form.komponen.storage = id)"
-          />
-
-          <div v-if="form.komponen.storage">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen.storage
-                      )?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen.storage
-                      )?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.storage
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">CPU Cooler</label>
-
-          <button
-            type="button"
-            @click="modal.cooler = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.cooler
-                ? getProductName(form.komponen.cooler)
-                : "Pilih CPU Cooler"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.cooler']" class="text-red-500 text-sm">
-            {{ errors["komponen.cooler"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.cooler"
-            label="CPU Cooler"
-            :products="products"
-            @close="modal.cooler = false"
-            @select="(id) => (form.komponen.cooler = id)"
-          />
-
-          <div v-if="form.komponen.cooler">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.cooler)
-                        ?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.cooler)
-                        ?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.cooler
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">Video Card</label>
-
-          <button
-            type="button"
-            @click="modal['video-card'] = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen["video-card"]
-                ? getProductName(form.komponen["video-card"])
-                : "Pilih Video Card"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.video-card']" class="text-red-500 text-sm">
-            {{ errors["komponen.video-card"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal['video-card']"
-            label="Video Card"
-            :products="products"
-            @close="modal['video-card'] = false"
-            @select="(id) => (form.komponen['video-card'] = id)"
-          />
-
-          <div v-if="form.komponen['video-card']">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen["video-card"]
-                      )?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen["video-card"]
-                      )?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen["video-card"]
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">Case</label>
-
-          <button
-            type="button"
-            @click="modal.case = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.case
-                ? getProductName(form.komponen.case)
-                : "Pilih Case"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.case']" class="text-red-500 text-sm">
-            {{ errors["komponen.case"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.case"
-            label="Case"
-            :products="products"
-            @close="modal.case = false"
-            @select="(id) => (form.komponen.case = id)"
-          />
-
-          <div v-if="form.komponen.case">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.case)
-                        ?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.case)
-                        ?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.case
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">Monitor</label>
-
-          <button
-            type="button"
-            @click="modal.monitor = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.monitor
-                ? getProductName(form.komponen.monitor)
-                : "Pilih Monitor"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.monitor']" class="text-red-500 text-sm">
-            {{ errors["komponen.monitor"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.monitor"
-            label="Monitor"
-            :products="products"
-            @close="modal.monitor = false"
-            @select="(id) => (form.komponen.monitor = id)"
-          />
-
-          <div v-if="form.komponen.monitor">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen.monitor
-                      )?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen.monitor
-                      )?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.monitor
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">Mouse</label>
-
-          <button
-            type="button"
-            @click="modal.mouse = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.mouse
-                ? getProductName(form.komponen.mouse)
-                : "Pilih Mouse"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.mouse']" class="text-red-500 text-sm">
-            {{ errors["komponen.mouse"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.mouse"
-            label="Mouse"
-            :products="products"
-            @close="modal.mouse = false"
-            @select="(id) => (form.komponen.mouse = id)"
-          />
-
-          <div v-if="form.komponen.mouse">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.mouse)
-                        ?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find((p) => p.id_varian === form.komponen.mouse)
-                        ?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.mouse
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-medium">Keyboard</label>
-
-          <button
-            type="button"
-            @click="modal.keyboard = true"
-            class="border px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
-          >
-            {{
-              form.komponen.keyboard
-                ? getProductName(form.komponen.keyboard)
-                : "Pilih Keyboard"
-            }}
-          </button>
-
-          <!-- Error -->
-          <p v-if="errors['komponen.keyboard']" class="text-red-500 text-sm">
-            {{ errors["komponen.keyboard"][0] }}
-          </p>
-
-          <!-- Modal -->
-          <ProductPicker
-            :open="modal.keyboard"
-            label="Keyboard"
-            :products="products"
-            @close="modal.keyboard = false"
-            @select="(id) => (form.komponen.keyboard = id)"
-          />
-
-          <div v-if="form.komponen.keyboard">
-            <table class="min-w-full border border-gray-300">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-2 border">Harga</th>
-                  <th class="p-2 border">Stok</th>
-                  <th class="p-2 border">Toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border">
-                    Rp.
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen.keyboard
-                      )?.harga
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      variants.find(
-                        (p) => p.id_varian === form.komponen.keyboard
-                      )?.stok ?? "0"
-                    }}
-                  </td>
-                  <td class="p-2 border">
-                    {{
-                      products.find(
-                        (pr) =>
-                          pr.id_produk ===
-                          variants.find(
-                            (p) => p.id_varian === form.komponen.keyboard
-                          )?.id_produk
-                      )?.toko.toko_name ?? "-"
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <h2 class="text-lg font-semibold mb-2">
-        Total Harga : Rp. {{ totalHarga }}
-      </h2>
-
-      <!-- Tombol -->
-      <div class="flex gap-3">
-        <button
-          type="submit"
-          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      <div class="flex gap-4">
+         <button 
+          type="button" 
+          @click="$router.back()"
+          class="px-8 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition"
+        >
+          Batal
+        </button>
+        <button 
+          @click="submitForm"
           :disabled="isLoading"
+          class="px-8 py-3 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {{ isLoading ? "Menyimpan..." : "Simpan" }}
-        </button>
-
-        <button
-          type="button"
-          class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          @click="router.push('/dashboard/manage/pcBuild')"
-        >
-          Kembali
+          {{ isLoading ? 'Menyimpan...' : 'Simpan Rakitan' }}
         </button>
       </div>
-    </form>
+    </div>
+
+    <!-- Modals -->
+    <ProductPicker
+      v-for="comp in componentList"
+      :key="'modal-' + comp.key"
+      :open="modal[comp.key]"
+      :label="comp.label"
+      :products="products"
+      @close="modal[comp.key] = false"
+      @select="(id) => { form.komponen[comp.key] = id; updateHarga(); }"
+    />
   </div>
 </template>
-
-<!-- Sub-component untuk select pilihan (biar rapi) -->
-<!-- <script>
-export default {
-  name: "ComponentSelect",
-  props: {
-    label: String,
-    modelValue: String,
-    products: Array,
-    error: Array,
-  },
-  emits: ["update:modelValue"],
-  template: `
-    <div class="mb-4">
-      <label class="block mb-1 font-medium">{{ label }}</label>
-
-      <select
-        :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
-        class="w-full border p-2 rounded"
-        required
-      >
-        <option value="">-- Pilih Komponen --</option>
-        <option
-          v-for="p in products"
-          :key="p.id_produk"
-          :value="p.id_produk"
-        >
-          {{ p.nama_produk }} ({{ p.merek }})
-        </option>
-      </select>
-
-      <p v-if="error" class="text-red-500 text-sm">{{ error[0] }}</p>
-    </div>
-  `,
-};
-</script> -->
