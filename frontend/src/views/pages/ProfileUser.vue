@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-gray-50 p-4 sm:p-6">
+  <div class="w-full bg-gray-50 p-4 sm:p-4">
 
     <!-- Header -->
     <div class="mb-8 flex items-center gap-2">
@@ -14,121 +14,174 @@
     </div>
 
     <!-- Profile Card -->
-    <div v-else class="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-6">
-      <h2 class="text-lg font-semibold text-neutral-950 mb-6">Informasi Akun</h2>
-
-      <div class="space-y-6">
-
-        <!-- Username -->
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 bg-pink-50 rounded-lg flex justify-center items-center">
-            <svg class="w-5 h-5 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 14c3.866 0 7 1.791 7 4v1H5v-1c0-2.209 3.134-4 7-4zm0-2a4 4 0 100-8 4 4 0 000 8z" />
-            </svg>
+    <div v-else class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6">
+      <div class="flex flex-col md:flex-row gap-8">
+        <!-- Left: Profile Photo -->
+        <div class="flex flex-col items-center gap-4 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-100 pb-6 md:pb-0 md:pr-6">
+          <div class="relative w-48 h-48 bg-gray-100 rounded-full overflow-hidden shadow-sm border border-gray-200">
+            <img 
+              :src="user.profile_photo ? `http://127.0.0.1:8000/storage/${user.profile_photo}` : 'https://ui-avatars.com/api/?name=' + user.name + '&background=random'" 
+              alt="Profile Photo" 
+              class="w-full h-full object-cover"
+            />
           </div>
-          <div>
-            <p class="text-xs text-gray-500">Username</p>
-            <p class="text-base font-medium">{{ user.name }}</p>
-          </div>
-        </div>
+          
+          <label class="w-full max-w-[200px]">
+            <div class="w-full py-2.5 px-4 bg-white border border-gray-300 rounded-lg text-gray-700 font-semibold text-center cursor-pointer hover:bg-gray-50 transition shadow-sm">
+              Pilih Foto
+            </div>
+            <input type="file" class="hidden" accept="image/*" @change="handlePhotoUpload">
+          </label>
 
-        <!-- Email -->
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 bg-blue-50 rounded-lg flex justify-center items-center">
-            <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500">Email</p>
-            <p class="text-base font-medium">{{ user.email }}</p>
-          </div>
-        </div>
-
-        <!-- Role -->
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 bg-blue-50 rounded-lg flex justify-center items-center">
-            <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 2l7 4v6c0 5.25-3.5 10-7 10S5 17.25 5 12V6l7-4zm-2 10l2 2 4-4" />
-            </svg>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500">Role</p>
-            <p class="text-base font-medium">{{ user.role }}</p>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- =======================
-        STATUS MENJADI PENJUAL
-      ======================== -->
-      <section class="mt-8 border-t pt-6">
-        <h3 class="text-lg font-semibold text-neutral-950 mb-4">Status Toko</h3>
-        
-        <!-- A. User Biasa -->
-        <div
-          v-if="user.role === 'user'"
-          class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg"
-        >
-          <h3 class="text-lg font-bold mb-2">Ingin mulai berjualan?</h3>
-
-          <p class="mb-4 opacity-90">
-            Daftarkan akun Anda menjadi penjual untuk membuka toko dan menjual
-            produk rakitan PC.
+          <p class="text-xs text-gray-500 text-center max-w-[200px] leading-relaxed">
+            Besar file: maksimum 2.000.000 bytes (2 Megabytes). Ekstensi file yang diperbolehkan: .JPG .JPEG .PNG
           </p>
-
-          <button
-            @click="requestSeller"
-            :disabled="loadingSeller"
-            class="bg-white text-blue-600 px-5 py-2 rounded-lg font-semibold hover:bg-gray-100 transition disabled:opacity-70"
-          >
-            {{ loadingSeller ? "Memproses..." : "Daftar Menjadi Penjual" }}
-          </button>
         </div>
 
-        <!-- B. Status Pending -->
-        <div
-          v-else-if="user.role === 'penjual_pending'"
-          class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 flex items-center gap-4"
-        >
-          <div class="p-3 bg-yellow-100 rounded-full text-yellow-600">⏳</div>
-
+        <!-- Right: Info -->
+        <div class="flex-1 space-y-8">
+          
+          <!-- Section: Ubah Biodata Diri -->
           <div>
-            <h3 class="text-lg font-bold text-yellow-800">Menunggu Konfirmasi</h3>
-            <p class="text-yellow-700">
-              Permintaan Anda sedang ditinjau oleh Admin.
-            </p>
-          </div>
-        </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Ubah Biodata Diri</h3>
+            <div class="space-y-4">
+              <!-- Nama -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                <span class="text-gray-500 text-sm">Nama</span>
+                <div class="sm:col-span-2 flex items-center gap-2">
+                  <span class="text-gray-900 font-medium">{{ user.name }}</span>
+                  <button @click="$router.push('/profile/edit')" class="text-pink-600 text-sm font-medium hover:underline">Ubah</button>
+                </div>
+              </div>
+              
+              <!-- Tanggal Lahir (Placeholder) -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                <span class="text-gray-500 text-sm">Tanggal Lahir</span>
+                <div class="sm:col-span-2 flex items-center gap-2">
+                  <span class="text-pink-600 text-sm font-medium cursor-pointer hover:underline">Tambah Tanggal Lahir</span>
+                </div>
+              </div>
 
-        <!-- C. Penjual -->
-        <div
-          v-else-if="user.role === 'penjual'"
-          class="bg-green-50 border border-green-200 rounded-xl p-6"
-        >
-          <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div>
-              <h3 class="text-lg font-bold text-green-800">
-                Panel Penjual Aktif
-              </h3>
-              <p class="text-green-700">
-                Anda memiliki akses penuh untuk mengelola toko.
-              </p>
+              <!-- Jenis Kelamin (Placeholder) -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                <span class="text-gray-500 text-sm">Jenis Kelamin</span>
+                <div class="sm:col-span-2 flex items-center gap-2">
+                  <span class="text-pink-600 text-sm font-medium cursor-pointer hover:underline">Tambah Jenis Kelamin</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Ubah Kontak -->
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Ubah Kontak</h3>
+            <div class="space-y-4">
+              <!-- Email -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                <span class="text-gray-500 text-sm">Email</span>
+                <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
+                  <span class="text-gray-900 font-medium">{{ user.email }}</span>
+                  <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Terverifikasi</span>
+                  <!-- <button class="text-pink-600 text-sm font-medium hover:underline">Ubah</button> -->
+                </div>
+              </div>
+
+              <!-- Nomor HP -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                <span class="text-gray-500 text-sm">Nomor HP</span>
+                <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
+                  <span v-if="user.no_telpon" class="text-gray-900 font-medium">{{ user.no_telpon }}</span>
+                  <span v-else class="text-gray-400 italic">Belum diatur</span>
+                  
+                  <span v-if="user.no_telpon" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Terverifikasi</span>
+                  <button @click="$router.push('/profile/edit')" class="text-pink-600 text-sm font-medium hover:underline">Ubah</button>
+                </div>
+              </div>
+
+              <!-- Alamat -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                <span class="text-gray-500 text-sm">Alamat</span>
+                <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
+                  <span v-if="user.alamat" class="text-gray-900 font-medium">{{ user.alamat }}</span>
+                  <span v-else class="text-gray-400 italic">Belum diatur</span>
+                  <button @click="$router.push('/profile/edit')" class="text-pink-600 text-sm font-medium hover:underline">Ubah</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- =======================
+            STATUS MENJADI PENJUAL
+          ======================== -->
+          <section class="mt-8 border-t border-pink-200 pt-6">
+            <h3 class="text-lg font-semibold text-neutral-950 mb-4">Status Toko</h3>
+            
+            <!-- A. User Biasa -->
+            <div
+              v-if="user.role === 'user'"
+              class="bg-pink-50 border border-pink-200 rounded-xl p-6"
+            >
+              <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                  <h3 class="text-lg font-bold text-pink-800 mb-2">Ingin mulai berjualan?</h3>
+                  <p class="text-pink-700 mb-4 opacity-90">
+                    Daftarkan akun Anda menjadi penjual untuk membuka toko dan menjual
+                    produk rakitan PC.
+                  </p>
+                </div>
+
+                <button
+                  @click="requestSeller"
+                  :disabled="loadingSeller"
+                  class="bg-pink-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-pink-700 transition disabled:opacity-70 whitespace-nowrap"
+                >
+                  {{ loadingSeller ? "Memproses..." : "Daftar Menjadi Penjual" }}
+                </button>
+              </div>
             </div>
 
-            <router-link
-              to="/dashboard/manage/create-toko"
-              class="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition shadow whitespace-nowrap"
+            <!-- B. Status Pending -->
+            <div
+              v-else-if="user.role === 'penjual_pending'"
+              class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 flex items-center gap-4"
             >
-              Kelola / Buka Toko
-            </router-link>
-          </div>
+              <div class="p-3 bg-yellow-100 rounded-full text-yellow-600">⏳</div>
+
+              <div>
+                <h3 class="text-lg font-bold text-yellow-800">Menunggu Konfirmasi</h3>
+                <p class="text-yellow-700">
+                  Permintaan Anda sedang ditinjau oleh Admin.
+                </p>
+              </div>
+            </div>
+
+            <!-- C. Penjual -->
+            <div
+              v-else-if="user.role === 'penjual'"
+              class="bg-green-50 border border-green-200 rounded-xl p-6"
+            >
+              <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                  <h3 class="text-lg font-bold text-green-800">
+                    Panel Penjual Aktif
+                  </h3>
+                  <p class="text-green-700">
+                    Anda memiliki akses penuh untuk mengelola toko.
+                  </p>
+                </div>
+
+                <router-link
+                  to="/dashboard/manage/create-toko"
+                  class="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition shadow whitespace-nowrap"
+                >
+                  Kelola / Buka Toko
+                </router-link>
+              </div>
+            </div>
+          </section>
+
         </div>
-      </section>
+      </div>
 
       <!-- Tombol Edit -->
       <button
@@ -210,6 +263,47 @@ const requestSeller = async () => {
     }
   } finally {
     loadingSeller.value = false;
+  }
+};
+
+/* =============================
+   UPLOAD FOTO PROFIL
+============================= */
+const handlePhotoUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Validasi ukuran (max 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    toast.error("Ukuran foto maksimal 2MB");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("profile_photo", file);
+  // Kirim field lain yang diperlukan updateProfile (karena validasi 'sometimes')
+  // Tapi di backend kita pakai 'sometimes', jadi aman kalau cuma kirim foto.
+  // Namun, updateProfile di backend me-return user baru, jadi kita bisa update state.
+
+  try {
+    const res = await axios.post("http://127.0.0.1:8000/api/profile/update", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    user.value = res.data.user;
+    toast.success("Foto profil berhasil diperbarui!");
+    
+    // Emit event atau update global state jika perlu agar navbar berubah
+    // Cara paling gampang: reload window atau pakai event bus. 
+    // Tapi karena navbar fetch ulang saat route change, mungkin cukup.
+    // Untuk update instan di navbar, kita bisa simpan di localStorage atau trigger custom event.
+    window.dispatchEvent(new Event('user-profile-updated'));
+
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast.error("Gagal mengupload foto profil.");
   }
 };
 </script>

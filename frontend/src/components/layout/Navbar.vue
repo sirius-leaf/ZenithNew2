@@ -54,6 +54,7 @@ const fetchUser = async () => {
 // Panggil saat komponen dimuat
 onMounted(() => {
   fetchUser()
+  window.addEventListener('user-profile-updated', fetchUser)
 })
 
 // Opsional: refresh saat rute berubah (misal setelah login/register)
@@ -138,8 +139,14 @@ const handleSearch = () => {
             @click="isProfileOpen = !isProfileOpen"
             class="flex items-center gap-2 focus:outline-none"
           >
-            <div class="w-9 h-9 rounded-full bg-pink-50 flex items-center justify-center border border-pink-100 text-pink-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="w-9 h-9 rounded-full bg-pink-50 flex items-center justify-center border border-pink-100 text-pink-600 overflow-hidden">
+              <img 
+                v-if="user && user.profile_photo" 
+                :src="`http://127.0.0.1:8000/storage/${user.profile_photo}`" 
+                alt="Profile" 
+                class="w-full h-full object-cover"
+              />
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
