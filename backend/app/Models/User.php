@@ -29,6 +29,7 @@ class User extends Authenticatable
         'alamat',
         'role',
         'is_banned',
+        'profile_photo',
     ];
 
     public function toko()

@@ -25,12 +25,26 @@ class UserProfileController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'name'      => 'sometimes|string|max:255',
+            'name' => 'sometimes|string|max:255',
             'no_telpon' => 'sometimes|string|max:20',
-            'alamat'    => 'sometimes|string|max:255',
+            'alamat' => 'sometimes|string|max:255',
+            'profile_photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $user->update($request->only(['name', 'no_telpon', 'alamat']));
+        $data = $request->only(['name', 'no_telpon', 'alamat']);
+
+        // Handle Photo Upload
+        if ($request->hasFile('profile_photo')) {
+            // Delete old photo if exists
+            if ($user->profile_photo && \Illuminate\Support\Facades\Storage::exists('public/' . $user->profile_photo)) {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $user->profile_photo);
+            }
+
+            $path = $request->file('profile_photo')->store('profile_photos', 'public');
+            $data['profile_photo'] = $path;
+        }
+
+        $user->update($data);
 
         return response()->json([
             'message' => 'Profil berhasil diperbarui',
@@ -47,7 +61,7 @@ class UserProfileController extends Controller
 
         $request->validate([
             'current_password' => 'required',
-            'new_password'     => 'required|min:6|confirmed',
+            'new_password' => 'required|min:6|confirmed',
         ]);
 
         // cek apakah password lama benar

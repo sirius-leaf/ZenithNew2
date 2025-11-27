@@ -53,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/profile', [UserProfileController::class, 'me']);
     // Update profile user
-    Route::put('/profile/update', [UserProfileController::class, 'updateProfile']);
+    Route::post('/profile/update', [UserProfileController::class, 'updateProfile']);
     // Update password
     Route::put('/profile/update-password', [UserProfileController::class, 'updatePassword']);
 
