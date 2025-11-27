@@ -11,11 +11,24 @@ class ProductPageController extends Controller
     /**
      * Menampilkan halaman daftar semua produk (Halaman 'Toko' atau Homepage).
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('variant')
-            ->latest()
-            ->paginate(12);
+        $query = Product::with('variant')->latest();
+
+        if ($request->has('category')) {
+            $categoryName = $request->input('category');
+            $query->whereHas('category', function ($q) use ($categoryName) {
+                $q->where('nama_kategori', $categoryName);
+            });
+        }
+
+        // Filter by search query (q)
+        if ($request->has('q')) {
+            $search = $request->input('q');
+            $query->where('nama_produk', 'like', "%{$search}%");
+        }
+
+        $products = $query->paginate(12);
 
         // UBAH INI:
         // return view('shop.index', compact('products'));

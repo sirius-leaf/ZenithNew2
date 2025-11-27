@@ -181,11 +181,12 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import ProductSidebar from '@/components/layout/ProductSidebar.vue';
 
 const route = useRoute();
+const router = useRouter();
 
 // State
 const activeTab = ref('produk'); // 'produk' or 'toko'
@@ -200,6 +201,12 @@ const searchQuery = ref(route.query.q || '');
 // Watch query param changes
 watch(() => route.query.q, (newQuery) => {
   searchQuery.value = newQuery || '';
+  fetchProducts();
+});
+
+watch(() => route.query.category, (newCategory) => {
+  selectedCategory.value = newCategory || null;
+  fetchProducts();
 });
 
 // Fungsi helper untuk mendapatkan URL gambar dari varian pertama
@@ -216,10 +223,17 @@ const getImageUrl = (product) => {
 };
 
 // Fetch Data
-onMounted(async () => {
+const fetchProducts = async () => {
+  loading.value = true;
+  error.value = null;
   try {
+    // Build query params
+    const params = {};
+    if (searchQuery.value) params.q = searchQuery.value;
+    if (selectedCategory.value) params.category = selectedCategory.value;
+
     // Fetch Products
-    const productRes = await axios.get("http://127.0.0.1:8000/api/products");
+    const productRes = await axios.get("http://127.0.0.1:8000/api/products", { params });
     let fetchedProducts = productRes.data.data;
 
     // Tambahkan URL gambar ke setiap produk
@@ -229,9 +243,24 @@ onMounted(async () => {
     });
     products.value = fetchedProducts;
 
-    // Fetch Shops (Mocking for now as API endpoint is unknown/not specified in context)
-    // In a real scenario, we would call: const shopRes = await axios.get("http://127.0.0.1:8000/api/shops");
-    shops.value = [
+  } catch (err) {
+    error.value = err;
+    console.error("Error fetching data:", err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(async () => {
+  // Initialize state from query params
+  if (route.query.q) searchQuery.value = route.query.q;
+  if (route.query.category) selectedCategory.value = route.query.category;
+
+  await fetchProducts();
+
+  // Fetch Shops (Mocking for now as API endpoint is unknown/not specified in context)
+  // In a real scenario, we would call: const shopRes = await axios.get("http://127.0.0.1:8000/api/shops");
+  shops.value = [
       { 
         id: 1, 
         name: 'Zenith Official Store', 
@@ -277,29 +306,22 @@ onMounted(async () => {
         ]
       },
     ];
-
-  } catch (err) {
-    error.value = err;
-    console.error("Error fetching data:", err);
-  } finally {
-    loading.value = false;
-  }
 });
 
 // Computed: Produk yang sudah difilter dan diurutkan
 const filteredProducts = computed(() => {
   let result = [...products.value];
 
-  // Filter berdasarkan kategori
-  if (selectedCategory.value) {
-    result = result.filter(p => p.nama_produk.toLowerCase().includes(selectedCategory.value.toLowerCase()));
-  }
+  // Filter berdasarkan kategori (Client-side removed, handled by API)
+  // if (selectedCategory.value) {
+  //   result = result.filter(p => p.nama_produk.toLowerCase().includes(selectedCategory.value.toLowerCase()));
+  // }
 
-  // Filter berdasarkan Search Query
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    result = result.filter(p => p.nama_produk.toLowerCase().includes(query));
-  }
+  // Filter berdasarkan Search Query (Client-side removed, handled by API)
+  // if (searchQuery.value) {
+  //   const query = searchQuery.value.toLowerCase();
+  //   result = result.filter(p => p.nama_produk.toLowerCase().includes(query));
+  // }
 
   // Urutkan berdasarkan harga
   if (sortByPrice.value === 'asc') {
@@ -326,6 +348,9 @@ const filteredShops = computed(() => {
 // Handler untuk filter kategori dari sidebar
 const applyCategoryFilter = (categoryName) => {
   selectedCategory.value = categoryName;
+  // Update URL query param without reloading page
+  router.push({ query: { ...route.query, category: categoryName } });
+  fetchProducts();
 };
 </script>
 

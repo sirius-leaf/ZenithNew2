@@ -53,19 +53,41 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $daftarKategori = ['laptop', 'hp', 'komponen'];
+        $daftarKategori = ['laptop', 'hp', 'komponen', 'monitor', 'headphone', 'mouse', 'keyboard', 'aksesoris'];
+        $categoryIds = [];
         foreach ($daftarKategori as $kat) {
-            Category::factory()->create([
+            $cat = Category::factory()->create([
                 'nama_kategori' => $kat
             ]);
+            $categoryIds[$kat] = $cat->id_kategori;
         }
 
+        // Create 10 random products
         Product::factory(10)->create(['id_toko' => 1]);
-        $productIds = Product::orderBy('id_produk')->pluck('id_produk')->take(10)->toArray();
+
+        // Create 8 specific products for 'laptop' category to ensure we have enough for testing
+        $laptopProducts = Product::factory(8)->create([
+            'id_toko' => 1,
+            'nama_produk' => 'Laptop Gaming High End ' . rand(100, 999)
+        ]);
+
+        // Assign categories to random products
+        $productIds = Product::orderBy('id_produk')->pluck('id_produk')->toArray();
 
         foreach ($productIds as $id) {
             \App\Models\Variant::factory(2)->create(['id_produk' => $id]);
-            \App\Models\CategoryDetail::factory(2)->create(['id_produk' => $id]);
+
+            // Check if this product is one of our specific laptop products
+            $isLaptop = $laptopProducts->contains('id_produk', $id);
+
+            if ($isLaptop) {
+                \App\Models\CategoryDetail::create([
+                    'id_produk' => $id,
+                    'id_kategori' => $categoryIds['laptop']
+                ]);
+            } else {
+                \App\Models\CategoryDetail::factory(1)->create(['id_produk' => $id]);
+            }
         }
     }
 }

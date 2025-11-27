@@ -20,128 +20,67 @@ let role = "";
    DUMMY DATA FOR TAG POPULER & REKOMENDASI
 ============================= */
 // Data Tag Populer
-const popularTags = ref([
-  {
-    id: 1,
-    name: "Handphones",
-    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>',
-  },
-  {
-    id: 2,
-    name: "Laptops",
-    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>',
-  },
-  {
-    id: 3,
-    name: "CPU",
-    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>',
-  },
-  {
-    id: 4,
-    name: "Monitors",
-    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>',
-  },
-  {
-    id: 5,
-    name: "Headphones",
-    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>',
-  },
-]);
+const popularTags = ref([]);
 
 // Data Rekomendasi Produk
-const recommendedProducts = ref([
-  {
-    id: 1,
-    name: "Headphone Rapa",
-    price: "Rp 4.599.000",
-    rating: 4.8,
-    brand: "RAPA AIR",
-    image: "https://via.placeholder.com/200/FFFFFF/000000?text=Headphone",
-  },
-  {
-    id: 2,
-    name: "Samsung Galaxy A55",
-    price: "Rp 4.599.000",
-    rating: 4.8,
-    brand: "Samsung Indonesia",
-    image: "https://via.placeholder.com/200/FFFFFF/000000?text=Galaxy+A55",
-  },
-  {
-    id: 3,
-    name: "Samsung Galaxy A55",
-    price: "Rp 4.599.000",
-    rating: 4.8,
-    brand: "Samsung Indonesia",
-    image: "https://via.placeholder.com/200/FFFFFF/000000?text=Galaxy+A55",
-  },
-  {
-    id: 4,
-    name: "Samsung Galaxy A55",
-    price: "Rp 4.599.000",
-    rating: 4.8,
-    brand: "Samsung Indonesia",
-    image: "https://via.placeholder.com/200/FFFFFF/000000?text=Galaxy+A55",
-  },
-  {
-    id: 5,
-    name: "Headphone Rapa",
-    price: "Rp 4.599.000",
-    rating: 4.8,
-    brand: "RAPA AIR",
-    image: "https://via.placeholder.com/200/FFFFFF/000000?text=Headphone",
-  },
-  {
-    id: 6,
-    name: "Samsung Galaxy A55",
-    price: "Rp 4.599.000",
-    rating: 4.8,
-    brand: "Samsung Indonesia",
-    image: "https://via.placeholder.com/200/FFFFFF/000000?text=Galaxy+A55",
-  },
-  {
-    id: 7,
-    name: "Samsung Galaxy A55",
-    price: "Rp 4.599.000",
-    rating: 4.8,
-    brand: "Samsung Indonesia",
-    image: "https://via.placeholder.com/200/FFFFFF/000000?text=Galaxy+A55",
-  },
-  {
-    id: 8,
-    name: "Samsung Galaxy A55",
-    price: "Rp 4.599.000",
-    rating: 4.8,
-    brand: "Samsung Indonesia",
-    image: "https://via.placeholder.com/200/FFFFFF/000000?text=Galaxy+A55",
-  },
-]);
+const recommendedProducts = ref([]);
+const nextUrl = ref(null); // URL for next page
+const isLoadingMore = ref(false); // Loading state for "Load More" button
 
-/* =============================
-   PAGINATION LOGIC
-============================= */
-const currentPage = ref(1);
-const itemsPerPage = 8;
+const loadMoreProducts = async () => {
+  if (!nextUrl.value || isLoadingMore.value) return;
 
-const totalPages = computed(() =>
-  Math.ceil(recommendedProducts.value.length / itemsPerPage)
-);
-
-const paginatedProducts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return recommendedProducts.value.slice(start, end);
-});
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
+  isLoadingMore.value = true;
+  try {
+    const res = await axios.get(nextUrl.value);
+    if (res.data && res.data.data) {
+      const newProducts = processProducts(res.data.data);
+      recommendedProducts.value = [...recommendedProducts.value, ...newProducts];
+      nextUrl.value = res.data.next_page_url;
+    }
+  } catch (error) {
+    console.error("Error loading more products:", error);
+  } finally {
+    isLoadingMore.value = false;
   }
 };
 
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
+const processProducts = (productsData) => {
+  return productsData.map((product) => {
+    const variant =
+      product.variant && product.variant.length > 0
+        ? product.variant[0]
+        : null;
+    let image =
+      "https://via.placeholder.com/200/FFFFFF/000000?text=No+Image";
+    let price = "Rp 0";
+
+    if (variant) {
+      // Handle image path
+      if (variant.gambar_varian) {
+        // Check if it starts with http or https
+        if (variant.gambar_varian.startsWith("http")) {
+          image = variant.gambar_varian;
+        } else {
+          image = `http://127.0.0.1:8000/storage/${variant.gambar_varian}`;
+        }
+      }
+      price = new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+      }).format(variant.harga);
+    }
+
+    return {
+      id: product.id_produk,
+      name: product.nama_produk,
+      price: price,
+      rating: 0, // Default rating as it's not in the main list API
+      brand: product.merek,
+      image: image,
+    };
+  });
 };
 
 /* =============================
@@ -165,46 +104,26 @@ onMounted(async () => {
       role = res.data.role;
     }
 
-    // Fetch Products
-    const productRes = await axios.get("http://127.0.0.1:8000/api/products");
+    // Fetch Categories
+    try {
+      const catRes = await axios.get("http://127.0.0.1:8000/api/categories");
+      if (catRes.data && catRes.data.data) {
+        popularTags.value = catRes.data.data.map(cat => ({
+          id: cat.id_kategori,
+          name: cat.nama_kategori,
+          // Use a default icon or map based on name if needed
+          icon: getCategoryIcon(cat.nama_kategori)
+        }));
+      }
+    } catch (e) {
+      console.error("Failed to fetch categories", e);
+    }
+
+    // Fetch Products (Initial load 25 items)
+    const productRes = await axios.get("http://127.0.0.1:8000/api/products?per_page=25");
     if (productRes.data && productRes.data.data) {
-      recommendedProducts.value = productRes.data.data.map((product) => {
-        const variant =
-          product.variant && product.variant.length > 0
-            ? product.variant[0]
-            : null;
-        let image =
-          "https://via.placeholder.com/200/FFFFFF/000000?text=No+Image";
-        let price = "Rp 0";
-
-        if (variant) {
-          // Handle image path
-          if (variant.gambar_varian) {
-            // Check if it starts with http or https
-            if (variant.gambar_varian.startsWith("http")) {
-              image = variant.gambar_varian;
-            } else {
-              // Remove leading ../ if present and prepend base URL (jgn dihapus, penting!)
-              //const cleanPath = variant.gambar_varian.replace(/^\.\.\//, "");
-              image = `http://127.0.0.1:8000/storage/${variant.gambar_varian}`;
-            }
-          }
-          price = new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-          }).format(variant.harga);
-        }
-
-        return {
-          id: product.id_produk,
-          name: product.nama_produk,
-          price: price,
-          rating: 0, // Default rating as it's not in the main list API
-          brand: product.merek,
-          image: image,
-        };
-      });
+      recommendedProducts.value = processProducts(productRes.data.data);
+      nextUrl.value = productRes.data.next_page_url;
     }
   } catch (error) {
     console.error("Gagal mengambil data:", error);
@@ -216,6 +135,14 @@ onMounted(async () => {
     }
   }
 });
+
+const getCategoryIcon = (name) => {
+  // Simple mapping or return a generic icon
+  // For now returning a simple generic SVG
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400 group-hover:text-pink-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>`;
+};
 
 /* =============================
    SCROLL FUNCTIONS FOR TAG SLIDER
@@ -251,22 +178,22 @@ const handleLogout = () => {
       <!-- Modern Section: Tag Populer & Rekomendasi -->
       <section class="mb-8">
         <!-- Tag Populer -->
-        <div
-          class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6"
-        >
-          <h3 class="font-bold text-gray-800 mb-6 text-lg">Tag Populer</h3>
-          <div class="flex flex-wrap justify-center gap-6">
+        <!-- Tag Populer -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <h3 class="font-bold text-gray-800 mb-6 text-lg uppercase tracking-wide border-b pb-2">KATEGORI</h3>
+          <div class="flex flex-wrap justify-center gap-8">
             <div
               v-for="tag in popularTags"
               :key="tag.id"
-              class="flex flex-col items-center group cursor-pointer"
+              class="flex flex-col items-center group cursor-pointer w-24"
+              @click="$router.push({ name: 'searching', query: { category: tag.name } })"
             >
               <div
-                class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-2 group-hover:bg-pink-50 group-hover:scale-110 transition-all duration-300 shadow-sm"
+                class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-3 group-hover:bg-white group-hover:shadow-md transition-all duration-300 border border-transparent group-hover:border-gray-100"
                 v-html="tag.icon"
               ></div>
               <span
-                class="text-sm font-medium text-gray-600 group-hover:text-pink-600 transition-colors"
+                class="text-sm font-medium text-gray-600 group-hover:text-pink-600 transition-colors text-center leading-tight"
                 >{{ tag.name }}</span
               >
             </div>
@@ -281,11 +208,11 @@ const handleLogout = () => {
             Rekomendasi
           </h3>
 
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
             <div
-              v-for="product in paginatedProducts"
+              v-for="product in recommendedProducts"
               :key="product.id_produk"
-              class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition cursor-pointer group"
+              class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition cursor-pointer group flex flex-col h-full"
               @click="
                 $router.push({
                   name: 'product-detail',
@@ -293,23 +220,23 @@ const handleLogout = () => {
                 })
               "
             >
-              <div class="relative overflow-hidden rounded-md mb-3">
+              <div class="relative overflow-hidden rounded-md mb-3 aspect-square">
                 <img
                   :src="product.image"
                   :alt="product.name"
-                  class="w-full h-32 object-cover transform group-hover:scale-110 transition-transform duration-500"
+                  class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <h4
-                class="font-semibold text-gray-800 text-sm mb-1 line-clamp-1 group-hover:text-pink-600 transition-colors"
+                class="font-semibold text-gray-800 text-sm mb-1 line-clamp-2 group-hover:text-pink-600 transition-colors flex-grow"
               >
                 {{ product.name }}
               </h4>
-              <p class="text-pink-600 font-bold mb-1">{{ product.price }}</p>
+              <p class="text-pink-600 font-bold mb-1 text-sm">{{ product.price }}</p>
               <div class="flex items-center mb-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4 text-yellow-400"
+                  class="h-3 w-3 text-yellow-400"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -321,10 +248,10 @@ const handleLogout = () => {
                   product.rating
                 }}</span>
               </div>
-              <div class="flex items-center">
+              <div class="flex items-center mt-auto">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4 text-green-500"
+                  class="h-3 w-3 text-green-500"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -334,75 +261,24 @@ const handleLogout = () => {
                     clip-rule="evenodd"
                   />
                 </svg>
-                <span class="text-xs text-gray-600 ml-1">{{
+                <span class="text-xs text-gray-600 ml-1 truncate">{{
                   product.brand
                 }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Pagination -->
-          <div
-            class="flex justify-center items-center gap-4"
-            v-if="totalPages > 1"
-          >
-            <button
-              @click="prevPage"
-              :disabled="currentPage === 1"
-              class="px-4 py-2 rounded-lg bg-white border border-pink-200 text-pink-600 hover:bg-pink-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
+          <!-- Load More Button -->
+          <div class="flex justify-center mt-6" v-if="nextUrl">
+            <button 
+              @click="loadMoreProducts" 
+              :disabled="isLoadingMore"
+              class="px-8 py-3 bg-white border border-pink-600 text-pink-600 font-semibold rounded-full hover:bg-pink-50 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Prev
-            </button>
-
-            <div class="flex gap-2">
-              <button
-                v-for="page in totalPages"
-                :key="page"
-                @click="currentPage = page"
-                :class="[
-                  'w-8 h-8 rounded-lg flex items-center justify-center font-medium transition-colors',
-                  currentPage === page
-                    ? 'bg-gradient-to-r from-pink-500 to-blue-500 text-white shadow-md'
-                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50',
-                ]"
-              >
-                {{ page }}
-              </button>
-            </div>
-
-            <button
-              @click="nextPage"
-              :disabled="currentPage === totalPages"
-              class="px-4 py-2 rounded-lg bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
-            >
-              Next
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
+              <span v-if="isLoadingMore">Memuat...</span>
+              <span v-else>Lihat Lebih Banyak</span>
+              <svg v-if="!isLoadingMore" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
           </div>

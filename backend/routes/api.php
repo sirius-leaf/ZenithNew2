@@ -38,6 +38,7 @@ Route::get('/products/{id_produk}', [ProductPageController::class, 'show']);
 Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
 
 Route::get('/toko/{id_toko}', [TokoController::class, 'show']);
+Route::get('/categories', [App\Http\Controllers\Api\CategoryController::class, 'index']);
 
 
 // Rute yang memerlukan autentikasi (Sanctum)
