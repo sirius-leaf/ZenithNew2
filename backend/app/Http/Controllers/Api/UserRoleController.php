@@ -88,6 +88,14 @@ class UserRoleController extends Controller
 
         $user->update(['role' => 'penjual']);
 
+        // Create Toko record
+        if (!$user->toko) {
+            $user->toko()->create([
+                'toko_name' => $user->store_name,
+                'deskripsi' => $user->description,
+            ]);
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'User berhasil disetujui menjadi penjual.',

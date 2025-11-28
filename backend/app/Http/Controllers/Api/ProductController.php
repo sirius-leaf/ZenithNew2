@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
+use Illuminate\Support\Facades\Log;
+
 class ProductController extends Controller
 {
     /**
@@ -18,15 +20,14 @@ class ProductController extends Controller
      */
     public function index()
     {
-        if (Auth::user()->role === 'penjual') {
-            $products = Auth::user()
-                ->toko
-                ->with('products')
+        if (Auth::user()->role === 'penjual' && Auth::user()->toko) {
+            $products = Product::where('id_toko', Auth::user()->toko->id)
+                ->with(['variant', 'categoryDetail.category'])
+                ->latest()
                 ->get();
-            //$products = $toko->products->get();
-        } else
+        } else {
             $products = [];
-        //$products = Product::with(['variant', 'categoryDetail.category'])->get();
+        }
 
         return response()->json([
             'success' => true,
@@ -56,6 +57,28 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('Store Product Request:', $request->all());
+        Log::info('Files:', $request->allFiles());
+
+        $user = Auth::user();
+
+        // Self-healing: Create Toko if user is seller but has no Toko record
+        if (!$user->toko && $user->role === 'penjual') {
+            Log::info('Auto-creating missing Toko for user: ' . $user->id);
+            $user->toko()->create([
+                'toko_name' => $user->store_name ?? $user->name . "'s Store",
+                'deskripsi' => $user->description ?? 'Welcome to my store',
+            ]);
+            $user->load('toko');
+        }
+
+        if (!$user->toko) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda belum memiliki toko.',
+            ], 403);
+        }
+
         try {
             $validated = $request->validate([
                 'nama_produk' => 'required|string|max:255',
@@ -70,6 +93,7 @@ class ProductController extends Controller
                 'varian.*.gambar_varian' => 'required|file|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
         } catch (ValidationException $e) {
+            Log::error('Validation Error:', $e->errors());
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
@@ -93,7 +117,11 @@ class ProductController extends Controller
                 }
 
                 foreach ($validated['varian'] as $i => $varianData) {
-                    $path = $request->file("varian.$i.gambar_varian")->store('varians', 'public');
+                    if ($request->hasFile("varian.$i.gambar_varian")) {
+                        $path = $request->file("varian.$i.gambar_varian")->store('varians', 'public');
+                    } else {
+                        throw new \Exception("Gambar varian ke-$i tidak ditemukan.");
+                    }
 
                     $product->variant()->create([
                         'nama_varian' => $varianData['nama_varian'],
@@ -113,6 +141,8 @@ class ProductController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            Log::error('Store Product Error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menyimpan produk.',
