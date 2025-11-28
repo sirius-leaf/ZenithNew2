@@ -23,7 +23,35 @@ class UserRoleController extends Controller
             return response()->json(['message' => 'Anda sudah memiliki akses penjual/admin.'], 409);
         }
 
-        $user->update(['role' => 'penjual_pending']);
+        // Validasi Input
+        $request->validate([
+            'store_name' => 'required|string|max:255',
+            'address' => 'required|string',
+            'description' => 'required|string',
+            'ktp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'npwp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+
+        // Upload File
+        $ktpPath = null;
+        if ($request->hasFile('ktp')) {
+            $ktpPath = $request->file('ktp')->store('documents/ktp', 'public');
+        }
+
+        $npwpPath = null;
+        if ($request->hasFile('npwp')) {
+            $npwpPath = $request->file('npwp')->store('documents/npwp', 'public');
+        }
+
+        // Update User Data
+        $user->update([
+            'role' => 'penjual_pending',
+            'store_name' => $request->store_name,
+            'address' => $request->address,
+            'description' => $request->description,
+            'ktp_path' => $ktpPath,
+            'npwp_path' => $npwpPath,
+        ]);
 
         return response()->json([
             'status' => 'success',
@@ -37,8 +65,8 @@ class UserRoleController extends Controller
      */
     public function index()
     {
-        // Mengambil user dengan role 'penjual_pending'
-        $sellerRequests = User::where('role', 'penjual_pending')->get();
+        // Mengambil user dengan role 'penjual_pending' dengan pagination
+        $sellerRequests = User::where('role', 'penjual_pending')->paginate(3);
 
         return response()->json([
             'status' => 'success',

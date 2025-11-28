@@ -30,6 +30,11 @@ class User extends Authenticatable
         'role',
         'is_banned',
         'profile_photo',
+        'store_name',
+        'address',
+        'description',
+        'ktp_path',
+        'npwp_path',
     ];
 
     public function toko()
