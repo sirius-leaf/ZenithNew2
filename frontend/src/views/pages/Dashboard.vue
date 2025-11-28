@@ -120,7 +120,7 @@ onMounted(async () => {
     }
 
     // Fetch Products (Initial load 25 items)
-    const productRes = await axios.get("http://127.0.0.1:8000/api/products?per_page=25");
+    const productRes = await axios.get("http://127.0.0.1:8000/api/products?per_page=10");
     if (productRes.data && productRes.data.data) {
       recommendedProducts.value = processProducts(productRes.data.data);
       nextUrl.value = productRes.data.next_page_url;
@@ -139,7 +139,7 @@ onMounted(async () => {
 const getCategoryIcon = (name) => {
   // Simple mapping or return a generic icon
   // For now returning a simple generic SVG
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400 group-hover:text-pink-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>`;
 };
@@ -175,27 +175,33 @@ const handleLogout = () => {
 <template>
   <div v-if="user" class="min-h-screen bg-gray-50">
     <main class="px-4 py-6 md:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <!-- Hero Banner -->
+      <div class="relative bg-gradient-to-r from-pink-600 to-purple-600 rounded-2xl p-8 md:p-10 mb-8 overflow-hidden shadow-lg text-white">
+        <div class="relative z-10">
+          <h1 class="text-3xl md:text-4xl font-bold mb-2">Selamat Datang di Zenith</h1>
+          <p class="text-pink-100 mb-0 max-w-xl">Temukan berbagai produk pilihan dengan kualitas terbaik dan harga terjangkau.</p>
+        </div>
+        <div class="absolute top-0 right-0 -mr-10 -mt-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-20 w-40 h-40 bg-pink-400 opacity-20 rounded-full blur-2xl"></div>
+      </div>
+
       <!-- Modern Section: Tag Populer & Rekomendasi -->
       <section class="mb-8">
         <!-- Tag Populer -->
-        <!-- Tag Populer -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-          <h3 class="font-bold text-gray-800 mb-6 text-lg uppercase tracking-wide border-b pb-2">KATEGORI</h3>
-          <div class="flex flex-wrap justify-center gap-8">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+          <h3 class="font-bold text-gray-800 mb-4 text-lg">Kategori Pilihan</h3>
+          <div class="flex overflow-x-auto pb-2 gap-3 no-scrollbar">
             <div
               v-for="tag in popularTags"
               :key="tag.id"
-              class="flex flex-col items-center group cursor-pointer w-24"
+              class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:border-pink-500 hover:text-pink-600 transition-all duration-300 cursor-pointer whitespace-nowrap group shadow-sm hover:shadow-md min-w-max"
               @click="$router.push({ name: 'searching', query: { category: tag.name } })"
             >
               <div
-                class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-3 group-hover:bg-white group-hover:shadow-md transition-all duration-300 border border-transparent group-hover:border-gray-100"
+                class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-pink-500 transition-colors"
                 v-html="tag.icon"
               ></div>
-              <span
-                class="text-sm font-medium text-gray-600 group-hover:text-pink-600 transition-colors text-center leading-tight"
-                >{{ tag.name }}</span
-              >
+              <span class="text-sm font-medium text-gray-700 group-hover:text-pink-600 transition-colors">{{ tag.name }}</span>
             </div>
           </div>
         </div>
@@ -208,11 +214,11 @@ const handleLogout = () => {
             Rekomendasi
           </h3>
 
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-8">
             <div
               v-for="product in recommendedProducts"
               :key="product.id_produk"
-              class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition cursor-pointer group flex flex-col h-full"
+              class="bg-white rounded-2xl p-3 hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col h-full border border-gray-200 hover:border-pink-100 relative"
               @click="
                 $router.push({
                   name: 'product-detail',
@@ -220,50 +226,44 @@ const handleLogout = () => {
                 })
               "
             >
-              <div class="relative overflow-hidden rounded-md mb-3 aspect-square">
+              <!-- Image Container -->
+              <div class="relative overflow-hidden rounded-xl mb-3 aspect-square bg-gray-50">
                 <img
                   :src="product.image"
                   :alt="product.name"
-                  class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                  class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                 />
+                <!-- Overlay Gradient -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <h4
-                class="font-semibold text-gray-800 text-sm mb-1 line-clamp-2 group-hover:text-pink-600 transition-colors flex-grow"
-              >
-                {{ product.name }}
-              </h4>
-              <p class="text-pink-600 font-bold mb-1 text-sm">{{ product.price }}</p>
-              <div class="flex items-center mb-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-3 w-3 text-yellow-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 00-1.028-.684H9.049a1 1 0 00-1.028.684L7.95 6.316a1 1 0 00.919.592l3.181.45a1 1 0 001.028-.684l1.07-3.292a1 1 0 00-1.028-.684H9.049z"
-                  />
-                </svg>
-                <span class="text-xs text-gray-600 ml-1">{{
-                  product.rating
-                }}</span>
-              </div>
-              <div class="flex items-center mt-auto">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-3 w-3 text-green-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <span class="text-xs text-gray-600 ml-1 truncate">{{
-                  product.brand
-                }}</span>
+
+              <!-- Content -->
+              <div class="flex flex-col flex-grow px-1">
+                <!-- Brand & Rating Row -->
+                <div class="flex items-center justify-between mb-1">
+                   <div class="flex items-center gap-1 text-xs text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span class="truncate max-w-[80px]">{{ product.brand }}</span>
+                   </div>
+                   <div class="flex items-center gap-0.5 bg-gray-50 px-1.5 py-0.5 rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 00-1.028-.684H9.049a1 1 0 00-1.028.684L7.95 6.316a1 1 0 00.919.592l3.181.45a1 1 0 001.028-.684l1.07-3.292a1 1 0 00-1.028-.684H9.049z" />
+                    </svg>
+                    <span class="text-xs font-bold text-gray-700">{{ product.rating || '0' }}</span>
+                   </div>
+                </div>
+
+                <!-- Title -->
+                <h4 class="font-medium text-gray-800 text-sm mb-2 line-clamp-2 leading-snug group-hover:text-pink-600 transition-colors">
+                  {{ product.name }}
+                </h4>
+
+                <!-- Price -->
+                <div class="mt-auto pt-2 border-t border-gray-50">
+                  <p class="text-pink-600 font-bold text-base">{{ product.price }}</p>
+                </div>
               </div>
             </div>
           </div>

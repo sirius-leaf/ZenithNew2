@@ -28,7 +28,7 @@ class ProductPageController extends Controller
             $query->where('nama_produk', 'like', "%{$search}%");
         }
 
-        $products = $query->paginate(12);
+        $products = $query->paginate($request->input('per_page', 12));
 
         // UBAH INI:
         // return view('shop.index', compact('products'));
