@@ -1,9 +1,8 @@
 <template>
-  <div class="w-full bg-gray-50 p-4 sm:p-4 font-ubuntu">
-
+  <div class="w-full bg-white p-4 sm:p-6 font-ubuntu min-h-screen">
     <!-- Header -->
     <div class="mb-8 flex items-center gap-2">
-      <button @click="$router.back()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+      <button @click="$router.back()" class="text-[#203f9a] hover:text-[#94c2da] text-sm font-medium">
         ← Kembali ke Dashboard
       </button>
     </div>
@@ -20,7 +19,7 @@
         <div class="flex flex-col items-center gap-4 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-100 pb-6 md:pb-0 md:pr-6">
           <div class="relative w-48 h-48 bg-gray-100 rounded-full overflow-hidden shadow-sm border border-gray-200">
             <img 
-              :src="user.profile_photo ? `http://127.0.0.1:8000/storage/${user.profile_photo}` : 'https://ui-avatars.com/api/?name=' + user.name + '&background=random'" 
+              :src="user.profile_photo ? `http://127.0.0.1:8000/storage/${user.profile_photo}` : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=random'" 
               alt="Profile Photo" 
               class="w-full h-full object-cover"
             />
@@ -40,33 +39,29 @@
 
         <!-- Right: Info -->
         <div class="flex-1 space-y-8">
-          
           <!-- Section: Ubah Biodata Diri -->
           <div>
             <h3 class="text-lg font-bold text-gray-800 mb-4">Ubah Biodata Diri</h3>
             <div class="space-y-4">
-              <!-- Nama -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                 <span class="text-gray-500 text-sm">Nama</span>
                 <div class="sm:col-span-2 flex items-center gap-2">
                   <span class="text-gray-900 font-medium">{{ user.name }}</span>
-                  <button @click="$router.push('/profile/edit')" class="text-pink-600 text-sm font-medium hover:underline">Ubah</button>
+                  <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
                 </div>
               </div>
               
-              <!-- Tanggal Lahir (Placeholder) -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                 <span class="text-gray-500 text-sm">Tanggal Lahir</span>
                 <div class="sm:col-span-2 flex items-center gap-2">
-                  <span class="text-pink-600 text-sm font-medium cursor-pointer hover:underline">Tambah Tanggal Lahir</span>
+                  <span class="text-[#e84797] text-sm font-medium cursor-pointer hover:underline">Tambah Tanggal Lahir</span>
                 </div>
               </div>
 
-              <!-- Jenis Kelamin (Placeholder) -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                 <span class="text-gray-500 text-sm">Jenis Kelamin</span>
                 <div class="sm:col-span-2 flex items-center gap-2">
-                  <span class="text-pink-600 text-sm font-medium cursor-pointer hover:underline">Tambah Jenis Kelamin</span>
+                  <span class="text-[#e84797] text-sm font-medium cursor-pointer hover:underline">Tambah Jenis Kelamin</span>
                 </div>
               </div>
             </div>
@@ -76,122 +71,147 @@
           <div>
             <h3 class="text-lg font-bold text-gray-800 mb-4">Ubah Kontak</h3>
             <div class="space-y-4">
-              <!-- Email -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                 <span class="text-gray-500 text-sm">Email</span>
                 <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
                   <span class="text-gray-900 font-medium">{{ user.email }}</span>
                   <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Terverifikasi</span>
-                  <!-- <button class="text-pink-600 text-sm font-medium hover:underline">Ubah</button> -->
                 </div>
               </div>
 
-              <!-- Nomor HP -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                 <span class="text-gray-500 text-sm">Nomor HP</span>
                 <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
                   <span v-if="user.no_telpon" class="text-gray-900 font-medium">{{ user.no_telpon }}</span>
                   <span v-else class="text-gray-400 italic">Belum diatur</span>
-                  
                   <span v-if="user.no_telpon" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Terverifikasi</span>
-                  <button @click="$router.push('/profile/edit')" class="text-pink-600 text-sm font-medium hover:underline">Ubah</button>
+                  <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
                 </div>
               </div>
 
-              <!-- Alamat -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                 <span class="text-gray-500 text-sm">Alamat</span>
                 <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
                   <span v-if="user.alamat" class="text-gray-900 font-medium">{{ user.alamat }}</span>
                   <span v-else class="text-gray-400 italic">Belum diatur</span>
-                  <button @click="$router.push('/profile/edit')" class="text-pink-600 text-sm font-medium hover:underline">Ubah</button>
+                  <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- =======================
-            STATUS MENJADI PENJUAL
-          ======================== -->
-          <section class="mt-8 border-t border-pink-200 pt-6">
-            <h3 class="text-lg font-semibold text-neutral-950 mb-4">Status Toko</h3>
-            
-            <!-- A. User Biasa -->
-            <div
-              v-if="user.role === 'user'"
-              class="bg-pink-50 border border-pink-200 rounded-xl p-6"
-            >
-              <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div>
-                  <h3 class="text-lg font-bold text-pink-800 mb-2">Ingin mulai berjualan?</h3>
-                  <p class="text-pink-700 mb-4 opacity-90">
-                    Daftarkan akun Anda menjadi penjual untuk membuka toko dan menjual
-                    produk rakitan PC.
-                  </p>
-                </div>
-
-                <button
-                  @click="requestSeller"
-                  :disabled="loadingSeller"
-                  class="bg-pink-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-pink-700 transition disabled:opacity-70 whitespace-nowrap"
-                >
-                  {{ loadingSeller ? "Memproses..." : "Daftar Menjadi Penjual" }}
-                </button>
-              </div>
-            </div>
-
-            <!-- B. Status Pending -->
-            <div
-              v-else-if="user.role === 'penjual_pending'"
-              class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 flex items-center gap-4"
-            >
-              <div class="p-3 bg-yellow-100 rounded-full text-yellow-600">⏳</div>
-
-              <div>
-                <h3 class="text-lg font-bold text-yellow-800">Menunggu Konfirmasi</h3>
-                <p class="text-yellow-700">
-                  Permintaan Anda sedang ditinjau oleh Admin.
-                </p>
-              </div>
-            </div>
-
-            <!-- C. Penjual -->
-            <div
-              v-else-if="user.role === 'penjual'"
-              class="bg-green-50 border border-green-200 rounded-xl p-6"
-            >
-              <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div>
-                  <h3 class="text-lg font-bold text-green-800">
-                    Panel Penjual Aktif
-                  </h3>
-                  <p class="text-green-700">
-                    Anda memiliki akses penuh untuk mengelola toko.
-                  </p>
-                </div>
-
-                <router-link
-                  to="/dashboard/manage/create-toko"
-                  class="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition shadow whitespace-nowrap"
-                >
-                  Kelola / Buka Toko
-                </router-link>
-              </div>
-            </div>
-          </section>
-
         </div>
       </div>
 
-      <!-- Tombol Edit -->
+      <!-- Tombol Edit Profil tetap di dalam card -->
       <button
         @click="$router.push('/profile/edit')"
-        class="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+        class="w-full py-2 mt-6 bg-[#203f9a] text-white rounded-lg disabled:opacity-50 hover:bg-[#94c2da] transition"
       >
         Edit Profil
       </button>
     </div>
+
+ <!-- Status Toko & Form Daftar Seller -->
+<div v-if="user" class="max-w-4xl mx-auto mt-8 px-6 sm:px-0">
+  <!-- Card Ajakan -->
+  <div class="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+    <div class="flex flex-col sm:flex-row items-start gap-4">
+      <div class="w-12 h-12 bg-[#203f9a] rounded-full flex justify-center items-center shadow-sm flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l1-4h16l1 4M4 9h16v10H4V9zm4 5h8" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 class="text-lg font-semibold text-[#203f9a] mb-2">Buka Toko Anda Sendiri</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Jadilah penjual dan raih penghasilan dengan membuka toko di platform kami.
+          Proses pendaftaran mudah dan gratis!
+        </p>
+        <button 
+          @click="openStoreForm"
+          class="w-full py-2 px-4 bg-[#e84797] hover:bg-[#d03a84] text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-md active:scale-[0.98]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8m12 0a8 8 0 11-16 0 8 8 0 0116 0z" />
+          </svg>
+          Daftar Toko Sekarang
+        </button>
+      </div>
+    </div>
   </div>
+</div>
+
+      <!-- Modal Daftar Seller -->
+      <Transition name="modal-fade">
+        <div v-if="showStoreForm" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click="closeModal">
+          <Transition name="modal-slide">
+            <div class="w-full max-w-2xl bg-white rounded-xl shadow-xl overflow-hidden" @click.stop>
+              <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-[#203f9a]">
+                  {{ currentStep === 1 ? 'Buat Toko Anda' : 'Lengkapi Persyaratan' }}
+                </h3>
+                <button @click="closeModal" class="text-gray-500 hover:text-gray-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="p-6 max-h-[70vh] overflow-y-auto">
+                <Transition name="step-fade" mode="out-in">
+                  <!-- Step 1: Data Toko -->
+                  <div v-if="currentStep === 1" key="step-1" class="space-y-4">
+                    <div>
+                      <label class="block text-gray-700 text-sm font-medium mb-1">Nama Toko</label>
+                      <input v-model="storeName" type="text" placeholder="Masukkan nama toko" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e84797]" />
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 text-sm font-medium mb-1">Alamat Toko</label>
+                      <input v-model="storeAddress" type="text" placeholder="Masukkan alamat lengkap" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e84797]" />
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 text-sm font-medium mb-1">Deskripsi Toko</label>
+                      <textarea v-model="storeDescription" rows="3" placeholder="Ceritakan tentang tokomu..." class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e84797] resize-none"></textarea>
+                    </div>
+                  </div>
+
+                  <!-- Step 2: Dokumen -->
+                  <div v-else-if="currentStep === 2" key="step-2" class="space-y-4">
+                    <div>
+                      <label class="block text-gray-700 text-sm font-medium mb-1">Upload KTP</label>
+                      <input type="file" @change="handleFileUpload($event, 'ktp')" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-[#e84797]/10 file:text-[#e84797]" />
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 text-sm font-medium mb-1">Upload NPWP</label>
+                      <input type="file" @change="handleFileUpload($event, 'npwp')" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-[#e84797]/10 file:text-[#e84797]" />
+                    </div>
+                    <div class="flex items-start gap-2">
+                      <input v-model="agreed" type="checkbox" class="mt-0.5 w-4 h-4 text-[#e84797] rounded focus:ring-[#e84797]" />
+                      <label class="text-xs text-gray-700">
+                        Saya setuju dengan <span class="text-[#e84797] font-medium">Syarat dan Ketentuan</span>
+                      </label>
+                    </div>
+                  </div>
+                </Transition>
+              </div>
+
+              <div class="px-6 py-4 bg-gray-50 flex justify-between gap-3">
+                <button v-if="currentStep === 2" @click="prevStep" class="px-4 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100">
+                  Kembali
+                </button>
+                <div class="flex-grow"></div>
+                <button v-if="currentStep === 1" @click="nextStep" :disabled="!storeName.trim() || !storeAddress.trim()" class="px-6 py-2.5 bg-[#203f9a] text-white text-sm font-medium rounded-lg hover:bg-[#94c2da] disabled:opacity-50">
+                  Lanjut
+                </button>
+                <button v-else @click="submitSellerRequest" :disabled="!agreed || !ktpFile || !npwpFile" class="px-6 py-2.5 bg-[#e84797] text-white text-sm font-medium rounded-lg hover:bg-[#d03a84] disabled:opacity-50">
+                  Kirim Pendaftaran
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </Transition>
+    </div>
 </template>
 
 <script setup>
@@ -205,59 +225,103 @@ const toast = useToast();
 const user = ref(null);
 const loadingSeller = ref(false);
 
+// === State untuk Modal Daftar Seller ===
+const showStoreForm = ref(false);
+const currentStep = ref(1);
+const storeName = ref("");
+const storeAddress = ref("");
+const storeDescription = ref("");
+const ktpFile = ref(null);
+const npwpFile = ref(null);
+const agreed = ref(false);
+
 onMounted(async () => {
   const token = localStorage.getItem("authToken");
   if (!token) return router.push("/login");
 
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-  const res = await axios.get("http://127.0.0.1:8000/api/profile");
-  user.value = res.data;
+  try {
+    const res = await axios.get("http://127.0.0.1:8000/api/profile");
+    user.value = res.data;
+  } catch (error) {
+    console.error("Gagal mengambil data user:", error);
+    localStorage.removeItem("authToken");
+    router.push("/login");
+  }
 });
 
-const requestSeller = async () => {
-  if (!user.value.no_telpon || !user.value.alamat) {
-    toast.error("Isi nomor telepon & alamat terlebih dahulu di Profil.", {
-      timeout: 3000,
-      closeOnClick: true,
-    });
-    router.push("/profile/edit");
+// === Modal Handler ===
+const openStoreForm = () => {
+  currentStep.value = 1;
+  storeName.value = "";
+  storeAddress.value = "";
+  storeDescription.value = "";
+  ktpFile.value = null;
+  npwpFile.value = null;
+  agreed.value = false;
+  showStoreForm.value = true;
+};
+
+const closeModal = () => {
+  showStoreForm.value = false;
+};
+
+const nextStep = () => {
+  if (storeName.value.trim() && storeAddress.value.trim()) {
+    currentStep.value = 2;
+  }
+};
+
+const prevStep = () => {
+  currentStep.value = 1;
+};
+
+const handleFileUpload = (event, field) => {
+  const file = event.target.files[0];
+  if (field === "ktp") ktpFile.value = file;
+  if (field === "npwp") npwpFile.value = file;
+};
+
+// === Submit Request Seller ===
+const submitSellerRequest = async () => {
+  if (!agreed.value || !ktpFile.value || !npwpFile.value) {
+    toast.error("Harap lengkapi semua persyaratan.");
     return;
   }
 
   loadingSeller.value = true;
 
   try {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    }
+    const formData = new FormData();
+    formData.append("store_name", storeName.value);
+    formData.append("address", storeAddress.value);
+    formData.append("description", storeDescription.value);
+    formData.append("ktp", ktpFile.value);
+    formData.append("npwp", npwpFile.value);
 
-    const res = await axios.post("http://127.0.0.1:8000/api/manage/become-seller");
+    const res = await axios.post("http://127.0.0.1:8000/api/manage/become-seller", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
     user.value.role = "penjual_pending";
     localStorage.setItem("userRole", "penjual_pending");
-
-    toast.success(res.data?.message ?? "Permintaan berhasil dikirim!", {
-      timeout: 2500,
-    });
+    toast.success(res.data?.message || "Permintaan penjual berhasil dikirim!");
+    closeModal();
   } catch (error) {
-    console.error("Request seller failed:", error);
-    const msg = error.response?.data?.message || "Terjadi kesalahan.";
-    toast.error(msg, { timeout: 3000 });
+    console.error("Submit seller failed:", error);
+    const msg = error.response?.data?.message || "Gagal mengirim permintaan.";
+    toast.error(msg);
   } finally {
     loadingSeller.value = false;
   }
 };
 
-/* =============================
-   UPLOAD FOTO PROFIL
-============================= */
+// === Upload Foto Profil ===
 const handlePhotoUpload = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  // Validasi ukuran (max 2MB)
   if (file.size > 2 * 1024 * 1024) {
     toast.error("Ukuran foto maksimal 2MB");
     return;
@@ -265,26 +329,15 @@ const handlePhotoUpload = async (event) => {
 
   const formData = new FormData();
   formData.append("profile_photo", file);
-  // Kirim field lain yang diperlukan updateProfile (karena validasi 'sometimes')
-  // Tapi di backend kita pakai 'sometimes', jadi aman kalau cuma kirim foto.
-  // Namun, updateProfile di backend me-return user baru, jadi kita bisa update state.
 
   try {
     const res = await axios.post("http://127.0.0.1:8000/api/profile/update", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
 
     user.value = res.data.user;
     toast.success("Foto profil berhasil diperbarui!");
-    
-    // Emit event atau update global state jika perlu agar navbar berubah
-    // Cara paling gampang: reload window atau pakai event bus. 
-    // Tapi karena navbar fetch ulang saat route change, mungkin cukup.
-    // Untuk update instan di navbar, kita bisa simpan di localStorage atau trigger custom event.
-    window.dispatchEvent(new Event('user-profile-updated'));
-
+    window.dispatchEvent(new Event("user-profile-updated"));
   } catch (error) {
     console.error("Upload failed:", error);
     toast.error("Gagal mengupload foto profil.");
@@ -293,9 +346,39 @@ const handlePhotoUpload = async (event) => {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap");
 
 .font-ubuntu {
-  font-family: 'Ubuntu', sans-serif;
+  font-family: "Ubuntu", sans-serif;
+}
+
+/* Animasi Modal */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-slide-enter-active,
+.modal-slide-leave-active {
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+.modal-slide-enter-from {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+.modal-slide-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+.step-fade-enter-active,
+.step-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.step-fade-enter-from,
+.step-fade-leave-to {
+  opacity: 0;
 }
 </style>
