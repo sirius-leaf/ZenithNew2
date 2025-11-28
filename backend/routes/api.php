@@ -38,6 +38,7 @@ Route::get('/products/{id_produk}', [ProductPageController::class, 'show']);
 Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
 
 Route::get('/toko/{id_toko}', [TokoController::class, 'show']);
+Route::get('/shops', [TokoController::class, 'search']);
 Route::get('/categories', [App\Http\Controllers\Api\CategoryController::class, 'index']);
 
 
@@ -55,6 +56,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [UserProfileController::class, 'me']);
     // Update profile user
     Route::post('/profile/update', [UserProfileController::class, 'updateProfile']);
+    // Update store profile
+    Route::post('/profile/store/update', [UserProfileController::class, 'updateStoreProfile']);
     // Update password
     Route::put('/profile/update-password', [UserProfileController::class, 'updatePassword']);
 

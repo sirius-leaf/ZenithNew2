@@ -80,4 +80,42 @@ class UserProfileController extends Controller
             'message' => 'Password berhasil diperbarui'
         ]);
     }
+    /**
+     * Update profil toko (nama toko, alamat, deskripsi, foto toko)
+     */
+    public function updateStoreProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->role !== 'penjual') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'store_name' => 'required|string|max:255',
+            'address' => 'required|string',
+            'description' => 'required|string',
+            'store_photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $data = $request->only(['store_name', 'address', 'description']);
+
+        // Handle Store Photo Upload
+        if ($request->hasFile('store_photo')) {
+            // Delete old photo if exists
+            if ($user->store_photo && \Illuminate\Support\Facades\Storage::exists('public/' . $user->store_photo)) {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $user->store_photo);
+            }
+
+            $path = $request->file('store_photo')->store('store_photos', 'public');
+            $data['store_photo'] = $path;
+        }
+
+        $user->update($data);
+
+        return response()->json([
+            'message' => 'Profil toko berhasil diperbarui',
+            'user' => $user
+        ]);
+    }
 }

@@ -118,7 +118,7 @@ const handleSearch = () => {
       <!-- Desktop Lab Button -->
       <RouterLink
         to="/dashboard/manage/pcBuild"
-        class="hidden md:inline-flex items-center px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-sm whitespace-nowrap"
+        class="hidden md:inline-flex items-center px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-sm whitespace-nowrap ml-auto"
       >
         <img :src="desktopIcon" alt="Desktop Lab" class="w-5 h-5 mr-2" />
         DESKTOP LAB
@@ -126,6 +126,18 @@ const handleSearch = () => {
 
       <!-- Keranjang & Akun -->
       <div class="flex items-center gap-6">
+        <!-- Store Icon (Seller Only) -->
+        <RouterLink 
+          v-if="user && user.role === 'penjual'"
+          to="/toko" 
+          class="text-gray-500 hover:text-pink-600 transition-colors relative group"
+          title="Kelola Toko"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+        </RouterLink>
+
         <!-- Cart -->
         <RouterLink to="/cart" class="text-gray-500 hover:text-pink-600 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">

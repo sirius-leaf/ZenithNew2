@@ -35,6 +35,7 @@ class User extends Authenticatable
         'description',
         'ktp_path',
         'npwp_path',
+        'store_photo',
     ];
 
     public function toko()

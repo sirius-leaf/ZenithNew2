@@ -160,10 +160,18 @@
               <!-- Footer: Tombol Lihat Toko -->
               <div class="mt-auto">
                 <button 
-                  @click="$router.push({ name: 'toko.detail', params: { id: shop.id } })"
+                  v-if="shop.tokoId"
+                  @click="$router.push({ name: 'toko.detail', params: { id: shop.tokoId } })"
                   class="w-full py-2 rounded-lg border border-pink-600 text-pink-600 font-medium text-sm hover:bg-pink-50 transition-colors"
                 >
                   Lihat Toko
+                </button>
+                <button 
+                  v-else
+                  disabled
+                  class="w-full py-2 rounded-lg border border-gray-300 text-gray-400 font-medium text-sm cursor-not-allowed"
+                >
+                  Toko Belum Aktif
                 </button>
               </div>
             </div>
@@ -202,6 +210,7 @@ const searchQuery = ref(route.query.q || '');
 watch(() => route.query.q, (newQuery) => {
   searchQuery.value = newQuery || '';
   fetchProducts();
+  fetchShops();
 });
 
 watch(() => route.query.category, (newCategory) => {
@@ -258,55 +267,53 @@ onMounted(async () => {
 
   await fetchProducts();
 
-  // Fetch Shops (Mocking for now as API endpoint is unknown/not specified in context)
-  // In a real scenario, we would call: const shopRes = await axios.get("http://127.0.0.1:8000/api/shops");
-  shops.value = [
-      { 
-        id: 1, 
-        name: 'Zenith Official Store', 
-        location: 'Jakarta Pusat', 
-        image: 'https://via.placeholder.com/60',
-        productImages: [
-          'https://via.placeholder.com/100?text=Prod1',
-          'https://via.placeholder.com/100?text=Prod2',
-          'https://via.placeholder.com/100?text=Prod3'
-        ]
-      },
-      { 
-        id: 2, 
-        name: 'Gamer Paradise', 
-        location: 'Bandung', 
-        image: 'https://via.placeholder.com/60',
-        productImages: [
-          'https://via.placeholder.com/100?text=GPU',
-          'https://via.placeholder.com/100?text=RAM',
-          'https://via.placeholder.com/100?text=Case'
-        ]
-      },
-      { 
-        id: 3, 
-        name: 'Tech Master', 
-        location: 'Surabaya', 
-        image: 'https://via.placeholder.com/60',
-        productImages: [
-          'https://via.placeholder.com/100?text=Mouse',
-          'https://via.placeholder.com/100?text=Keyb',
-          'https://via.placeholder.com/100?text=Head'
-        ]
-      },
-      { 
-        id: 4, 
-        name: 'PC Builder Pro', 
-        location: 'Jakarta Selatan', 
-        image: 'https://via.placeholder.com/60',
-        productImages: [
-          'https://via.placeholder.com/100?text=Mobo',
-          'https://via.placeholder.com/100?text=PSU',
-          'https://via.placeholder.com/100?text=Cool'
-        ]
-      },
-    ];
+  await fetchProducts();
+  await fetchShops();
 });
+
+// Fetch Shops
+const fetchShops = async () => {
+  try {
+    const params = {};
+    if (searchQuery.value) params.q = searchQuery.value;
+
+    const res = await axios.get("http://127.0.0.1:8000/api/shops", { params });
+    const fetchedUsers = res.data.data; // Pagination data is in res.data.data
+
+    shops.value = fetchedUsers.map(user => {
+      // Map products images if available
+      const productImages = user.toko?.products?.map(p => {
+         if (p.variant && p.variant.length > 0) {
+            const imagePath = p.variant[0].gambar_varian;
+             if (imagePath) {
+              if (imagePath.startsWith('http')) return imagePath;
+              const cleanPath = imagePath.replace(/^(\.\.\/)+/, '');
+              return `http://127.0.0.1:8000/${cleanPath}`;
+            }
+         }
+         return "https://via.placeholder.com/100?text=No+Image";
+      }) || [];
+
+      return {
+        id: user.id, // Or user.toko.id if we want to link to toko detail
+        // Note: The route 'toko.detail' likely expects id_toko. 
+        // If user doesn't have a toko record yet, this might be an issue.
+        // But for now let's use user.toko?.id_toko || user.id and handle it.
+        // Actually, let's check if user.toko exists.
+        tokoId: user.toko?.id_toko, 
+        name: user.store_name,
+        location: user.address,
+        image: user.store_photo 
+            ? `http://127.0.0.1:8000/storage/${user.store_photo}` 
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.store_name || 'Store')}&background=random`,
+        productImages: productImages.slice(0, 3)
+      };
+    });
+
+  } catch (err) {
+    console.error("Error fetching shops:", err);
+  }
+};
 
 // Computed: Produk yang sudah difilter dan diurutkan
 const filteredProducts = computed(() => {

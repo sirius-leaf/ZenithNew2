@@ -39,6 +39,7 @@ import Profile from "./views/pages/ProfileUser.vue";
 import EditProfile from "./views/pages/EditProfile.vue";
 import OrderHistory from "./views/pages/OrderHistory.vue";
 import DetailToko from "./views/pages/DetailToko.vue";
+import ManageStore from "./views/pages/ManageStore.vue";
 
 /* =========================================================
    📌 IMPORT DASHBOARD USER
@@ -115,6 +116,11 @@ const router = createRouter({
       path: "/toko/:id",
       name: "toko.detail",
       component: DetailToko,
+    },
+    {
+      path: "/toko",
+      name: "toko.manage",
+      component: ManageStore,
     },
     { path: "/categories/:category", component: CategoryPage, props: true },
     { path: "/about", component: AboutPage },

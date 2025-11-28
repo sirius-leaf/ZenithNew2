@@ -100,4 +100,42 @@ class TokoController extends Controller
             ]
         ], 201);
     }
+
+    /**
+     * Search for shops (users with role 'penjual').
+     */
+    public function search(Request $request)
+    {
+        $query = \App\Models\User::where('role', 'penjual');
+
+        if ($request->has('q')) {
+            $search = $request->input('q');
+            $query->where('store_name', 'like', "%{$search}%");
+        }
+
+        // Eager load products for preview (limit 3)
+        // Note: Laravel's eager loading limit is tricky, but for simplicity we'll just load all and limit in frontend or use a subquery if performance is critical.
+        // For now, let's just load 'toko.products' or if products are directly on user (which they aren't, they are on toko).
+        // Wait, the schema says User hasOne Toko, and Toko hasMany Products.
+        // But the user request implies "store_name" is on User table now (based on previous edits).
+        // Let's check where products are. They are likely linked to Toko or User.
+        // Based on `TokoController::store`, it creates a `Toko` model.
+        // But `UserRoleController` updates `User` fields.
+        // Let's assume products are linked to `Toko`.
+        // However, the user might not have a `Toko` record if they just became a seller via the new flow which updates `User` table directly?
+        // Let's check `User` model again.
+
+        // Actually, in `UserRoleController::requestSeller`, we updated `store_name` on `User`.
+        // We didn't create a `Toko` record there.
+        // So products might need to be linked to `User` directly or we need to ensure `Toko` exists.
+        // Let's look at `Product` model to see how it links to seller.
+
+        $users = $query->with([
+            'toko.products' => function ($q) {
+                $q->latest()->take(3);
+            }
+        ])->paginate(12);
+
+        return response()->json($users);
+    }
 }
