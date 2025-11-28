@@ -17,7 +17,7 @@ class ProductPageController extends Controller
 
         if ($request->has('category')) {
             $categoryName = $request->input('category');
-            $query->whereHas('category', function ($q) use ($categoryName) {
+            $query->whereHas('categoryDetail.category', function ($q) use ($categoryName) {
                 $q->where('nama_kategori', $categoryName);
             });
         }

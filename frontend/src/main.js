@@ -104,7 +104,7 @@ const router = createRouter({
 
     /* ---------- Public Routes ---------- */
     { path: "/", component: HomePage },
-    { path: "/searching", component: SearchingPage },
+    { path: "/searching", name: "searching", component: SearchingPage },
     {
       path: "/product/:id",
       name: "product-detail",
