@@ -12,109 +12,212 @@
       <p class="text-gray-600">Memuat data akun...</p>
     </div>
 
-    <!-- Profile Card -->
-    <div v-else class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6">
-      <div class="flex flex-col md:flex-row gap-8">
-        <!-- Left: Profile Photo -->
-        <div class="flex flex-col items-center gap-4 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-100 pb-6 md:pb-0 md:pr-6">
-          <div class="relative w-48 h-48 bg-gray-100 rounded-full overflow-hidden shadow-sm border border-gray-200">
-            <img 
+    <!-- Profile Card (Collapsible) -->
+    <div v-else class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300">
+      <!-- Header (Always Visible) -->
+      <div 
+        @click="isProfileExpanded = !isProfileExpanded"
+        class="p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+      >
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-gray-100">
+             <img 
               :src="user.profile_photo ? `http://127.0.0.1:8000/storage/${user.profile_photo}` : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=random'" 
-              alt="Profile Photo" 
+              alt="Avatar" 
               class="w-full h-full object-cover"
             />
           </div>
-          
-          <label class="w-full max-w-[200px]">
-            <div class="w-full py-2.5 px-4 bg-white border border-gray-300 rounded-lg text-gray-700 font-semibold text-center cursor-pointer hover:bg-gray-50 transition shadow-sm">
-              Pilih Foto
-            </div>
-            <input type="file" class="hidden" accept="image/*" @change="handlePhotoUpload">
-          </label>
-
-          <p class="text-xs text-gray-500 text-center max-w-[200px] leading-relaxed">
-            Besar file: maksimum 2.000.000 bytes (2 Megabytes). Ekstensi file yang diperbolehkan: .JPG .JPEG .PNG
-          </p>
+          <div>
+            <h2 class="text-lg font-bold text-gray-800">Biodata Diri</h2>
+            <p class="text-sm text-gray-500">{{ user.name }} • {{ user.email }}</p>
+          </div>
         </div>
-
-        <!-- Right: Info -->
-        <div class="flex-1 space-y-8">
-          <!-- Section: Ubah Biodata Diri -->
-          <div>
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Ubah Biodata Diri</h3>
-            <div class="space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <span class="text-gray-500 text-sm">Nama</span>
-                <div class="sm:col-span-2 flex items-center gap-2">
-                  <span class="text-gray-900 font-medium">{{ user.name }}</span>
-                  <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
-                </div>
-              </div>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <span class="text-gray-500 text-sm">Tanggal Lahir</span>
-                <div class="sm:col-span-2 flex items-center gap-2">
-                  <span class="text-[#e84797] text-sm font-medium cursor-pointer hover:underline">Tambah Tanggal Lahir</span>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <span class="text-gray-500 text-sm">Jenis Kelamin</span>
-                <div class="sm:col-span-2 flex items-center gap-2">
-                  <span class="text-[#e84797] text-sm font-medium cursor-pointer hover:underline">Tambah Jenis Kelamin</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section: Ubah Kontak -->
-          <div>
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Ubah Kontak</h3>
-            <div class="space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <span class="text-gray-500 text-sm">Email</span>
-                <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
-                  <span class="text-gray-900 font-medium">{{ user.email }}</span>
-                  <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Terverifikasi</span>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <span class="text-gray-500 text-sm">Nomor HP</span>
-                <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
-                  <span v-if="user.no_telpon" class="text-gray-900 font-medium">{{ user.no_telpon }}</span>
-                  <span v-else class="text-gray-400 italic">Belum diatur</span>
-                  <span v-if="user.no_telpon" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Terverifikasi</span>
-                  <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <span class="text-gray-500 text-sm">Alamat</span>
-                <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
-                  <span v-if="user.alamat" class="text-gray-900 font-medium">{{ user.alamat }}</span>
-                  <span v-else class="text-gray-400 italic">Belum diatur</span>
-                  <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
-                </div>
-              </div>
-            </div>
-          </div>
+        
+        <!-- Chevron Icon -->
+        <div class="transform transition-transform duration-300" :class="{ 'rotate-180': isProfileExpanded }">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
         </div>
       </div>
 
-      <!-- Tombol Edit Profil tetap di dalam card -->
-      <button
-        @click="$router.push('/profile/edit')"
-        class="w-full py-2 mt-6 bg-[#203f9a] text-white rounded-lg disabled:opacity-50 hover:bg-[#94c2da] transition"
+      <!-- Collapsible Content -->
+      <div 
+        v-show="isProfileExpanded"
+        class="border-t border-gray-100 bg-gray-50/50"
       >
-        Edit Profil
-      </button>
+        <div class="p-6">
+          <div class="flex flex-col md:flex-row gap-8">
+            <!-- Left: Profile Photo (Expanded) -->
+            <div class="flex flex-col items-center gap-4 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-6">
+              <div class="relative w-48 h-48 bg-gray-100 rounded-full overflow-hidden shadow-sm border border-gray-200">
+                <img 
+                  :src="user.profile_photo ? `http://127.0.0.1:8000/storage/${user.profile_photo}` : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=random'" 
+                  alt="Profile Photo" 
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              
+              <label class="w-full max-w-[200px]">
+                <div class="w-full py-2.5 px-4 bg-white border border-gray-300 rounded-lg text-gray-700 font-semibold text-center cursor-pointer hover:bg-gray-50 transition shadow-sm">
+                  Pilih Foto
+                </div>
+                <input type="file" class="hidden" accept="image/*" @change="handlePhotoUpload">
+              </label>
+
+              <p class="text-xs text-gray-500 text-center max-w-[200px] leading-relaxed">
+                Besar file: maksimum 2.000.000 bytes (2 Megabytes). Ekstensi file yang diperbolehkan: .JPG .JPEG .PNG
+              </p>
+            </div>
+
+            <!-- Right: Info -->
+            <div class="flex-1 space-y-8">
+              <!-- Section: Ubah Biodata Diri -->
+              <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Detail Biodata</h3>
+                <div class="space-y-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                    <span class="text-gray-500 text-sm">Nama</span>
+                    <div class="sm:col-span-2 flex items-center gap-2">
+                      <span class="text-gray-900 font-medium">{{ user.name }}</span>
+                      <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
+                    </div>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                    <span class="text-gray-500 text-sm">Tanggal Lahir</span>
+                    <div class="sm:col-span-2 flex items-center gap-2">
+                      <span class="text-[#e84797] text-sm font-medium cursor-pointer hover:underline">Tambah Tanggal Lahir</span>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                    <span class="text-gray-500 text-sm">Jenis Kelamin</span>
+                    <div class="sm:col-span-2 flex items-center gap-2">
+                      <span class="text-[#e84797] text-sm font-medium cursor-pointer hover:underline">Tambah Jenis Kelamin</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section: Ubah Kontak -->
+              <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Detail Kontak</h3>
+                <div class="space-y-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                    <span class="text-gray-500 text-sm">Email</span>
+                    <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
+                      <span class="text-gray-900 font-medium">{{ user.email }}</span>
+                      <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Terverifikasi</span>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                    <span class="text-gray-500 text-sm">Nomor HP</span>
+                    <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
+                      <span v-if="user.no_telpon" class="text-gray-900 font-medium">{{ user.no_telpon }}</span>
+                      <span v-else class="text-gray-400 italic">Belum diatur</span>
+                      <span v-if="user.no_telpon" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Terverifikasi</span>
+                      <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                    <span class="text-gray-500 text-sm">Alamat</span>
+                    <div class="sm:col-span-2 flex items-center gap-2 flex-wrap">
+                      <span v-if="user.alamat" class="text-gray-900 font-medium">{{ user.alamat }}</span>
+                      <span v-else class="text-gray-400 italic">Belum diatur</span>
+                      <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tombol Edit Profil -->
+          <button
+            @click="$router.push('/profile/edit')"
+            class="w-full py-2.5 mt-8 bg-[#203f9a] text-white font-medium rounded-lg disabled:opacity-50 hover:bg-[#94c2da] transition shadow-sm"
+          >
+            Edit Profil Lengkap
+          </button>
+        </div>
+      </div>
     </div>
 
  <!-- Status Toko & Form Daftar Seller -->
 <div v-if="user" class="max-w-4xl mx-auto mt-8 px-6 sm:px-0">
-  <!-- Card Ajakan -->
-  <div class="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+  
+  <!-- Jika User Adalah Seller: Tampilkan Informasi Toko (Collapsible) -->
+  <div v-if="user.role === 'penjual'" class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300">
+      <!-- Header (Always Visible) -->
+      <div 
+        @click="isStoreExpanded = !isStoreExpanded"
+        class="p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+      >
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full flex justify-center items-center bg-pink-100 text-pink-600">
+             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+             </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-gray-800">Informasi Toko</h2>
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-500">{{ user.store_name || 'Nama Toko' }}</span>
+                <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Aktif</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Chevron Icon -->
+        <div class="transform transition-transform duration-300" :class="{ 'rotate-180': isStoreExpanded }">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Collapsible Content -->
+      <div 
+        v-show="isStoreExpanded"
+        class="border-t border-gray-100 bg-gray-50/50"
+      >
+        <div class="p-6 space-y-6">
+            <!-- Detail Toko -->
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
+                    <span class="text-gray-500 text-sm">Nama Toko</span>
+                    <div class="sm:col-span-2 text-gray-900 font-medium">{{ user.store_name }}</div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
+                    <span class="text-gray-500 text-sm">Alamat Toko</span>
+                    <div class="sm:col-span-2 text-gray-900 font-medium">{{ user.address }}</div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
+                    <span class="text-gray-500 text-sm">Deskripsi</span>
+                    <div class="sm:col-span-2 text-gray-900 font-medium text-sm leading-relaxed">{{ user.description }}</div>
+                </div>
+            </div>
+
+            <!-- Tombol Kelola Toko -->
+            <button
+                @click="$router.push('/manage/my-shop')"
+                class="w-full py-2.5 bg-[#e84797] text-white font-medium rounded-lg hover:bg-[#d03a84] transition shadow-sm flex items-center justify-center gap-2"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Kelola Toko Saya
+            </button>
+        </div>
+      </div>
+  </div>
+
+  <!-- Jika User BUKAN Seller: Tampilkan Card Ajakan Buka Toko -->
+  <div v-else-if="user.role !== 'penjual_pending'" class="bg-white rounded-xl p-6 shadow-md border border-gray-200">
     <div class="flex flex-col sm:flex-row items-start gap-4">
       <div class="w-12 h-12 bg-[#203f9a] rounded-full flex justify-center items-center shadow-sm flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -139,6 +242,15 @@
       </div>
     </div>
   </div>
+
+  <!-- Jika Pending -->
+  <div v-else class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
+      <h3 class="text-lg font-semibold text-yellow-800 mb-2">Pendaftaran Sedang Diproses</h3>
+      <p class="text-sm text-yellow-700">
+          Permintaan Anda untuk menjadi penjual sedang ditinjau oleh admin. Harap tunggu konfirmasi selanjutnya.
+      </p>
+  </div>
+
 </div>
 
       <!-- Modal Daftar Seller -->
@@ -224,6 +336,8 @@ const router = useRouter();
 const toast = useToast();
 const user = ref(null);
 const loadingSeller = ref(false);
+const isProfileExpanded = ref(false);
+const isStoreExpanded = ref(false);
 
 // === State untuk Modal Daftar Seller ===
 const showStoreForm = ref(false);
