@@ -1,20 +1,24 @@
 <?php
 
+use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\MyTokoController;
+use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\PcBuildController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\VariantController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\Api\UserRoleController;
 use App\Http\Controllers\MyTokoProductController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\URL;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,6 +33,27 @@ Route::get('/product/{id_produk}', [ProductPageController::class, 'show'])->name
 Route::get('dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
+
+    $user = User::findOrFail($id);
+
+    // Cek apakah hash cocok
+    if (! hash_equals($hash, sha1($user->email))) {
+        return redirect(env('FRONTEND_URL') . '/login?verify=failed-hash');
+    }
+
+    // Jika sudah diverifikasi sebelumnya
+    if ($user->hasVerifiedEmail()) {
+        return redirect(env('FRONTEND_URL') . '/login?verify=already');
+    }
+
+    // Verifikasi email
+    $user->markEmailAsVerified();
+
+    return redirect(env('FRONTEND_URL') . '/login?verify=success');
+
+})->middleware('signed')->name('verification.verify');
 
 // Logout route di luar group
 Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->middleware('auth');
@@ -76,6 +101,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // (Opsional) Halaman sukses
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 });
+
+
 
 // Rute untuk Keranjang Belanja (Cart)
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\JsonResponse;
+use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -17,38 +18,52 @@ class LoginController extends Controller
     {
         // Validasi input
         $request->validate([
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        // ✅ Gunakan Auth::attempt() agar kompatibel dengan Sanctum & middleware
-        $credentials = $request->only('email', 'password');
+        // Ambil user berdasarkan email
+        $user = User::where('email', $request->email)->first();
 
-        if (!Auth::attempt($credentials)) {
+        // ❌ Email tidak ditemukan
+        if (!$user) {
             return response()->json([
                 'message' => 'Email atau password salah.'
             ], 401);
         }
 
-        $user = Auth::user();
+        // ❌ Password salah
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Email atau password salah.'
+            ], 401);
+        }
 
-        // 🔒 Cek banned
+        // ❌ CEK EMAIL BELUM DIVERIFIKASI
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Email belum diverifikasi. Silakan cek email Anda.',
+                'verify_required' => true,
+            ], 403);
+        }
+
+        // ❌ CEK BANNED
         if ($user->is_banned) {
             return response()->json([
-                'message' => 'Maaf, akun anda dibatasi. Mohon hubungi admin untuk masalah ini.',
+                'message' => 'Maaf, akun anda dibatasi. Mohon hubungi admin.',
                 'banned' => true
             ], 403);
         }
 
-        // ✅ Hapus token lama (opsional tapi aman — hindari token menumpuk)
+        // 🔐 Hapus token lama (opsional tapi aman)
         $user->tokens()->delete();
 
-        // ✅ Buat token Sanctum (Personal Access Token)
+        // 🔐 Buat token baru Sanctum
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login berhasil!',
-            'user' => $user->only('id', 'name', 'email', 'role', 'store_name'), // aman: jangan kirim password, dll
+            'user' => $user->only('id', 'name', 'email', 'role', 'store_name'),
             'token' => $token,
         ]);
     }

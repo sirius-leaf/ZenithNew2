@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\UserRoleController;
 use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Api\MidtransCallbackController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,12 @@ use App\Http\Controllers\Api\MidtransCallbackController;
 // Rute umum (tidak perlu autentikasi)
 Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('guest')->name('api.register');
 Route::post('/login', [LoginController::class, 'login']);
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+
+    return response()->json(['message' => 'Verifikasi email telah dikirim ulang!']);
+})->middleware(['auth:sanctum', 'throttle:6,1']);
 
 Route::get('/products', [ProductPageController::class, 'index']);
 Route::get('/productAll', [PcBuildController::class, 'products']);
