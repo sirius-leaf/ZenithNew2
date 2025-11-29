@@ -87,7 +87,7 @@
                   </div>
                 </td>
                 <td class="px-6 py-4 font-medium text-gray-900">
-                  Rp {{ (product.variant?.[0]?.harga ?? 0).toLocaleString('id-ID') }}
+                  Rp {{ Number(product.variant?.[0]?.harga ?? 0).toLocaleString('id-ID') }}
                 </td>
                 <td class="px-6 py-4">
                   <span class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700 font-medium text-xs">
@@ -309,7 +309,7 @@
                       </div>
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-900">{{ variant.nama_varian }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-900">Rp {{ variant.harga.toLocaleString('id-ID') }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Rp {{ Number(variant.harga).toLocaleString('id-ID') }}</td>
                     <td class="px-4 py-3 text-sm text-gray-900">{{ variant.stok }}</td>
                   </tr>
                 </tbody>

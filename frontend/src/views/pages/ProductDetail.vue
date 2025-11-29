@@ -24,6 +24,12 @@ const isDescriptionExpanded = ref(false);
 
 // Computed: URL Gambar Utama
 const mainImage = computed(() => {
+  if (selectedVariant.value && selectedVariant.value.gambar_varian) {
+    const imagePath = selectedVariant.value.gambar_varian;
+    if (imagePath.startsWith('http')) return imagePath;
+    return `http://127.0.0.1:8000/storage/${imagePath}`;
+  }
+  
   if (
     product.value &&
     product.value.variant &&
@@ -31,6 +37,7 @@ const mainImage = computed(() => {
   ) {
     const imagePath = product.value.variant[0].gambar_varian;
     if (imagePath) {
+      if (imagePath.startsWith('http')) return imagePath;
       return `http://127.0.0.1:8000/storage/${imagePath}`;
     }
   }
@@ -181,22 +188,26 @@ onMounted(fetchProductDetail);
       <div class="lg:col-span-3">
         <div class="sticky top-24">
           <!-- Main Image -->
-          <div class="rounded-xl overflow-hidden border border-gray-200 mb-4">
+          <div class="rounded-xl overflow-hidden border border-gray-200 mb-4 bg-gray-50 aspect-square flex items-center justify-center">
             <img
               :src="mainImage"
               :alt="product.nama_produk"
-              class="w-full h-auto object-contain bg-white"
+              class="w-full h-full object-contain"
             />
           </div>
-          <!-- Thumbnails (Mocked for now) -->
-          <div class="grid grid-cols-4 gap-2">
+          <!-- Thumbnails -->
+          <div class="grid grid-cols-4 gap-2" v-if="product.variant && product.variant.length > 0">
             <div
-              v-for="i in 4"
-              :key="i"
-              class="aspect-square rounded-md border border-gray-200 overflow-hidden cursor-pointer hover:border-pink-500 transition"
-              :class="{ 'border-pink-500 ring-1 ring-pink-500': i === 1 }"
+              v-for="variant in product.variant"
+              :key="variant.id_varian"
+              class="aspect-square rounded-md border overflow-hidden cursor-pointer transition bg-gray-50"
+              :class="selectedVariant?.id_varian === variant.id_varian ? 'border-pink-500 ring-1 ring-pink-500' : 'border-gray-200 hover:border-pink-300'"
+              @click="selectVariant(variant)"
             >
-              <img :src="mainImage" class="w-full h-full object-cover" />
+              <img 
+                :src="variant.gambar_varian ? (variant.gambar_varian.startsWith('http') ? variant.gambar_varian : `http://127.0.0.1:8000/storage/${variant.gambar_varian}`) : 'https://via.placeholder.com/100?text=No+Image'" 
+                class="w-full h-full object-cover" 
+              />
             </div>
           </div>
         </div>
@@ -205,9 +216,14 @@ onMounted(fetchProductDetail);
       <!-- KOLOM TENGAH: INFO PRODUK (6 cols) -->
       <div class="lg:col-span-6">
         <!-- Nama Produk -->
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">
+        <h1 class="text-2xl font-bold text-gray-900 mb-1">
           {{ product.nama_produk }}
         </h1>
+        
+        <!-- Nama Varian (Dynamic) -->
+        <p v-if="selectedVariant" class="text-lg text-gray-600 font-medium mb-2">
+            {{ selectedVariant.nama_varian }}
+        </p>
 
         <!-- Rating & Sold -->
         <div class="flex items-center text-sm mb-4">
@@ -236,8 +252,8 @@ onMounted(fetchProductDetail);
 
         <!-- Harga -->
         <div class="mb-6">
-          <h2 class="text-3xl font-bold text-gray-900">
-            Rp {{ (product.variant?.[0]?.harga ?? 0).toLocaleString("id-ID") }}
+          <h2 class="text-3xl font-bold text-pink-600">
+            Rp {{ Number(selectedVariant?.harga ?? 0).toLocaleString("id-ID") }}
           </h2>
         </div>
 
@@ -367,11 +383,12 @@ onMounted(fetchProductDetail);
         >
           <h3 class="font-bold text-gray-900 mb-4">Atur jumlah dan catatan</h3>
 
-          <!-- Variant Selection (Simplified for UI match) -->
+          <!-- Variant Selection -->
           <div
             v-if="product.variant && product.variant.length > 0"
             class="mb-4"
           >
+            <p class="text-sm font-medium text-gray-700 mb-2">Pilih Varian:</p>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="variant in product.variant"
@@ -387,6 +404,20 @@ onMounted(fetchProductDetail);
                 {{ variant.nama_varian }}
               </button>
             </div>
+          </div>
+
+          <!-- Selected Variant Details -->
+          <div v-if="selectedVariant" class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+             <p class="text-sm font-bold text-gray-800 mb-1">{{ selectedVariant.nama_varian }}</p>
+             <div class="flex justify-between items-center">
+                 <span class="text-pink-600 font-bold">Rp {{ Number(selectedVariant.harga).toLocaleString('id-ID') }}</span>
+                 <div class="flex items-center text-xs text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400 mr-0.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 111.838.616l-1.07 3.292a1 1 0 00.919.592l3.181.45a1 1 0 01-.736 1.715l-1.07 3.292a1 1 0 101.838.616l1.07-3.292a1 1 0 01.919.592l1.07 3.292a1 1 0 01-1.028.684H9.049a1 1 0 01-1.028-.684l-1.07-3.292a1 1 0 00-1.028-.684l-3.181-.45a1 1 0 01-.736-1.715l1.07-3.292a1 1 0 10-1.838-.616l1.07 3.292a1 1 0 01-.919.592l-3.181.45z" />
+                    </svg>
+                    {{ rating["rata-rata"] }}
+                 </div>
+             </div>
           </div>
 
           <!-- Quantity -->
@@ -427,7 +458,7 @@ onMounted(fetchProductDetail);
             <span class="font-bold text-lg text-gray-900"
               >Rp
               {{
-                ((selectedVariant?.harga || 0) * quantity).toLocaleString(
+                (Number(selectedVariant?.harga || 0) * quantity).toLocaleString(
                   "id-ID"
                 )
               }}</span
@@ -449,9 +480,6 @@ onMounted(fetchProductDetail);
               Beli Langsung
             </button>
           </div>
-
-          <!-- Actions -->
-
         </div>
       </div>
     </div>

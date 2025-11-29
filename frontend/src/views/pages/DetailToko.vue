@@ -147,7 +147,7 @@ const getProductPrice = (product) => {
       currency: "IDR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(product.variant[0].harga);
+    }).format(Number(product.variant[0].harga));
   }
   return "Rp 0";
 };
