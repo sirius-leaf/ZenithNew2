@@ -69,7 +69,14 @@ const processProducts = (productsData) => {
         style: "currency",
         currency: "IDR",
         minimumFractionDigits: 0,
+        maximumFractionDigits: 0
       }).format(variant.harga);
+    }
+
+    // Extract category name (assuming first category if multiple)
+    let categoryName = "";
+    if (product.category_detail && product.category_detail.length > 0 && product.category_detail[0].category) {
+        categoryName = product.category_detail[0].category.nama_kategori;
     }
 
     return {
@@ -79,6 +86,8 @@ const processProducts = (productsData) => {
       rating: 0, // Default rating as it's not in the main list API
       brand: product.merek,
       image: image,
+      storeName: product.toko ? product.toko.toko_name : "Toko",
+      category: categoryName
     };
   });
 };
@@ -239,30 +248,33 @@ const handleLogout = () => {
 
               <!-- Content -->
               <div class="flex flex-col flex-grow px-1">
-                <!-- Brand & Rating Row -->
-                <div class="flex items-center justify-between mb-1">
-                   <div class="flex items-center gap-1 text-xs text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    <span class="truncate max-w-[80px]">{{ product.brand }}</span>
-                   </div>
-                   <div class="flex items-center gap-0.5 bg-gray-50 px-1.5 py-0.5 rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 00-1.028-.684H9.049a1 1 0 00-1.028.684L7.95 6.316a1 1 0 00.919.592l3.181.45a1 1 0 001.028-.684l1.07-3.292a1 1 0 00-1.028-.684H9.049z" />
-                    </svg>
-                    <span class="text-xs font-bold text-gray-700">{{ product.rating || '0' }}</span>
-                   </div>
-                </div>
-
-                <!-- Title -->
-                <h4 class="font-medium text-gray-800 text-sm mb-2 line-clamp-2 leading-snug group-hover:text-pink-600 transition-colors">
+                <!-- 1. Product Name (Bold) -->
+                <h4 class="font-bold text-gray-900 text-sm mb-1 line-clamp-2 leading-snug group-hover:text-pink-600 transition-colors">
                   {{ product.name }}
                 </h4>
 
+                <!-- 2. Store Name -->
+                <div class="flex items-center gap-1 mb-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span class="text-xs text-gray-600 truncate">{{ product.storeName }}</span>
+                </div>
+
+                <!-- 3. Brand & Category (Light) -->
+                <div class="text-xs text-gray-400 mb-2 truncate">
+                    {{ product.brand }}<span v-if="product.brand && product.category">, </span>{{ product.category }}
+                </div>
+
                 <!-- Price -->
-                <div class="mt-auto pt-2 border-t border-gray-50">
+                <div class="mt-auto pt-2 border-t border-gray-50 flex justify-between items-center">
                   <p class="text-pink-600 font-bold text-base">{{ product.price }}</p>
+                  <div class="flex items-center gap-0.5 bg-gray-50 px-1.5 py-0.5 rounded-md" v-if="product.rating > 0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 00-1.028-.684H9.049a1 1 0 00-1.028.684L7.95 6.316a1 1 0 00.919.592l3.181.45a1 1 0 001.028-.684l1.07-3.292a1 1 0 00-1.028-.684H9.049z" />
+                    </svg>
+                    <span class="text-xs font-bold text-gray-700">{{ product.rating }}</span>
+                  </div>
                 </div>
               </div>
             </div>

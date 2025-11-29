@@ -13,7 +13,7 @@ class ProductPageController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::with('variant')->latest();
+        $query = Product::with(['variant', 'toko', 'categoryDetail.category'])->latest();
 
         if ($request->has('category')) {
             $categoryName = $request->input('category');
