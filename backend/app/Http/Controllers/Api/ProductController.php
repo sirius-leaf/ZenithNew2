@@ -36,6 +36,40 @@ class ProductController extends Controller
     }
 
     /**
+     * Display a listing of ALL products for ADMIN.
+     */
+    public function adminIndex()
+    {
+        // Ensure only admin can access this (double check in controller or rely on route middleware)
+        // For extra safety:
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $products = Product::with(['toko', 'variant', 'categoryDetail.category'])
+            ->latest()
+            ->get();
+
+        // Transform data to include flat category names and store name
+        $transformed = $products->map(function ($p) {
+            return [
+                'id' => $p->id_produk,
+                'storeName' => $p->toko ? $p->toko->toko_name : 'Unknown Store',
+                'productName' => $p->nama_produk,
+                'category' => $p->categoryDetail->map(fn($cd) => $cd->category->nama_kategori)->join(', '),
+                'stock' => $p->variant->sum('stok'),
+                'price' => $p->variant->min('harga'), // Show lowest price
+                'image' => $p->variant->first() ? $p->variant->first()->gambar_varian : null
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $transformed
+        ]);
+    }
+
+    /**
      * Show the form for creating a new product (not needed for API, but kept if needed)
      */
     public function create()

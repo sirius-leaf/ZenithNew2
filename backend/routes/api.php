@@ -83,6 +83,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/seller-requests', [UserRoleController::class, 'index']);
         // 3. Admin: Approve request
         Route::post('/admin/seller-requests/{id}/approve', [UserRoleController::class, 'approve']);
+        
+        // 4. Admin: Get ALL products
+        Route::get('/all-products', [ProductController::class, 'adminIndex']);
     });
 });
 

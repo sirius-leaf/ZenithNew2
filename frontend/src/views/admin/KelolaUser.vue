@@ -77,7 +77,9 @@
                   'bg-gray-100 text-gray-800': user.role === 'user',
                 }"
               >
-                {{ user.role }}
+                {{
+                  user.role === "Penjual_pending" ? "Requesting..." : user.role
+                }}
               </span>
             </td>
             <td class="py-3 px-3 text-right">
