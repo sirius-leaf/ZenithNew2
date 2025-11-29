@@ -240,6 +240,32 @@ const fetchCartPreview = async () => {
     })
     checkedItems.value = newChecked
   } catch (error) {
+    // Handle 422 Validation Errors (e.g. Item deleted from DB)
+    if (error.response?.status === 422 && error.response.data?.errors) {
+      const errors = error.response.data.errors
+      let itemsRemoved = false
+
+      // Parse errors like "cartItems.0.id_varian"
+      Object.keys(errors).forEach(key => {
+        const match = key.match(/cartItems\.(\d+)\.id_varian/)
+        if (match) {
+          const index = parseInt(match[1])
+          if (cartDataForApi[index]) {
+            const variantIdToRemove = cartDataForApi[index].id_varian
+            removeCartItem(variantIdToRemove)
+            itemsRemoved = true
+          }
+        }
+      })
+
+      if (itemsRemoved) {
+        // alert('Beberapa item di keranjang Anda tidak lagi tersedia dan telah dihapus.')
+        // Retry fetch after removal
+        return fetchCartPreview()
+      }
+    }
+
+    // Handle 400 Stock Errors
     if (error.response?.status === 400 && error.response.data?.variant_id) {
       const variantId = error.response.data.variant_id
       const item = cartItems.value.find(i => i.id_varian === variantId)

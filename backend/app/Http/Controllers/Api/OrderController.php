@@ -67,7 +67,7 @@ class OrderController extends Controller
 
     public function index()
     {
-        $orders = Auth::user()->pesanans()->with('detailPesanans')->get();
+        $orders = Auth::user()->pesanans()->with(['toko', 'detailPesanans.variant.product'])->get();
         //
 
         return response()->json([

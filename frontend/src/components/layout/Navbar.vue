@@ -276,6 +276,15 @@ const handleSearch = () => {
               Profile
             </RouterLink>
 
+            <RouterLink
+              v-if="user && user.role !== 'admin'"
+              to="/riwayat"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
+              @click="isProfileOpen = false"
+            >
+              Riwayat
+            </RouterLink>
+
             <button
               @click="confirmLogout"
               class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
