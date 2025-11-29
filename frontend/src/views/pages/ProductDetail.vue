@@ -10,7 +10,8 @@ const router = useRouter();
 const { updateCartItem } = useCartStore();
 
 const product = ref(null);
-const toko = ref(null);
+const tokoData = ref(null); // Full toko data
+const tokoRating = ref(0);
 const rating = ref(null);
 const loading = ref(true);
 const error = ref(null);
@@ -34,6 +35,22 @@ const mainImage = computed(() => {
     }
   }
   return "https://via.placeholder.com/400x300/CCCCCC?text=No+Image";
+});
+
+const storePhoto = computed(() => {
+  if (tokoData.value && tokoData.value.user && tokoData.value.user.store_photo) {
+    const photo = tokoData.value.user.store_photo;
+    if (photo.startsWith('http')) return photo;
+    return `http://127.0.0.1:8000/storage/${photo}`;
+  }
+  return "https://via.placeholder.com/150?text=Store";
+});
+
+const storeName = computed(() => {
+  if (tokoData.value && tokoData.value.user && tokoData.value.user.store_name) {
+    return tokoData.value.user.store_name;
+  }
+  return product.value?.toko?.toko_name || "Nama Toko";
 });
 
 // Fungsi untuk memilih varian
@@ -94,6 +111,15 @@ const handleAddToCart = () => {
   );
 };
 
+const goToStore = () => {
+  if (product.value && product.value.toko) {
+    router.push({
+      name: 'toko.detail',
+      params: { id: product.value.toko.id }
+    });
+  }
+};
+
 // Fetch Product Detail
 const fetchProductDetail = async () => {
   try {
@@ -104,10 +130,17 @@ const fetchProductDetail = async () => {
     product.value = response.data.data;
     rating.value = response.data.rating;
 
-    const responseToko = await axios.get(
-      `http://127.0.0.1:8000/api/toko/${product.value.toko.id}`
-    );
-    toko.value = responseToko.data.ratingToko["rata-rata"];
+    // Fetch Toko Data
+    if (product.value.toko && product.value.toko.id) {
+        const responseToko = await axios.get(
+          `http://127.0.0.1:8000/api/toko/${product.value.toko.id}`
+        );
+        // API returns { data: [toko], ratingToko: {...} }
+        if (responseToko.data.data && responseToko.data.data.length > 0) {
+            tokoData.value = responseToko.data.data[0];
+        }
+        tokoRating.value = responseToko.data.ratingToko["rata-rata"];
+    }
 
     // Set varian pertama sebagai default
     if (product.value.variant && product.value.variant.length > 0) {
@@ -292,15 +325,15 @@ onMounted(fetchProductDetail);
             class="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden"
           >
             <img
-              src="@/assets/logo.png"
-              alt="Zenith Logo"
+              :src="storePhoto"
+              alt="Store Logo"
               class="w-full h-full object-cover"
             />
           </div>
           <div class="flex-1">
             <div class="flex items-center gap-2">
               <h3 class="font-bold text-gray-900">
-                {{ product.toko.toko_name }}
+                {{ storeName }}
               </h3>
             </div>
             <div class="flex items-center gap-3 text-xs text-gray-500 mt-1">
@@ -314,17 +347,12 @@ onMounted(fetchProductDetail);
                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 111.838.616l-1.07 3.292a1 1 0 00.919.592l3.181.45a1 1 0 01-.736 1.715l-1.07 3.292a1 1 0 101.838.616l1.07-3.292a1 1 0 01.919.592l1.07 3.292a1 1 0 01-1.028.684H9.049a1 1 0 01-1.028-.684l-1.07-3.292a1 1 0 00-1.028-.684l-3.181-.45a1 1 0 01-.736-1.715l1.07-3.292a1 1 0 10-1.838-.616l1.07 3.292a1 1 0 01-.919.592l-3.181.45z"
                   />
                 </svg>
-                {{ toko }}
+                {{ tokoRating }}
               </div>
             </div>
           </div>
           <button
-            @click="
-              router.push({
-                name: 'toko.detail',
-                params: { id: product.toko.id },
-              })
-            "
+            @click="goToStore"
             class="px-6 py-1.5 border border-pink-600 text-pink-600 font-semibold rounded-lg text-sm hover:bg-pink-50 transition"
           >
             Lihat Toko

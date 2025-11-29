@@ -114,7 +114,7 @@ const router = createRouter({
       props: true,
     },
     {
-      path: "/toko/:id",
+      path: "/lihat-toko/:id",
       name: "toko.detail",
       component: DetailToko,
     },

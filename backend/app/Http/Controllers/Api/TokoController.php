@@ -80,8 +80,9 @@ class TokoController extends Controller
     {
         $toko = Toko::findOrFail($id_toko);
 
-        $products = $toko->products()->get();
-        $dataToko = $toko->with('user')->get();
+        $products = $toko->products()->with('variant')->get();
+        $toko->load('user');
+        $dataToko = [$toko];
         $ratings = Review::whereHas('product', function ($q) use ($id_toko) {
             $q->where('id_toko', $id_toko);
         });
