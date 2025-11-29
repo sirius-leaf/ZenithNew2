@@ -1,0 +1,1340 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Zenith API Documentation",
+    "version": "1.0.0",
+    "description": "Dokumentasi API sesuai routes/api.php Laravel"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000/api",
+      "description": "Local Laravel Server"
+    }
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "summary": "Register user baru",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Budi"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "budi@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login user",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "budi@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login success"
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "Ambil semua produk (ProductPage)",
+        "tags": [
+          "Public Data"
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Search query"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/productAll": {
+      "get": {
+        "summary": "Ambil produk untuk PC Build",
+        "tags": [
+          "Public Data"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/products/{id_produk}": {
+      "get": {
+        "summary": "Detail produk",
+        "tags": [
+          "Public Data"
+        ],
+        "parameters": [
+          {
+            "name": "id_produk",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/toko/{id_toko}": {
+      "get": {
+        "summary": "Detail Toko",
+        "tags": [
+          "Public Data"
+        ],
+        "parameters": [
+          {
+            "name": "id_toko",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "summary": "List Kategori",
+        "tags": [
+          "Public Data"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/midtrans/callback": {
+      "post": {
+        "summary": "Webhook Callback Midtrans",
+        "tags": [
+          "Payment"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/variant/check/{id_varian}": {
+      "get": {
+        "summary": "Cek ketersediaan varian",
+        "tags": [
+          "Public Data"
+        ],
+        "parameters": [
+          {
+            "name": "id_varian",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "Logout",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout success"
+          }
+        }
+      }
+    },
+    "/email/verification-notification": {
+      "post": {
+        "summary": "Kirim ulang email verifikasi",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sent"
+          }
+        }
+      }
+    },
+    "/profile": {
+      "get": {
+        "summary": "Get user profile info",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/profile/update": {
+      "post": {
+        "summary": "Update profile data",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "profile_photo": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          }
+        }
+      }
+    },
+    "/profile/update-password": {
+      "put": {
+        "summary": "Ganti password",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "current_password": {
+                    "type": "string"
+                  },
+                  "new_password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          }
+        }
+      }
+    },
+    "/user": {
+      "get": {
+        "summary": "Get current logged in user object",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/order/preview": {
+      "post": {
+        "summary": "Cek stok & harga sebelum checkout",
+        "tags": [
+          "Order"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cartItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id_varian": {
+                          "type": "integer"
+                        },
+                        "kuantitas": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/order/store": {
+      "post": {
+        "summary": "Final Checkout (Buat Pesanan)",
+        "tags": [
+          "Order"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "alamat_pengiriman": {
+                    "type": "string"
+                  },
+                  "payment_method": {
+                    "type": "string"
+                  },
+                  "cartItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id_varian": {
+                          "type": "integer"
+                        },
+                        "kuantitas": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/order/history": {
+      "get": {
+        "summary": "List riwayat pesanan",
+        "tags": [
+          "Order"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "summary": "Detail satu pesanan",
+        "tags": [
+          "Order"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/payment/simulate/{order_id}": {
+      "post": {
+        "summary": "Simulasi Bayar (Dev Only)",
+        "tags": [
+          "Payment"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paid"
+          }
+        }
+      }
+    },
+    "/review": {
+      "post": {
+        "summary": "Kirim review baru",
+        "tags": [
+          "Review"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/review/{id}": {
+      "put": {
+        "summary": "Update review",
+        "tags": [
+          "Review"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Hapus review",
+        "tags": [
+          "Review"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          }
+        }
+      }
+    },
+    "/review/product/{productId}": {
+      "get": {
+        "summary": "Get review by product ID",
+        "tags": [
+          "Review"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/review/can-review/{productId}": {
+      "get": {
+        "summary": "Cek apakah user boleh review",
+        "tags": [
+          "Review"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/manage/pcBuild": {
+      "get": {
+        "summary": "List PC Build User",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Simpan PC Build Baru",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/manage/pcBuild/{id}": {
+      "get": {
+        "summary": "Detail PC Build",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update PC Build",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Hapus PC Build",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          }
+        }
+      }
+    },
+    "/manage/product": {
+      "get": {
+        "summary": "List produk toko (Seller)",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Tambah produk toko (Seller)",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nama_produk",
+                  "merek"
+                ],
+                "properties": {
+                  "nama_produk": {
+                    "type": "string"
+                  },
+                  "merek": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/manage/product/{id}": {
+      "get": {
+        "summary": "Detail produk toko",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update produk toko",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Hapus produk toko",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          }
+        }
+      }
+    },
+    "/manage/productToko": {
+      "get": {
+        "summary": "Form data create product",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/manage/toko": {
+      "get": {
+        "summary": "Cek toko user saat ini",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Buat Toko Baru",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/manage/become-seller": {
+      "post": {
+        "summary": "Request jadi seller (via Manage)",
+        "tags": [
+          "Manage"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/manage/admin/seller-requests": {
+      "get": {
+        "summary": "List request seller (Admin)",
+        "tags": [
+          "Manage Admin"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/manage/admin/seller-requests/{id}/approve": {
+      "post": {
+        "summary": "Approve seller (Admin)",
+        "tags": [
+          "Manage Admin"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Approved"
+          }
+        }
+      }
+    },
+    "/manage/users": {
+      "get": {
+        "summary": "List users (Admin)",
+        "tags": [
+          "Manage Admin"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/manage/users/{id}": {
+      "put": {
+        "summary": "Update user (Admin)",
+        "tags": [
+          "Manage Admin"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Hapus user (Admin)",
+        "tags": [
+          "Manage Admin"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "List all users (Alternative Path)",
+        "tags": [
+          "Admin Extra"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{user}": {
+      "put": {
+        "summary": "Update user (Alternative Path)",
+        "tags": [
+          "Admin Extra"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete user (Alternative Path)",
+        "tags": [
+          "Admin Extra"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{user}/ban": {
+      "post": {
+        "summary": "Ban User",
+        "tags": [
+          "Admin Extra"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Banned"
+          }
+        }
+      }
+    },
+    "/users/{user}/unban": {
+      "post": {
+        "summary": "Unban User",
+        "tags": [
+          "Admin Extra"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unbanned"
+          }
+        }
+      }
+    },
+    "/role/request-seller": {
+      "post": {
+        "summary": "Request jadi seller (Alternative Path)",
+        "tags": [
+          "Role Extra"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/role/seller-requests": {
+      "get": {
+        "summary": "List request seller (Alternative Path)",
+        "tags": [
+          "Role Extra"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/role/approve-seller/{id}": {
+      "post": {
+        "summary": "Approve seller (Alternative Path)",
+        "tags": [
+          "Role Extra"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Approved"
+          }
+        }
+      }
+    },
+    "/role/reject-seller/{id}": {
+      "post": {
+        "summary": "Reject seller",
+        "tags": [
+          "Role Extra"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rejected"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
