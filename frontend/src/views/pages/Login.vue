@@ -74,6 +74,9 @@
             </div>
           </div>
 
+          <!-- Recaptcha -->
+          <div id="recaptcha-box" class="w-full flex justify-center"></div>
+
           <!-- Error Message -->
           <div
             v-if="errorMessage"
@@ -126,7 +129,7 @@
 
 <script setup>
 import zenith from "../../assets/zenith.png";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 
@@ -135,6 +138,19 @@ const router = useRouter();
 const form = ref({
   email: "",
   password: "",
+  recaptcha: "",
+});
+
+onMounted(() => {
+  const interval = setInterval(() => {
+    if (window.grecaptcha) {
+      window.grecaptcha.render("recaptcha-box", {
+        sitekey: "6Leq3hssAAAAAOk8okP2kiWL72mmw_9wfxQQrZLK",
+        callback: "onCaptchaSuccess",
+      });
+      clearInterval(interval);
+    }
+  }, 300);
 });
 
 const isLoading = ref(false);
@@ -145,9 +161,12 @@ const loginUser = async () => {
   errorMessage.value = null;
 
   try {
+    form.value.recaptcha = window.__captchaToken || "";
+
     const response = await axios.post("http://127.0.0.1:8000/api/login", {
       email: form.value.email,
       password: form.value.password,
+      recaptcha: form.value.recaptcha,
     });
 
     const role = response.data.user.role;
@@ -160,7 +179,8 @@ const loginUser = async () => {
     ] = `Bearer ${response.data.token}`;
 
     // Reset form
-    form.value = { email: "", password: "" };
+    form.value = { email: "", password: "", recaptcha: "" };
+    window.__captchaToken = null;
 
     // Redirect
     if (role === "admin") router.push("/admin");

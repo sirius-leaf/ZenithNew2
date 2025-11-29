@@ -8,18 +8,27 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\JsonResponse;
 
+use App\Services\RecaptchaService;
+
 class LoginController extends Controller
 {
     /**
      * Handle API login request with Sanctum token.
      */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request, RecaptchaService $recaptchaService): JsonResponse
     {
         // Validasi input
         $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'recaptcha' => ['required'],
         ]);
+
+        if (!$recaptchaService->verify($request->recaptcha)) {
+            return response()->json([
+                'message' => 'Recaptcha verification failed.'
+            ], 422);
+        }
 
         // ✅ Gunakan Auth::attempt() agar kompatibel dengan Sanctum & middleware
         $credentials = $request->only('email', 'password');
