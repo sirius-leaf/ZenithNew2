@@ -19,6 +19,11 @@ class Product extends Model
         return $this->hasMany(Variant::class, 'id_produk', 'id_produk');
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_details', 'id_produk', 'id_kategori');
+    }
+
     public function categoryDetail()
     {
         return $this->hasMany(CategoryDetail::class, 'id_produk', 'id_produk');
