@@ -178,27 +178,49 @@ const handleSearch = () => {
         </RouterLink>
 
         <!-- Store Icon (Seller Only) -->
-        <RouterLink
-          v-if="user && user.role === 'penjual'"
-          to="/toko"
-          class="text-gray-500 hover:text-pink-600 transition-colors relative group"
-          title="Kelola Toko"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-7 w-7"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        <!-- Ganti seluruh <RouterLink> dengan div dropdown berikut -->
+        <div v-if="user && user.role === 'penjual'" class="relative group">
+          <!-- Ikon Toko (bisa diklik atau hover) -->
+          <button
+            class="text-gray-500 hover:text-pink-600 transition-colors focus:outline-none"
+            title="Kelola Toko"
+            aria-haspopup="true"
+            aria-expanded="false"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-            />
-          </svg>
-        </RouterLink>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-7 w-7"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div
+            class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out origin-top-right"
+          >
+            <RouterLink
+              to="/toko"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
+            >
+              Kelola Produk
+            </RouterLink>
+            <RouterLink
+              to="/pesanan"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
+            >
+              Kelola Pesanan
+            </RouterLink>
+          </div>
+        </div>
 
         <!-- Cart (Hidden for Admin) -->
         <RouterLink

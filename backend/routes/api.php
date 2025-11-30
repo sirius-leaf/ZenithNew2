@@ -51,6 +51,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order/store', [OrderController::class, 'store']);     // Untuk final checkout
     Route::get('/order/history', [OrderController::class, 'index']);     // Untuk final checkout
     Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::patch('/order/{id}/status', [OrderController::class, 'updateStatus']);
+    Route::get('/manage/orders', [OrderController::class, 'sellerIndex']); // <-- Route baru untuk seller
     Route::post('/payment/simulate/{order_id}', [PaymentController::class, 'simulate']);
 
     Route::get('/profile', [UserProfileController::class, 'me']);
@@ -63,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dapatkan data user yang sedang login
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return $request->user()->load('toko');
     })->name('api.user');
 
     Route::apiResource('review', ReviewController::class)->only('store', 'update', 'destroy');
@@ -83,7 +86,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/seller-requests', [UserRoleController::class, 'index']);
         // 3. Admin: Approve request
         Route::post('/admin/seller-requests/{id}/approve', [UserRoleController::class, 'approve']);
-        
+
         // 4. Admin: Get ALL products
         Route::get('/all-products', [ProductController::class, 'adminIndex']);
     });

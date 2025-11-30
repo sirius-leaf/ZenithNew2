@@ -20,8 +20,9 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-10">
-      <p class="text-gray-600">Memuat data...</p>
+    <div v-if="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500"></div>
+      <p class="mt-2 text-gray-600">Memuat data...</p>
     </div>
 
     <!-- Error Message -->
@@ -61,6 +62,7 @@
           <tr v-for="product in products" :key="product.id_produk">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               {{ product.nama_produk }}
+              <span class="text-gray-500 text-xs ml-1">({{ product.variant ? product.variant.length : 0 }} varian)</span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               {{ product.merek }}
@@ -117,7 +119,15 @@ const fetchProducts = async () => {
     const response = await axios.get(
       "http://127.0.0.1:8000/api/manage/product"
     ); // Sesuaikan dengan URL API Anda
-    products.value = response.data.data[0].products;
+    console.log("API Response:", response.data);
+    // products.value = response.data.data[0].products; // Suspicious line
+    // Try to handle both structures just in case
+    if (response.data.data && response.data.data[0] && response.data.data[0].products) {
+        products.value = response.data.data[0].products;
+    } else {
+        products.value = response.data.data;
+    }
+    console.log("Products:", products.value);
   } catch (err) {
     error.value = "Gagal memuat data produk.";
     console.error(err);

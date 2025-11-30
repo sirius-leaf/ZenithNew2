@@ -93,10 +93,19 @@
             
             <!-- Product Info -->
             <div class="p-4">
-              <h3 class="font-medium text-gray-900 line-clamp-2 mb-1 group-hover:text-pink-600 transition-colors">{{ p.nama_produk }}</h3>
+              <h3 class="font-medium text-gray-900 line-clamp-2 mb-1 group-hover:text-pink-600 transition-colors">
+                {{ p.nama_produk }}
+                <span class="text-xs text-gray-500 ml-1 font-normal">({{ p.variant ? p.variant.length : 0 }} Varian)</span>
+              </h3>
               <p class="text-xs text-gray-500 mb-2">{{ p.merek }}</p>
               <div class="flex items-center justify-between">
                 <span class="font-bold text-pink-600">{{ getProductPrice(p) }}</span>
+                <div class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md" v-if="p.rating > 0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 00-1.028-.684H9.049a1 1 0 00-1.028.684L7.95 6.316a1 1 0 00.919.592l3.181.45a1 1 0 001.028-.684l1.07-3.292a1 1 0 00-1.028-.684H9.049z" />
+                  </svg>
+                  <span class="text-xs font-bold text-gray-700">{{ p.rating }}</span>
+                </div>
               </div>
             </div>
           </div>

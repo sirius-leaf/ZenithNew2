@@ -41,6 +41,16 @@ class OrderController extends Controller
             if (!$variant)
                 continue;
 
+            // 🛑 CEK SELF-PURCHASE
+            // Jika user punya toko, dan toko user sama dengan toko produk ini -> ERROR
+            $userToko = Auth::user()->toko;
+            if ($userToko && $variant->product && $variant->product->toko && $userToko->id === $variant->product->toko->id) {
+                return response()->json([
+                    'message' => 'Anda tidak dapat membeli produk dari toko Anda sendiri (' . $variant->product->nama_produk . ')',
+                    'variant_id' => $variant->id_varian
+                ], 400);
+            }
+
             if ($variant->stok < $kuantitas) {
                 return response()->json([
                     'message' => 'Stok tidak mencukupi untuk ' . $variant->product->nama_produk . ' (' . $variant->nama_varian . ')',
@@ -69,6 +79,32 @@ class OrderController extends Controller
     {
         $orders = Auth::user()->pesanans()->with(['toko', 'detailPesanans.variant.product'])->get();
         //
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders
+        ]);
+    }
+
+    /**
+     * Get orders for the seller's store.
+     */
+    public function sellerIndex()
+    {
+        $user = Auth::user();
+        $toko = $user->toko;
+
+        if (!$toko) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda belum memiliki toko.'
+            ], 404);
+        }
+
+        $orders = Pesanan::where('toko_id', $toko->id)
+            ->with(['user', 'detailPesanans.variant.product'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -108,6 +144,15 @@ class OrderController extends Controller
             if ($variant->stok < $kuantitasDipesan) {
                 return response()->json([
                     'message' => 'Stok tidak mencukupi untuk ' . $variant->nama_varian,
+                    'variant_id' => $variant->id_varian
+                ], 400);
+            }
+
+            // 🛑 CEK SELF-PURCHASE (Double check di backend saat checkout final)
+            $userToko = Auth::user()->toko;
+            if ($userToko && $variant->product && $variant->product->toko && $userToko->id === $variant->product->toko->id) {
+                return response()->json([
+                    'message' => 'Anda tidak dapat membeli produk dari toko Anda sendiri (' . $variant->product->nama_produk . ')',
                     'variant_id' => $variant->id_varian
                 ], 400);
             }
@@ -224,7 +269,7 @@ class OrderController extends Controller
         $user = Auth::user();
 
         // Cari pesanan berdasarkan ID dan pastikan milik user yang login
-        $pesanan = Pesanan::with(['detailPesanans.variant.product', 'toko'])
+        $pesanan = Pesanan::with(['detailPesanans.variant.product', 'toko.user'])
             ->where('id', $id)
             ->where('user_id', $user->id)
             ->first();
@@ -240,5 +285,47 @@ class OrderController extends Controller
             'status' => 'success',
             'data' => $pesanan
         ], 200);
+    }
+
+    /**
+     * Update status pesanan (Seller Only)
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        // Validasi input
+        $request->validate([
+            'status' => 'required|string|in:confirmed,packed,shipped,completed,cancelled',
+            'resi' => 'nullable|string|max:255'
+        ]);
+
+        // Cari pesanan
+        $pesanan = Pesanan::findOrFail($id);
+
+        // Pastikan user adalah pemilik toko dari pesanan ini
+        // Kita asumsikan user->toko->id harus sama dengan pesanan->toko_id
+        if (!$user->toko || $user->toko->id !== $pesanan->toko_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. Anda bukan pemilik toko pesanan ini.'
+            ], 403);
+        }
+
+        // Update status
+        $pesanan->status = $request->status;
+
+        // Update resi jika ada (biasanya saat status 'shipped')
+        if ($request->has('resi') && $request->resi) {
+            $pesanan->resi = $request->resi;
+        }
+
+        $pesanan->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status pesanan berhasil diperbarui.',
+            'data' => $pesanan
+        ]);
     }
 }
