@@ -88,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('toko', TokoController::class)->only(['index', 'store']);
         Route::post('/toko/{id}/freeze', [TokoController::class, 'freeze']);
         Route::post('/toko/{id}/unfreeze', [TokoController::class, 'unfreeze']);
+        Route::post('/toko/{id}/appeal', [TokoController::class, 'submitAppeal']);
         // 1. User: Request jadi penjual
         Route::post('/become-seller', [UserRoleController::class, 'requestSeller']);
         // 2. Admin: Lihat list request (Perlu middleware 'can:is-admin' atau cek role di controller)

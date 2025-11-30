@@ -170,11 +170,30 @@ class TokoController extends Controller
         }
 
         $toko = Toko::findOrFail($id);
-        $toko->update([
-            'is_frozen' => false,
-            'frozen_reason' => null,
+        $toko->is_frozen = false;
+        $toko->frozen_reason = null;
+        $toko->appeal_reason = null; // Reset appeal reason after unfreeze
+        $toko->save();
+
+        return response()->json(['message' => 'Toko berhasil diaktifkan kembali']);
+    }
+
+    public function submitAppeal(Request $request, $id)
+    {
+        $request->validate([
+            'appeal_reason' => 'required|string|max:1000',
         ]);
 
-        return response()->json(['message' => 'Toko berhasil dicairkan.', 'data' => $toko]);
+        $toko = Toko::findOrFail($id);
+
+        // Ensure the user owns the store
+        if ($request->user()->id !== $toko->id_user) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $toko->appeal_reason = $request->appeal_reason;
+        $toko->save();
+
+        return response()->json(['message' => 'Banding berhasil diajukan']);
     }
 }

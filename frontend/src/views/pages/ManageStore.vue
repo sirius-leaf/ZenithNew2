@@ -44,6 +44,21 @@
             <span class="font-light text-xs text-red-600 italic"
               >Alasan: {{ user.toko.frozen_reason }}</span
             >
+            
+            <!-- Tombol Ajukan Banding -->
+            <button
+              v-if="!user.toko.appeal_reason"
+              @click="showAppealModal = true"
+              class="mt-2 text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition shadow-sm"
+            >
+              Ajukan Banding
+            </button>
+            <span
+              v-else
+              class="mt-2 text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded"
+            >
+              Banding sedang ditinjau
+            </span>
           </div>
         </div>
       </div>
@@ -716,6 +731,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Appeal Modal -->
+    <div
+      v-if="showAppealModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+    >
+      <div class="bg-white rounded-xl shadow-xl p-6 max-w-md w-full">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Ajukan Banding</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Jelaskan mengapa toko Anda harus diaktifkan kembali.
+        </p>
+        <textarea
+          v-model="appealReason"
+          rows="4"
+          class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none mb-4"
+          placeholder="Tulis alasan Anda di sini..."
+        ></textarea>
+        <div class="flex justify-end gap-3">
+          <button
+            @click="showAppealModal = false"
+            class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+          >
+            Batal
+          </button>
+          <button
+            @click="submitAppeal"
+            :disabled="!appealReason || submittingAppeal"
+            class="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ submittingAppeal ? "Mengirim..." : "Kirim Banding" }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -736,9 +785,36 @@ const searchQuery = ref("");
 // Modal State
 const showModal = ref(false);
 const showDetailModal = ref(false);
+const showAppealModal = ref(false); // New
 const isEditing = ref(false);
 const loadingSubmit = ref(false);
 const selectedProduct = ref(null);
+
+// Appeal State
+const appealReason = ref("");
+const submittingAppeal = ref(false);
+
+const submitAppeal = async () => {
+  if (!appealReason.value) return;
+
+  submittingAppeal.value = true;
+  try {
+    const token = localStorage.getItem("authToken");
+    await axios.post(
+      `/manage/toko/${user.value.toko.id}/appeal`,
+      { appeal_reason: appealReason.value },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    toast.success("Banding berhasil diajukan.");
+    showAppealModal.value = false;
+    user.value.toko.appeal_reason = appealReason.value; // Update UI
+  } catch (error) {
+    console.error(error);
+    toast.error("Gagal mengajukan banding.");
+  } finally {
+    submittingAppeal.value = false;
+  }
+};
 
 // Form State
 const form = ref({

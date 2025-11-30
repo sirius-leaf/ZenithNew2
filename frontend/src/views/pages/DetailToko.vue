@@ -286,16 +286,9 @@ onMounted(async () => {
     products.value = res.data.products;
     ratingToko.value = res.data.ratingToko;
 
-    // Fetch variants for products if needed to get images/prices
-    // Or assume backend sends them.
-    // For now, let's try to fetch product details or update backend.
-    // Since I cannot easily update backend without checking if it breaks things,
-    // I will try to see if products have variants.
     if (products.value.length > 0) {
-      // Check if first product has variants
       if (!products.value[0].variant) {
-        // We need to fetch variants or update backend.
-        // Let's update backend to be sure.
+        // ...
       }
     }
   } catch (error) {
