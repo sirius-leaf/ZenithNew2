@@ -139,4 +139,61 @@ class TokoController extends Controller
 
         return response()->json($users);
     }
+
+    /**
+     * Freeze a store (Admin only).
+     */
+    public function freeze(Request $request, $id)
+    {
+        // Ensure admin
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $toko = Toko::findOrFail($id);
+        $toko->update([
+            'is_frozen' => true,
+            'frozen_reason' => $request->input('reason', 'Violation of terms'),
+        ]);
+
+        return response()->json(['message' => 'Toko berhasil dibekukan.', 'data' => $toko]);
+    }
+
+    /**
+     * Unfreeze a store (Admin only).
+     */
+    public function unfreeze($id)
+    {
+        // Ensure admin
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $toko = Toko::findOrFail($id);
+        $toko->is_frozen = false;
+        $toko->frozen_reason = null;
+        $toko->appeal_reason = null; // Reset appeal reason after unfreeze
+        $toko->save();
+
+        return response()->json(['message' => 'Toko berhasil diaktifkan kembali']);
+    }
+
+    public function submitAppeal(Request $request, $id)
+    {
+        $request->validate([
+            'appeal_reason' => 'required|string|max:1000',
+        ]);
+
+        $toko = Toko::findOrFail($id);
+
+        // Ensure the user owns the store
+        if ($request->user()->id !== $toko->id_user) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $toko->appeal_reason = $request->appeal_reason;
+        $toko->save();
+
+        return response()->json(['message' => 'Banding berhasil diajukan']);
+    }
 }

@@ -113,6 +113,13 @@ class ProductController extends Controller
             ], 403);
         }
 
+        if ($user->toko->is_frozen) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Toko Anda sedang dibekukan. Anda tidak dapat membuat produk baru. Alasan: ' . $user->toko->frozen_reason,
+            ], 403);
+        }
+
         try {
             $validated = $request->validate([
                 'nama_produk' => 'required|string|max:255',

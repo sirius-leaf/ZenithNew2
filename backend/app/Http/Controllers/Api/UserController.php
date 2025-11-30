@@ -20,7 +20,7 @@ class UserController extends Controller
         $search = trim($request->input('search', ''));
         $role = $request->input('role'); // optional
 
-        $query = User::query();
+        $query = User::query()->with('toko');
 
         // ✅ Hanya filter jika parameter role dikirim
         if ($role) {

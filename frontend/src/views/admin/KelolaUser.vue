@@ -1,8 +1,6 @@
 <!-- src/components/admin/KelolaUser.vue -->
 <template>
-  <div
-    class="bg-white rounded-xl shadow-md p-4 md:p-6 animate-fade-in max-w-5xl mx-auto mt-8"
-  >
+  <div class="animate-fade-in mt-4">
     <h1 class="text-xl md:text-2xl font-bold text-blue-900 mb-6">
       Kelola User
     </h1>

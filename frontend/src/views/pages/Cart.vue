@@ -1,7 +1,41 @@
 <!-- src/components/user/Keranjang.vue -->
 <template>
   <div class="min-h-screen bg-gray-50 py-8 px-4">
+    <!-- Guest View -->
+    <div v-if="!isLoggedIn" class="max-w-md mx-auto mt-20 text-center">
+      <div class="bg-white rounded-xl shadow-md p-8">
+        <div class="mb-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-20 w-20 text-pink-200 mx-auto"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-3">Akses Dibatasi</h2>
+        <p class="text-gray-600 mb-8">
+          Login terlebih dahulu agar bisa belanja!
+        </p>
+        <router-link
+          to="/login"
+          class="inline-block w-full px-6 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition shadow-lg shadow-pink-200"
+        >
+          Login Sekarang
+        </router-link>
+      </div>
+    </div>
+
+    <!-- User Cart View -->
     <div
+      v-else
       class="bg-white rounded-xl shadow-md p-6 animate-fade-in max-w-6xl mx-auto"
     >
       <!-- Header -->
@@ -162,7 +196,9 @@
               <div class="text-xs text-gray-600 mt-1">
                 {{ item.variant.nama_varian }}
               </div>
-              <div class="text-xs text-gray-600">Jumlah: {{ item.kuantitas }}</div>
+              <div class="text-xs text-gray-600">
+                Jumlah: {{ item.kuantitas }}
+              </div>
               <div class="text-sm font-bold text-blue-900 mt-1">
                 {{ formatCurrency(item.subtotal) }}
               </div>
@@ -213,6 +249,12 @@ const loading = ref(true);
 const cartSummary = ref([]);
 const apiError = ref(null);
 const checkedItems = ref({}); // default: semua false
+const isLoggedIn = ref(false);
+
+const checkLogin = () => {
+  const token = localStorage.getItem("authToken");
+  isLoggedIn.value = !!token;
+};
 
 const filteredCartForCheckout = computed(() => {
   return cartSummary.value.filter(
@@ -326,7 +368,9 @@ const fetchCartPreview = async () => {
       if (item?.variantDetail) {
         removeCartItem(variantId);
         // Gunakan pesan dari backend jika ada, atau default ke pesan stok
-        const msg = error.response.data.message || `Stok untuk produk "${item.variantDetail.product_name} (${item.variantDetail.nama_varian})" tidak mencukupi.`;
+        const msg =
+          error.response.data.message ||
+          `Stok untuk produk "${item.variantDetail.product_name} (${item.variantDetail.nama_varian})" tidak mencukupi.`;
         alert(`⚠️ ${msg} Item dihapus dari keranjang.`);
         return fetchCartPreview();
       }
@@ -339,18 +383,20 @@ const fetchCartPreview = async () => {
 };
 
 const updateQuantity = (id_varian, delta) => {
-  const item = cartItems.value.find(i => i.id_varian === id_varian)
-  if (!item) return
-  const newQty = item.kuantitas + delta
-  if (newQty < 1) return
-  
-  updateCartItem(id_varian, delta)
-  
-  const cartItem = cartSummary.value.find(i => i.variant.id_varian === id_varian)
+  const item = cartItems.value.find((i) => i.id_varian === id_varian);
+  if (!item) return;
+  const newQty = item.kuantitas + delta;
+  if (newQty < 1) return;
+
+  updateCartItem(id_varian, delta);
+
+  const cartItem = cartSummary.value.find(
+    (i) => i.variant.id_varian === id_varian
+  );
   if (cartItem) {
-    cartItem.kuantitas = newQty
+    cartItem.kuantitas = newQty;
   }
-}
+};
 
 const removeItem = (id_varian) => {
   if (confirm("Yakin ingin menghapus item ini?")) {
@@ -374,7 +420,12 @@ const goToCheckout = () => {
 };
 
 onMounted(() => {
-  fetchCartPreview();
+  checkLogin();
+  if (isLoggedIn.value) {
+    fetchCartPreview();
+  } else {
+    loading.value = false;
+  }
 });
 </script>
 

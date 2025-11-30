@@ -19,6 +19,47 @@
           <p class="text-gray-500 max-w-2xl mx-auto">
             {{ user?.description || "Deskripsi toko belum diatur." }}
           </p>
+          <!-- Frozen Indicator -->
+          <div
+            v-if="user?.toko?.is_frozen"
+            class="mt-4 bg-red-50 border border-red-100 text-red-800 px-5 py-3 rounded-xl inline-flex flex-col items-center text-center"
+          >
+            <div class="flex items-center gap-2 mb-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4 text-red-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <span class="font-bold text-sm">Toko Dibekukan</span>
+            </div>
+            <span class="font-light text-xs text-red-600 italic"
+              >Alasan: {{ user.toko.frozen_reason }}</span
+            >
+            
+            <!-- Tombol Ajukan Banding -->
+            <button
+              v-if="!user.toko.appeal_reason"
+              @click="showAppealModal = true"
+              class="mt-2 text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition shadow-sm"
+            >
+              Ajukan Banding
+            </button>
+            <span
+              v-else
+              class="mt-2 text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded"
+            >
+              Banding sedang ditinjau
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -690,6 +731,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Appeal Modal -->
+    <div
+      v-if="showAppealModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+    >
+      <div class="bg-white rounded-xl shadow-xl p-6 max-w-md w-full">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Ajukan Banding</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Jelaskan mengapa toko Anda harus diaktifkan kembali.
+        </p>
+        <textarea
+          v-model="appealReason"
+          rows="4"
+          class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none mb-4"
+          placeholder="Tulis alasan Anda di sini..."
+        ></textarea>
+        <div class="flex justify-end gap-3">
+          <button
+            @click="showAppealModal = false"
+            class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+          >
+            Batal
+          </button>
+          <button
+            @click="submitAppeal"
+            :disabled="!appealReason || submittingAppeal"
+            class="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ submittingAppeal ? "Mengirim..." : "Kirim Banding" }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -710,9 +785,36 @@ const searchQuery = ref("");
 // Modal State
 const showModal = ref(false);
 const showDetailModal = ref(false);
+const showAppealModal = ref(false); // New
 const isEditing = ref(false);
 const loadingSubmit = ref(false);
 const selectedProduct = ref(null);
+
+// Appeal State
+const appealReason = ref("");
+const submittingAppeal = ref(false);
+
+const submitAppeal = async () => {
+  if (!appealReason.value) return;
+
+  submittingAppeal.value = true;
+  try {
+    const token = localStorage.getItem("authToken");
+    await axios.post(
+      `/manage/toko/${user.value.toko.id}/appeal`,
+      { appeal_reason: appealReason.value },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    toast.success("Banding berhasil diajukan.");
+    showAppealModal.value = false;
+    user.value.toko.appeal_reason = appealReason.value; // Update UI
+  } catch (error) {
+    console.error(error);
+    toast.error("Gagal mengajukan banding.");
+  } finally {
+    submittingAppeal.value = false;
+  }
+};
 
 // Form State
 const form = ref({

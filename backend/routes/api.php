@@ -40,6 +40,7 @@ Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
 Route::get('/toko/{id_toko}', [TokoController::class, 'show']);
 Route::get('/shops', [TokoController::class, 'search']);
 Route::get('/categories', [App\Http\Controllers\Api\CategoryController::class, 'index']);
+Route::get('/reviews/{productId}', [ReviewController::class, 'index']); // Public review list
 
 
 // Rute yang memerlukan autentikasi (Sanctum)
@@ -73,7 +74,8 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user()->load('toko');
     })->name('api.user');
 
-    Route::apiResource('review', ReviewController::class)->only('store', 'update', 'destroy');
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::apiResource('review', ReviewController::class)->only('update', 'destroy');
     Route::get('/review/product/{productId}', [ReviewController::class, 'getReview']);
     Route::get('/review/can-review/{productId}', [ReviewController::class, 'canReview']);
 
@@ -84,6 +86,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('productToko', [ProductController::class, 'create']);
         Route::apiResource('users', UserController::class)->only(['index', 'update', 'destroy']);
         Route::apiResource('toko', TokoController::class)->only(['index', 'store']);
+        Route::post('/toko/{id}/freeze', [TokoController::class, 'freeze']);
+        Route::post('/toko/{id}/unfreeze', [TokoController::class, 'unfreeze']);
+        Route::post('/toko/{id}/appeal', [TokoController::class, 'submitAppeal']);
         // 1. User: Request jadi penjual
         Route::post('/become-seller', [UserRoleController::class, 'requestSeller']);
         // 2. Admin: Lihat list request (Perlu middleware 'can:is-admin' atau cek role di controller)
