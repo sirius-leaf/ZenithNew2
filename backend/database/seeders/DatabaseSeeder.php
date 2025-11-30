@@ -53,14 +53,11 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $daftarKategori = ['laptop', 'hp', 'komponen', 'monitor', 'headphone', 'mouse', 'keyboard', 'aksesoris'];
-        $categoryIds = [];
-        foreach ($daftarKategori as $kat) {
-            $cat = Category::factory()->create([
-                'nama_kategori' => $kat
-            ]);
-            $categoryIds[$kat] = $cat->id_kategori;
-        }
+        $this->call(CategorySeeder::class);
+
+        // Fetch categories to use their IDs for product assignment
+        $categories = Category::all();
+        $categoryIds = $categories->pluck('id_kategori', 'nama_kategori')->toArray();
 
         // Create 10 random products
         Product::factory(10)->create(['id_toko' => 1]);
@@ -83,7 +80,7 @@ class DatabaseSeeder extends Seeder
             if ($isLaptop) {
                 \App\Models\CategoryDetail::create([
                     'id_produk' => $id,
-                    'id_kategori' => $categoryIds['laptop']
+                    'id_kategori' => $categoryIds['Laptop'] ?? $categories->first()->id_kategori
                 ]);
             } else {
                 \App\Models\CategoryDetail::factory(1)->create(['id_produk' => $id]);

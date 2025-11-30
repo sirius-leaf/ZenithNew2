@@ -87,6 +87,7 @@ const processProducts = (productsData) => {
       brand: product.merek,
       image: image,
       storeName: product.toko ? product.toko.toko_name : "Toko",
+      storeId: product.toko ? product.toko.id : null,
       category: categoryName
     };
   });
@@ -197,20 +198,16 @@ const handleLogout = () => {
       <!-- Modern Section: Tag Populer & Rekomendasi -->
       <section class="mb-8">
         <!-- Tag Populer -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+        <div class="bg-white rounded-xl border border-gray-100 p-6 mb-8">
           <h3 class="font-bold text-gray-800 mb-4 text-lg">Kategori Pilihan</h3>
           <div class="flex overflow-x-auto pb-2 gap-3 no-scrollbar">
             <div
               v-for="tag in popularTags"
               :key="tag.id"
-              class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:border-pink-500 hover:text-pink-600 transition-all duration-300 cursor-pointer whitespace-nowrap group shadow-sm hover:shadow-md min-w-max"
+              class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl hover:border-pink-500 text-pink-600 transition-all duration-300 cursor-pointer whitespace-nowrap min-w-max"
               @click="$router.push({ name: 'searching', query: { category: tag.name } })"
             >
-              <div
-                class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-pink-500 transition-colors"
-                v-html="tag.icon"
-              ></div>
-              <span class="text-sm font-medium text-gray-700 group-hover:text-pink-600 transition-colors">{{ tag.name }}</span>
+              <span class="text-sm font-bold">{{ tag.name }}</span>
             </div>
           </div>
         </div>
@@ -258,7 +255,12 @@ const handleLogout = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
-                    <span class="text-xs text-gray-600 truncate">{{ product.storeName }}</span>
+                    <span 
+                      class="text-xs text-gray-600 truncate hover:text-pink-600 hover:underline cursor-pointer"
+                      @click.stop="product.storeId ? $router.push({ name: 'toko.detail', params: { id: product.storeId } }) : null"
+                    >
+                      {{ product.storeName }}
+                    </span>
                 </div>
 
                 <!-- 3. Brand & Category (Light) -->
@@ -269,7 +271,7 @@ const handleLogout = () => {
                 <!-- Price -->
                 <div class="mt-auto pt-2 border-t border-gray-50 flex justify-between items-center">
                   <p class="text-pink-600 font-bold text-base">{{ product.price }}</p>
-                  <div class="flex items-center gap-0.5 bg-gray-50 px-1.5 py-0.5 rounded-md" v-if="product.rating > 0">
+                  <div class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md" v-if="product.rating > 0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 00-1.028-.684H9.049a1 1 0 00-1.028.684L7.95 6.316a1 1 0 00.919.592l3.181.45a1 1 0 001.028-.684l1.07-3.292a1 1 0 00-1.028-.684H9.049z" />
                     </svg>

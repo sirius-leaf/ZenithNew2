@@ -381,7 +381,7 @@ onMounted(fetchProductDetail);
         <div
           class="sticky top-24 border-2 border-pink-300 rounded-xl p-4 bg-white"
         >
-          <h3 class="font-bold text-gray-900 mb-4">Atur jumlah dan catatan</h3>
+          <h3 class="font-bold text-gray-900 mb-4">Pilih Jumlah</h3>
 
           <!-- Variant Selection -->
           <div
@@ -411,12 +411,6 @@ onMounted(fetchProductDetail);
              <p class="text-sm font-bold text-gray-800 mb-1">{{ selectedVariant.nama_varian }}</p>
              <div class="flex justify-between items-center">
                  <span class="text-pink-600 font-bold">Rp {{ Number(selectedVariant.harga).toLocaleString('id-ID') }}</span>
-                 <div class="flex items-center text-xs text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400 mr-0.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 001.028.684l3.181.45a1 1 0 00.919-.592l1.07-3.292a1 1 0 111.838.616l-1.07 3.292a1 1 0 00.919.592l3.181.45a1 1 0 01-.736 1.715l-1.07 3.292a1 1 0 101.838.616l1.07-3.292a1 1 0 01.919.592l1.07 3.292a1 1 0 01-1.028.684H9.049a1 1 0 01-1.028-.684l-1.07-3.292a1 1 0 00-1.028-.684l-3.181-.45a1 1 0 01-.736-1.715l1.07-3.292a1 1 0 10-1.838-.616l1.07 3.292a1 1 0 01-.919.592l-3.181.45z" />
-                    </svg>
-                    {{ rating["rata-rata"] }}
-                 </div>
              </div>
           </div>
 
@@ -473,12 +467,7 @@ onMounted(fetchProductDetail);
             >
               <span>+</span> Keranjang
             </button>
-            <button
-              @click="handleBuyNow"
-              class="w-full border border-pink-600 text-pink-600 font-bold py-2.5 rounded-lg hover:bg-pink-50 transition"
-            >
-              Beli Langsung
-            </button>
+
           </div>
         </div>
       </div>

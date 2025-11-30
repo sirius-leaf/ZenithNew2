@@ -3,24 +3,25 @@
     <h3 class="font-bold text-gray-800 text-lg mb-4">Kategori</h3>
     <div class="flex flex-col space-y-2">
       <button
-        v-for="tag in popularTags"
-        :key="tag.id"
-        @click="toggleCategory(tag.name)"
+        v-for="category in categories"
+        :key="category.id_kategori"
+        @click="toggleCategory(category.nama_kategori)"
         :class="[
           'text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 cursor-pointer',
-          selectedCategory === tag.name
+          selectedCategory === category.nama_kategori
             ? 'bg-pink-500 text-white'
             : 'text-gray-600 hover:bg-pink-500 hover:text-white'
         ]"
       >
-        {{ tag.name }}
+        {{ category.nama_kategori }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
   initialCategory: {
@@ -31,20 +32,23 @@ const props = defineProps({
 
 const emit = defineEmits(['category-selected']);
 
-// Data statis berdasarkan gambar "Tag Populer"
-const popularTags = ref([
-  { id: 1, name: 'Iphone' },
-  { id: 2, name: 'CPU' },
-  { id: 3, name: 'Tablet' },
-  { id: 4, name: 'Keyboard' },
-  { id: 5, name: 'Monitor' },
-  { id: 6, name: 'Sound' },
-  { id: 7, name: 'Motherboard' },
-  { id: 8, name: 'Storage' },
-  { id: 9, name: 'Handphone' }
-]);
-
+const categories = ref([]);
 const selectedCategory = ref(props.initialCategory);
+
+const fetchCategories = async () => {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/categories');
+    if (response.data && response.data.data) {
+      categories.value = response.data.data;
+    }
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+  }
+};
+
+onMounted(() => {
+  fetchCategories();
+});
 
 // Toggle category
 const toggleCategory = (categoryName) => {
