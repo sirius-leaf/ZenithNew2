@@ -1,6 +1,8 @@
 <template>
   <div class="font-ubuntu p-6 max-w-7xl mx-auto">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div
+      class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
+    >
       <h1 class="text-2xl font-bold text-blue-800">Kelola Pesanan</h1>
       <div class="flex items-center gap-2">
         <input
@@ -28,7 +30,7 @@
           'px-4 py-1.5 rounded-full text-sm font-medium transition',
           selectedStatus === status.value
             ? 'bg-blue-600 text-white'
-            : 'bg-blue-50 text-blue-700 border border-blue-200'
+            : 'bg-blue-50 text-blue-700 border border-blue-200',
         ]"
       >
         {{ status.label }}
@@ -37,7 +39,9 @@
 
     <!-- Loading & Error -->
     <div v-if="loading" class="text-center py-12">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500"></div>
+      <div
+        class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500"
+      ></div>
       <p class="mt-2 text-gray-600">Memuat pesanan...</p>
     </div>
     <div v-else-if="error" class="text-center py-12 text-pink-600">
@@ -49,31 +53,62 @@
       <table class="w-full">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID Pesanan</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Tanggal</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Pembeli</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Total Item</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Total Harga</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Metode Bayar</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Aksi</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              ID Pesanan
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              Tanggal
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              Pembeli
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              Total Item
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              Total Harga
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              Metode Bayar
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              Status
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              Aksi
+            </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr v-for="order in filteredOrders" :key="order.id" class="hover:bg-gray-50">
-            <td class="px-4 py-3 text-gray-800">ORD-{{ String(order.id).padStart(4, '0') }}</td>
-            <td class="px-4 py-3 text-gray-600">{{ formatDate(order.created_at) }}</td>
+          <tr
+            v-for="order in filteredOrders"
+            :key="order.id"
+            class="hover:bg-gray-50"
+          >
+            <td class="px-4 py-3 text-gray-800">
+              ORD-{{ String(order.id).padStart(4, "0") }}
+            </td>
+            <td class="px-4 py-3 text-gray-600">
+              {{ formatDate(order.created_at) }}
+            </td>
             <td class="px-4 py-3 text-gray-800">
               {{ order.buyer_name || `User #${order.user_id}` }}
             </td>
             <td class="px-4 py-3 text-gray-800">
-              {{ order.detail_pesanans.reduce((sum, item) => sum + item.kuantitas, 0) }}
+              {{
+                order.detail_pesanans.reduce(
+                  (sum, item) => sum + item.kuantitas,
+                  0
+                )
+              }}
             </td>
             <td class="px-4 py-3 text-gray-800">
-              Rp {{ parseFloat(order.total_harga).toLocaleString('id-ID') }}
+              Rp {{ parseFloat(order.total_harga).toLocaleString("id-ID") }}
             </td>
             <td class="px-4 py-3">
-              <span class="px-2 py-1 text-xs font-medium rounded-full bg-pink-100 text-pink-800">
+              <span
+                class="px-2 py-1 text-xs font-medium rounded-full bg-pink-100 text-pink-800"
+              >
                 Midtrans
               </span>
             </td>
@@ -91,9 +126,24 @@
                 @click="openDetailModal(order)"
                 class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 mb-2"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
                 </svg>
                 Detail
               </button>
@@ -105,8 +155,18 @@
                   @click="updateStatus(order, 'confirmed')"
                   class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2.5 py-1 rounded flex items-center gap-1"
                 >
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    class="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   Konfirmasi
                 </button>
@@ -116,8 +176,18 @@
                   @click="updateStatus(order, 'packed')"
                   class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2.5 py-1 rounded flex items-center gap-1"
                 >
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  <svg
+                    class="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                    />
                   </svg>
                   Kemas
                 </button>
@@ -127,13 +197,28 @@
                   @click="openResiModal(order)"
                   class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2.5 py-1 rounded flex items-center gap-1"
                 >
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                  <svg
+                    class="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
+                    />
                   </svg>
                   Kirim
                 </button>
 
-                <span v-else-if="['shipped', 'completed', 'cancelled'].includes(order.status)" class="text-xs text-gray-500">
+                <span
+                  v-else-if="
+                    ['shipped', 'completed', 'cancelled'].includes(order.status)
+                  "
+                  class="text-xs text-gray-500"
+                >
                   Tidak ada aksi
                 </span>
               </div>
@@ -144,19 +229,52 @@
     </div>
 
     <!-- Modal Detail -->
-    <div v-if="showModal" class="fixed inset-0 backdrop-blur-sm bg-black/20 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-y-auto" @click.stop>
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-          <h2 class="text-lg font-bold text-blue-800">Detail Pesanan ORD-{{ String(selectedOrder?.id).padStart(4, '0') }}</h2>
-          <button @click="closeModal" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+    <div
+      v-if="showModal"
+      class="fixed inset-0 backdrop-blur-sm bg-black/20 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-y-auto"
+        @click.stop
+      >
+        <div
+          class="p-5 border-b border-gray-200 flex justify-between items-center"
+        >
+          <h2 class="text-lg font-bold text-blue-800">
+            Detail Pesanan ORD-{{ String(selectedOrder?.id).padStart(4, "0") }}
+          </h2>
+          <button
+            @click="closeModal"
+            class="text-gray-500 hover:text-gray-700 text-xl"
+          >
+            &times;
+          </button>
         </div>
         <div class="p-5 space-y-3">
-          <p><span class="font-medium">Pembeli:</span> {{ selectedOrder?.buyer_name || `User #${selectedOrder?.user_id}` }}</p>
-          <p><span class="font-medium">Tanggal:</span> {{ formatDate(selectedOrder?.created_at) }}</p>
-          <p><span class="font-medium">Alamat:</span> {{ selectedOrder?.alamat_pengiriman || '–' }}</p>
-          <p><span class="font-medium">Total:</span> Rp {{ parseFloat(selectedOrder?.total_harga).toLocaleString('id-ID') }}</p>
-          <p><span class="font-medium">Status:</span> {{ getStatusLabel(selectedOrder?.status) }}</p>
-          <p v-if="selectedOrder?.resi"><span class="font-medium">Nomor Resi:</span> {{ selectedOrder.resi }}</p>
+          <p>
+            <span class="font-medium">Pembeli:</span>
+            {{ selectedOrder?.buyer_name || `User #${selectedOrder?.user_id}` }}
+          </p>
+          <p>
+            <span class="font-medium">Tanggal:</span>
+            {{ formatDate(selectedOrder?.created_at) }}
+          </p>
+          <p>
+            <span class="font-medium">Alamat:</span>
+            {{ selectedOrder?.alamat_pengiriman || "–" }}
+          </p>
+          <p>
+            <span class="font-medium">Total:</span> Rp
+            {{ parseFloat(selectedOrder?.total_harga).toLocaleString("id-ID") }}
+          </p>
+          <p>
+            <span class="font-medium">Status:</span>
+            {{ getStatusLabel(selectedOrder?.status) }}
+          </p>
+          <p v-if="selectedOrder?.resi">
+            <span class="font-medium">Nomor Resi:</span>
+            {{ selectedOrder.resi }}
+          </p>
 
           <div>
             <h3 class="font-bold text-gray-800 mb-2">Produk:</h3>
@@ -168,7 +286,10 @@
               >
                 <div>
                   <div>ID Varian: {{ item.id_varian }}</div>
-                  <div class="text-sm text-gray-500">{{ item.kuantitas }} item × Rp {{ parseFloat(item.harga).toLocaleString('id-ID') }}</div>
+                  <div class="text-sm text-gray-500">
+                    {{ item.kuantitas }} item × Rp
+                    {{ parseFloat(item.harga).toLocaleString("id-ID") }}
+                  </div>
                 </div>
               </li>
             </ul>
@@ -186,16 +307,21 @@
     </div>
 
     <!-- Modal Input Resi -->
-    <div v-if="showResiModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div
+      v-if="showResiModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
       <div class="bg-white rounded-xl w-full max-w-md" @click.stop>
         <div class="p-5 border-b border-gray-200">
           <h2 class="text-lg font-bold text-blue-800">Masukkan Nomor Resi</h2>
           <p class="text-sm text-gray-600 mt-1">
-            Pesanan: ORD-{{ String(selectedOrderForResi?.id).padStart(4, '0') }}
+            Pesanan: ORD-{{ String(selectedOrderForResi?.id).padStart(4, "0") }}
           </p>
         </div>
         <div class="p-5">
-          <label class="block text-gray-700 text-sm font-medium mb-2">Nomor Resi</label>
+          <label class="block text-gray-700 text-sm font-medium mb-2"
+            >Nomor Resi</label
+          >
           <input
             v-model="resiInput"
             type="text"
@@ -203,7 +329,9 @@
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
             :class="resiError ? 'border-red-500' : ''"
           />
-          <p v-if="resiError" class="mt-1 text-red-500 text-sm">{{ resiError }}</p>
+          <p v-if="resiError" class="mt-1 text-red-500 text-sm">
+            {{ resiError }}
+          </p>
         </div>
         <div class="p-5 border-t border-gray-200 flex justify-end gap-2">
           <button
@@ -225,167 +353,174 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 
 // State
-const orders = ref([])
-const loading = ref(false)
-const error = ref(false)
-const searchQuery = ref('')
-const selectedStatus = ref('all')
-const showModal = ref(false)
-const selectedOrder = ref(null)
-const showResiModal = ref(false)
-const selectedOrderForResi = ref(null)
-const resiInput = ref('')
-const resiError = ref('')
+const orders = ref([]);
+const loading = ref(false);
+const error = ref(false);
+const searchQuery = ref("");
+const selectedStatus = ref("all");
+const showModal = ref(false);
+const selectedOrder = ref(null);
+const showResiModal = ref(false);
+const selectedOrderForResi = ref(null);
+const resiInput = ref("");
+const resiError = ref("");
 
 // Fetch data
 onMounted(() => {
-  loadOrders()
-})
+  loadOrders();
+});
 
 const loadOrders = async () => {
-  loading.value = true
-  error.value = false
+  loading.value = true;
+  error.value = false;
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/order/history')
+    const response = await axios.get("http://127.0.0.1:8000/api/manage/orders");
     if (response.data.success) {
-      orders.value = response.data.data || []
+      orders.value = response.data.data || [];
     } else {
-      error.value = true
+      error.value = true;
     }
   } catch (err) {
-    console.error('API Error:', err)
-    error.value = true
+    console.error("API Error:", err);
+    error.value = true;
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // Filter
 const filteredOrders = computed(() => {
-  let result = [...orders.value]
-  if (selectedStatus.value !== 'all') {
-    result = result.filter(o => o.status === selectedStatus.value)
+  let result = [...orders.value];
+  if (selectedStatus.value !== "all") {
+    result = result.filter((o) => o.status === selectedStatus.value);
   }
   if (searchQuery.value) {
-    const q = searchQuery.value.trim()
-    result = result.filter(o => o.id.toString().includes(q))
+    const q = searchQuery.value.trim();
+    result = result.filter((o) => o.id.toString().includes(q));
   }
-  return result
-})
+  return result;
+});
 
-const applySearch = () => {} // computed already reactive
+const applySearch = () => {}; // computed already reactive
 
 // Utils
 const formatDate = (isoDate) => {
-  if (!isoDate) return '-'
-  return new Date(isoDate).toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+  if (!isoDate) return "-";
+  return new Date(isoDate).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const getStatusLabel = (status) => {
   const map = {
-    pending: 'Menunggu Pembayaran',
-    paid: 'Dibayar',
-    confirmed: 'Dikonfirmasi',
-    packed: 'Dikemas',
-    shipped: 'Dikirim',
-    completed: 'Selesai',
-    cancelled: 'Dibatalkan'
-  }
-  return map[status] || status
-}
+    pending: "Menunggu Pembayaran",
+    paid: "Dibayar",
+    confirmed: "Dikonfirmasi",
+    packed: "Dikemas",
+    shipped: "Dikirim",
+    completed: "Selesai",
+    cancelled: "Dibatalkan",
+  };
+  return map[status] || status;
+};
 
 const getStatusClass = (status) => {
   const classes = {
-    pending: 'bg-orange-100 text-orange-800',
-    paid: 'bg-green-100 text-green-800',
-    confirmed: 'bg-blue-100 text-blue-800',
-    packed: 'bg-purple-100 text-purple-800',
-    shipped: 'bg-blue-100 text-blue-800',
-    completed: 'bg-emerald-100 text-emerald-800',
-    cancelled: 'bg-red-100 text-red-800'
-  }
-  return classes[status] || 'bg-gray-100 text-gray-800'
-}
+    pending: "bg-orange-100 text-orange-800",
+    paid: "bg-green-100 text-green-800",
+    confirmed: "bg-blue-100 text-blue-800",
+    packed: "bg-purple-100 text-purple-800",
+    shipped: "bg-blue-100 text-blue-800",
+    completed: "bg-emerald-100 text-emerald-800",
+    cancelled: "bg-red-100 text-red-800",
+  };
+  return classes[status] || "bg-gray-100 text-gray-800";
+};
 
 // Modal
 const openDetailModal = (order) => {
-  selectedOrder.value = order
-  showModal.value = true
-}
+  selectedOrder.value = order;
+  showModal.value = true;
+};
 
 const closeModal = () => {
-  showModal.value = false
-  selectedOrder.value = null
-}
+  showModal.value = false;
+  selectedOrder.value = null;
+};
 
 // Resi Modal
 const openResiModal = (order) => {
-  selectedOrderForResi.value = order
-  resiInput.value = order.resi || ''
-  resiError.value = ''
-  showResiModal.value = true
-}
+  selectedOrderForResi.value = order;
+  resiInput.value = order.resi || "";
+  resiError.value = "";
+  showResiModal.value = true;
+};
 
 const handleKirimWithResi = () => {
   if (!resiInput.value.trim()) {
-    resiError.value = 'Nomor resi wajib diisi'
-    return
+    resiError.value = "Nomor resi wajib diisi";
+    return;
   }
-  resiError.value = ''
+  resiError.value = "";
 
-  submitStatusUpdate(selectedOrderForResi.value, 'shipped', resiInput.value.trim())
-  showResiModal.value = false
-}
+  submitStatusUpdate(
+    selectedOrderForResi.value,
+    "shipped",
+    resiInput.value.trim()
+  );
+  showResiModal.value = false;
+};
 
 // Update Status
 const updateStatus = (order, newStatus) => {
   const actions = {
-    confirmed: 'Konfirmasi Pesanan',
-    packed: 'Kemas Pesanan'
-  }
-  const action = actions[newStatus] || 'Perbarui Status'
+    confirmed: "Konfirmasi Pesanan",
+    packed: "Kemas Pesanan",
+  };
+  const action = actions[newStatus] || "Perbarui Status";
 
-  if (!confirm(`Apakah Anda yakin ingin ${action.toLowerCase()}?`)) return
-  submitStatusUpdate(order, newStatus)
-}
+  if (!confirm(`Apakah Anda yakin ingin ${action.toLowerCase()}?`)) return;
+  submitStatusUpdate(order, newStatus);
+};
 
 const submitStatusUpdate = async (order, status, resi = null) => {
   try {
-    const payload = { status }
-    if (resi) payload.resi = resi
+    const payload = { status };
+    if (resi) payload.resi = resi;
 
-    await axios.patch(`http://127.0.0.1:8000/api/order/${order.id}/status`, payload)
+    await axios.patch(
+      `http://127.0.0.1:8000/api/order/${order.id}/status`,
+      payload
+    );
 
     // Update UI
-    order.status = status
-    if (resi) order.resi = resi
+    order.status = status;
+    if (resi) order.resi = resi;
 
-    alert('Status berhasil diperbarui!')
+    alert("Status berhasil diperbarui!");
   } catch (err) {
-    console.error('Gagal update status:', err)
-    alert('Gagal memperbarui status pesanan')
+    console.error("Gagal update status:", err);
+    alert("Gagal memperbarui status pesanan");
   }
-}
+};
 
 // Status options
 const statusOptions = [
-  { value: 'all', label: 'Semua Status' },
-  { value: 'pending', label: 'Menunggu Pembayaran' },
-  { value: 'paid', label: 'Dibayar' },
-  { value: 'confirmed', label: 'Dikonfirmasi' },
-  { value: 'packed', label: 'Dikemas' },
-  { value: 'shipped', label: 'Dikirim' },
-  { value: 'completed', label: 'Selesai' },
-  { value: 'cancelled', label: 'Dibatalkan' }
-]
+  { value: "all", label: "Semua Status" },
+  { value: "pending", label: "Menunggu Pembayaran" },
+  { value: "paid", label: "Dibayar" },
+  { value: "confirmed", label: "Dikonfirmasi" },
+  { value: "packed", label: "Dikemas" },
+  { value: "shipped", label: "Dikirim" },
+  { value: "completed", label: "Selesai" },
+  { value: "cancelled", label: "Dibatalkan" },
+];
 </script>

@@ -87,6 +87,32 @@ class OrderController extends Controller
     }
 
     /**
+     * Get orders for the seller's store.
+     */
+    public function sellerIndex()
+    {
+        $user = Auth::user();
+        $toko = $user->toko;
+
+        if (!$toko) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda belum memiliki toko.'
+            ], 404);
+        }
+
+        $orders = Pesanan::where('toko_id', $toko->id)
+            ->with(['user', 'detailPesanans.variant.product'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders
+        ]);
+    }
+
+    /**
      * Memproses pesanan dan Generate Midtrans Token.
      */
     public function store(Request $request)
