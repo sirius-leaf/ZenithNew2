@@ -36,7 +36,12 @@
                   <div class="text-sm font-medium text-blue-800">{{ item.toko_nama }}</div>
                 </td>
                 <td class="px-6 py-5">
-                  <div class="text-sm font-medium text-gray-800">{{ item.produk_nama }}</div>
+                  <router-link
+                    :to="`/riwayat/${item.order_id}`"
+                    class="text-sm font-medium text-blue-700 hover:underline"
+                  >
+                    {{ item.produk_nama }}
+                  </router-link>
                   <div class="text-xs text-pink-600 mt-1" v-if="item.variant_nama">
                     Varian: {{ item.variant_nama }}
                   </div>
@@ -94,6 +99,7 @@ const purchasedItems = computed(() => {
     if (order.detail_pesanans) {
       order.detail_pesanans.forEach((detail) => {
         items.push({
+          order_id: order.id, 
           toko_nama: order.toko?.nama_toko || "Toko Tidak Diketahui",
           produk_nama: detail.variant?.product?.nama_produk || "Produk Tidak Diketahui",
           variant_nama: detail.variant?.nama_varian,

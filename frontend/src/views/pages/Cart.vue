@@ -1,23 +1,36 @@
 <!-- src/components/user/Keranjang.vue -->
 <template>
   <div class="min-h-screen bg-gray-50 py-8 px-4">
-    <div class="bg-white rounded-xl shadow-md p-6 animate-fade-in max-w-6xl mx-auto">
+    <div
+      class="bg-white rounded-xl shadow-md p-6 animate-fade-in max-w-6xl mx-auto"
+    >
       <!-- Header -->
       <h1 class="text-2xl font-bold text-pink-600 mb-6">KERANJANG</h1>
 
       <!-- Error Handling -->
-      <div v-if="apiError" class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+      <div
+        v-if="apiError"
+        class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm"
+      >
         <strong>Error:</strong> {{ apiError }}
         <p class="mt-1">Harap hapus atau kurangi item yang bermasalah.</p>
       </div>
 
       <!-- Loading -->
-      <div v-if="loading" class="text-center py-10 text-gray-500">Memuat detail keranjang...</div>
+      <div v-if="loading" class="text-center py-10 text-gray-500">
+        Memuat detail keranjang...
+      </div>
 
       <!-- Keranjang Kosong -->
-      <div v-else-if="!cartSummary || cartSummary.length === 0" class="text-center py-10">
+      <div
+        v-else-if="!cartSummary || cartSummary.length === 0"
+        class="text-center py-10"
+      >
         <p class="text-lg text-gray-600">Keranjang Anda masih kosong.</p>
-        <router-link to="/product" class="mt-4 inline-block text-blue-600 hover:underline font-medium">
+        <router-link
+          to="/product"
+          class="mt-4 inline-block text-blue-600 hover:underline font-medium"
+        >
           Lihat Semua Produk
         </router-link>
       </div>
@@ -33,7 +46,9 @@
               type="checkbox"
               class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-2 focus:ring-pink-500"
             />
-            <label class="ml-2 text-base font-medium text-gray-800">Pilih Semua</label>
+            <label class="ml-2 text-base font-medium text-gray-800"
+              >Pilih Semua</label
+            >
           </div>
 
           <!-- Daftar Produk -->
@@ -60,12 +75,14 @@
               <!-- Detail -->
               <div class="flex-1 min-w-0">
                 <h3 class="font-semibold text-blue-900 text-sm">
-                  {{ item.variant.product.toko?.toko_name || 'Toko' }}
+                  {{ item.variant.product.toko?.toko_name || "Toko" }}
                 </h3>
                 <p class="text-gray-800 font-medium mt-1 text-sm line-clamp-2">
                   {{ item.variant.product.nama_produk }}
                 </p>
-                <p class="text-gray-500 text-xs mt-1">{{ item.variant.nama_varian }}</p>
+                <p class="text-gray-500 text-xs mt-1">
+                  {{ item.variant.nama_varian }}
+                </p>
               </div>
 
               <!-- Kolom Kanan -->
@@ -84,7 +101,9 @@
                   >
                     -
                   </button>
-                  <span class="w-8 text-center text-xs font-medium text-gray-800">
+                  <span
+                    class="w-8 text-center text-xs font-medium text-gray-800"
+                  >
                     {{ item.kuantitas }}
                   </span>
                   <button
@@ -101,8 +120,18 @@
                   class="w-7 h-7 flex items-center justify-center text-red-600 hover:text-red-800 transition-colors"
                   title="Hapus item"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
                   </svg>
                 </button>
               </div>
@@ -111,7 +140,9 @@
         </div>
 
         <!-- Kolom Kanan: Ringkasan -->
-        <div class="bg-pink-50 rounded-lg border border-pink-200 p-5 h-fit lg:sticky lg:top-4">
+        <div
+          class="bg-pink-50 rounded-lg border border-pink-200 p-5 h-fit lg:sticky lg:top-4"
+        >
           <h2 class="text-lg font-bold text-blue-900 mb-4">Ringkasan Order</h2>
 
           <div class="space-y-3 max-h-60 overflow-y-auto pr-2">
@@ -121,10 +152,17 @@
               class="border-b border-pink-200 pb-3"
             >
               <div class="flex justify-between text-sm">
-                <div class="font-medium text-gray-800">{{ item.variant.product.nama_produk }}</div>
-                <div class="text-gray-600">{{ formatCurrency(item.variant.harga) }}</div>
+                <div class="font-medium text-gray-800">
+                  {{ item.variant.product.nama_produk }}
+                </div>
+                <div class="text-gray-600">
+                  {{ formatCurrency(item.variant.harga) }}
+                </div>
               </div>
-              <div class="text-xs text-gray-600 mt-1">Jumlah: {{ item.kuantitas }}</div>
+              <div class="text-xs text-gray-600 mt-1">
+                {{ item.variant.nama_varian }}
+              </div>
+              <div class="text-xs text-gray-600">Jumlah: {{ item.kuantitas }}</div>
               <div class="text-sm font-bold text-blue-900 mt-1">
                 {{ formatCurrency(item.subtotal) }}
               </div>
@@ -132,14 +170,18 @@
           </div>
 
           <div class="border-t border-pink-300 pt-4 mt-4">
-            <div class="flex justify-between mb-2 text-sm font-medium text-gray-700">
+            <div
+              class="flex justify-between mb-2 text-sm font-medium text-gray-700"
+            >
               <span>Total ({{ totalCheckedItems }} item)</span>
               <span>{{ formatCurrency(filteredTotalPrice) }}</span>
             </div>
 
             <button
               @click="goToCheckout"
-              :disabled="filteredCartForCheckout.length === 0 || loading || apiError"
+              :disabled="
+                filteredCartForCheckout.length === 0 || loading || apiError
+              "
               class="w-full py-2.5 bg-blue-900 text-white font-semibold rounded-lg hover:bg-blue-800 transition-colors text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               Buat Pesanan ({{ totalCheckedItems }})
@@ -159,161 +201,181 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useCartStore } from '@/stores/cartStore'
-import axios from 'axios'
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useCartStore } from "@/stores/cartStore";
+import axios from "axios";
 
-const router = useRouter()
-const { cartItems, removeCartItem, updateCartItem } = useCartStore()
+const router = useRouter();
+const { cartItems, removeCartItem, updateCartItem } = useCartStore();
 
-const loading = ref(true)
-const cartSummary = ref([])
-const apiError = ref(null)
-const checkedItems = ref({}) // default: semua false
+const loading = ref(true);
+const cartSummary = ref([]);
+const apiError = ref(null);
+const checkedItems = ref({}); // default: semua false
 
 const filteredCartForCheckout = computed(() => {
-  return cartSummary.value.filter(item => checkedItems.value[item.variant.id_varian])
-})
+  return cartSummary.value.filter(
+    (item) => checkedItems.value[item.variant.id_varian]
+  );
+});
 
 const filteredTotalPrice = computed(() => {
-  return filteredCartForCheckout.value.reduce((sum, item) => sum + item.subtotal, 0)
-})
+  return filteredCartForCheckout.value.reduce(
+    (sum, item) => sum + item.subtotal,
+    0
+  );
+});
 
 const totalCheckedItems = computed(() => {
-  return filteredCartForCheckout.value.reduce((sum, item) => sum + item.kuantitas, 0)
-})
+  return filteredCartForCheckout.value.reduce(
+    (sum, item) => sum + item.kuantitas,
+    0
+  );
+});
 
 const selectAll = computed({
-  get: () => cartSummary.value.length > 0 && cartSummary.value.every(item => checkedItems.value[item.variant.id_varian]),
+  get: () =>
+    cartSummary.value.length > 0 &&
+    cartSummary.value.every(
+      (item) => checkedItems.value[item.variant.id_varian]
+    ),
   set: (value) => {
-    cartSummary.value.forEach(item => {
-      checkedItems.value[item.variant.id_varian] = value
-    })
-  }
-})
+    cartSummary.value.forEach((item) => {
+      checkedItems.value[item.variant.id_varian] = value;
+    });
+  },
+});
 
 // ambil gambar
 const getProductImage = (variant) => {
   if (variant?.gambar_varian) {
-    return `http://127.0.0.1:8000/storage/${variant.gambar_varian}`
+    return `http://127.0.0.1:8000/storage/${variant.gambar_varian}`;
   }
-  return 'https://via.placeholder.com/144x161/CCCCCC?text=No+Image'
-}
+  return "https://via.placeholder.com/144x161/CCCCCC?text=No+Image";
+};
 
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0
-  }).format(value)
-}
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(value);
+};
 
 const fetchCartPreview = async () => {
-  apiError.value = null
-  loading.value = true
+  apiError.value = null;
+  loading.value = true;
 
-  const cartDataForApi = cartItems.value.map(item => ({
+  const cartDataForApi = cartItems.value.map((item) => ({
     id_varian: item.id_varian,
-    kuantitas: item.kuantitas
-  }))
+    kuantitas: item.kuantitas,
+  }));
 
   if (cartDataForApi.length === 0) {
-    cartSummary.value = []
-    loading.value = false
-    return
+    cartSummary.value = [];
+    loading.value = false;
+    return;
   }
 
   try {
-    const token = localStorage.getItem('authToken')
+    const token = localStorage.getItem("authToken");
     const response = await axios.post(
-      'http://127.0.0.1:8000/api/order/preview',
+      "http://127.0.0.1:8000/api/order/preview",
       { cartItems: cartDataForApi },
       { headers: { Authorization: `Bearer ${token}` } }
-    )
+    );
 
-    cartSummary.value = response.data.cartItems
+    cartSummary.value = response.data.cartItems;
 
-    const newChecked = {}
-    response.data.cartItems.forEach(item => {
-      newChecked[item.variant.id_varian] = false // <-- ini kunci perbaikan Anda
-    })
-    checkedItems.value = newChecked
+    const newChecked = {};
+    response.data.cartItems.forEach((item) => {
+      newChecked[item.variant.id_varian] = false; // <-- ini kunci perbaikan Anda
+    });
+    checkedItems.value = newChecked;
   } catch (error) {
     // Handle 422 Validation Errors (e.g. Item deleted from DB)
     if (error.response?.status === 422 && error.response.data?.errors) {
-      const errors = error.response.data.errors
-      let itemsRemoved = false
+      const errors = error.response.data.errors;
+      let itemsRemoved = false;
 
       // Parse errors like "cartItems.0.id_varian"
-      Object.keys(errors).forEach(key => {
-        const match = key.match(/cartItems\.(\d+)\.id_varian/)
+      Object.keys(errors).forEach((key) => {
+        const match = key.match(/cartItems\.(\d+)\.id_varian/);
         if (match) {
-          const index = parseInt(match[1])
+          const index = parseInt(match[1]);
           if (cartDataForApi[index]) {
-            const variantIdToRemove = cartDataForApi[index].id_varian
-            removeCartItem(variantIdToRemove)
-            itemsRemoved = true
+            const variantIdToRemove = cartDataForApi[index].id_varian;
+            removeCartItem(variantIdToRemove);
+            itemsRemoved = true;
           }
         }
-      })
+      });
 
       if (itemsRemoved) {
         // alert('Beberapa item di keranjang Anda tidak lagi tersedia dan telah dihapus.')
         // Retry fetch after removal
-        return fetchCartPreview()
+        return fetchCartPreview();
       }
     }
 
     // Handle 400 Stock Errors
     if (error.response?.status === 400 && error.response.data?.variant_id) {
-      const variantId = error.response.data.variant_id
-      const item = cartItems.value.find(i => i.id_varian === variantId)
+      const variantId = error.response.data.variant_id;
+      const item = cartItems.value.find((i) => i.id_varian === variantId);
       if (item?.variantDetail) {
-        removeCartItem(variantId)
-        alert(`⚠️ Stok untuk produk "${item.variantDetail.product_name} (${item.variantDetail.nama_varian})" tidak mencukupi. Item dihapus dari keranjang.`)
-        return fetchCartPreview()
+        removeCartItem(variantId);
+        alert(
+          `⚠️ Stok untuk produk "${item.variantDetail.product_name} (${item.variantDetail.nama_varian})" tidak mencukupi. Item dihapus dari keranjang.`
+        );
+        return fetchCartPreview();
       }
     }
-    apiError.value = error.response?.data?.message || 'Gagal memuat data keranjang.'
+    apiError.value =
+      error.response?.data?.message || "Gagal memuat data keranjang.";
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const updateQuantity = (id_varian, delta) => {
   const item = cartItems.value.find(i => i.id_varian === id_varian)
   if (!item) return
   const newQty = item.kuantitas + delta
   if (newQty < 1) return
+  
   updateCartItem(id_varian, delta)
-  fetchCartPreview()
+  
+  const cartItem = cartSummary.value.find(i => i.variant.id_varian === id_varian)
+  if (cartItem) {
+    cartItem.kuantitas = newQty
+  }
 }
 
 const removeItem = (id_varian) => {
-  if (confirm('Yakin ingin menghapus item ini?')) {
-    removeCartItem(id_varian)
-    delete checkedItems.value[id_varian]
-    fetchCartPreview()
+  if (confirm("Yakin ingin menghapus item ini?")) {
+    removeCartItem(id_varian);
+    delete checkedItems.value[id_varian];
+    fetchCartPreview();
   }
-}
+};
 
 const goToCheckout = () => {
   if (filteredCartForCheckout.value.length === 0) {
-    alert('Pilih minimal 1 produk untuk checkout')
-    return
+    alert("Pilih minimal 1 produk untuk checkout");
+    return;
   }
-  const selectedItems = filteredCartForCheckout.value.map(item => ({
+  const selectedItems = filteredCartForCheckout.value.map((item) => ({
     id_varian: item.variant.id_varian,
-    kuantitas: item.kuantitas
-  }))
-  localStorage.setItem('checkout_selection', JSON.stringify(selectedItems))
-  router.push({ name: 'checkout' })
-}
+    kuantitas: item.kuantitas,
+  }));
+  localStorage.setItem("checkout_selection", JSON.stringify(selectedItems));
+  router.push({ name: "checkout" });
+};
 
 onMounted(() => {
-  fetchCartPreview()
-})
+  fetchCartPreview();
+});
 </script>
 
 <style scoped>
@@ -321,8 +383,14 @@ onMounted(() => {
   animation: fadeIn 0.6s ease-out;
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .line-clamp-2 {
   display: -webkit-box;

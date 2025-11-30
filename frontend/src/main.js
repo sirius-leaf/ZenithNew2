@@ -42,6 +42,7 @@ import DetailToko from "./views/pages/DetailToko.vue";
 import ManageStore from "./views/pages/ManageStore.vue";
 import NotFound from "./views/pages/NotFound.vue";
 import KelolaPesanan from "./views/pages/KelolaPesanan.vue";
+import DetailPesanan from "./views/pages/DetailPesanan.vue";
 
 /* =========================================================
    📌 IMPORT DASHBOARD USER
@@ -135,7 +136,11 @@ const router = createRouter({
     { path: "/profile", component: Profile },
     { path: "/profile/edit", component: EditProfile },
     { path: "/riwayat", component: OrderHistory },
-
+    {
+    path: '/riwayat/:id',
+    name: 'DetailPesanan',
+    component: DetailPesanan,
+    },
     { path: "/cart", component: CartPage },
     { path: "/checkout", name: "checkout", component: CheckoutPage },
     {
