@@ -24,6 +24,28 @@
       </div>
     </div>
 
+    <!-- Back Button -->
+    <button
+      @click="$router.back()"
+      class="absolute top-4 left-4 z-20 text-white hover:text-gray-200 transition-colors flex items-center gap-2 font-['Ubuntu']"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
+      </svg>
+      <span class="text-sm font-medium">Kembali</span>
+    </button>
+
     <!-- Main Content - Flex grow untuk push footer ke bawah -->
     <div
       class="flex-1 flex items-center justify-center relative px-4 py-8 sm:py-0 z-10"

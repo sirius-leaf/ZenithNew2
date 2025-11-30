@@ -18,11 +18,12 @@ const hero = "/src/assets/hero.png";
         from Trusted Sellers Worldwide
       </p>
       <div class="flex justify-center md:justify-start gap-4 mt-6">
-        <button
+        <router-link
+          to="/dashboard"
           class="bg-pink-600 text-white px-6 py-3 rounded-lg hover:bg-pink-700 transition"
         >
           Shop Now
-        </button>
+        </router-link>
         <button
           class="border border-pink-600 text-pink-600 px-6 py-3 rounded-lg hover:bg-pink-600 hover:text-white transition"
         >

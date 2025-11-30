@@ -106,8 +106,18 @@ const handleBuyNow = () => {
   );
 };
 
+// State untuk modal login
+const showLoginModal = ref(false);
+
 // Fungsi untuk tombol "Keranjang"
 const handleAddToCart = () => {
+  // Cek Login
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    showLoginModal.value = true;
+    return;
+  }
+
   if (!selectedVariant.value) {
     alert("Silakan pilih varian terlebih dahulu.");
     return;
@@ -602,6 +612,49 @@ onMounted(() => {
       Produk tidak ditemukan.
     </div>
   </main>
+
+  <!-- Login Required Modal -->
+  <div
+    v-if="showLoginModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
+  >
+    <div class="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
+      <div class="mb-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-12 w-12 text-pink-600 mx-auto"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+          />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-2">Login Diperlukan</h3>
+      <p class="text-gray-600 mb-6">
+        Tertarik dengan produk ini? Silahkan login terlebih dahulu.
+      </p>
+      <div class="flex gap-3">
+        <button
+          @click="showLoginModal = false"
+          class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+        >
+          Batal
+        </button>
+        <button
+          @click="$router.push('/login')"
+          class="flex-1 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition"
+        >
+          Login
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
