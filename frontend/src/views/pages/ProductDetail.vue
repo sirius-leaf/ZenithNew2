@@ -15,6 +15,7 @@ const tokoRating = ref(0);
 const rating = ref(null);
 const loading = ref(true);
 const error = ref(null);
+const user = ref(null); // Data user yang sedang login
 
 // State untuk varian yang dipilih
 const selectedVariant = ref(null);
@@ -105,7 +106,16 @@ const handleAddToCart = () => {
     alert("Stok habis. Tidak bisa menambahkan ke keranjang.");
     return;
   }
+  if (selectedVariant.value.stok <= 0) {
+    alert("Stok habis. Tidak bisa menambahkan ke keranjang.");
+    return;
+  }
 
+  // Cek Self-Purchase
+  if (user.value && user.value.toko && product.value.toko && user.value.toko.id === product.value.toko.id) {
+    alert("Anda tidak dapat membeli produk dari toko Anda sendiri.");
+    return;
+  }
   updateCartItem(selectedVariant.value.id_varian, quantity.value, {
     nama_varian: selectedVariant.value.nama_varian,
     harga: selectedVariant.value.harga,
@@ -161,7 +171,23 @@ const fetchProductDetail = async () => {
   }
 };
 
-onMounted(fetchProductDetail);
+const fetchUser = async () => {
+  const token = localStorage.getItem("authToken");
+  if (!token) return;
+  try {
+    const res = await axios.get("http://127.0.0.1:8000/api/user", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    user.value = res.data;
+  } catch (e) {
+    console.error("Gagal ambil data user", e);
+  }
+};
+
+onMounted(() => {
+  fetchProductDetail();
+  fetchUser();
+});
 </script>
 
 <template>
@@ -290,7 +316,7 @@ onMounted(fetchProductDetail);
           <div v-if="activeTab === 'detail'">
             <div class="space-y-3 text-sm text-gray-700">
               <div
-                class="mt-4 prose prose-sm max-w-none text-gray-700 relative"
+                class="mt-4 prose prose-sm max-w-none text-gray-700 relative whitespace-pre-line"
                 :class="{
                   'max-h-24 overflow-hidden':
                     !isDescriptionExpanded &&

@@ -29,8 +29,9 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center text-gray-600 py-10">
-      Memuat data...
+    <div v-if="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500"></div>
+      <p class="mt-2 text-gray-600">Memuat data...</p>
     </div>
 
     <!-- Error State -->

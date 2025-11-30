@@ -325,9 +325,9 @@ const fetchCartPreview = async () => {
       const item = cartItems.value.find((i) => i.id_varian === variantId);
       if (item?.variantDetail) {
         removeCartItem(variantId);
-        alert(
-          `⚠️ Stok untuk produk "${item.variantDetail.product_name} (${item.variantDetail.nama_varian})" tidak mencukupi. Item dihapus dari keranjang.`
-        );
+        // Gunakan pesan dari backend jika ada, atau default ke pesan stok
+        const msg = error.response.data.message || `Stok untuk produk "${item.variantDetail.product_name} (${item.variantDetail.nama_varian})" tidak mencukupi.`;
+        alert(`⚠️ ${msg} Item dihapus dari keranjang.`);
         return fetchCartPreview();
       }
     }
