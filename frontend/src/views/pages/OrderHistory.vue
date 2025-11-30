@@ -11,9 +11,7 @@
                 <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   ID Pesanan
                 </th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Toko
-                </th>
+
                 <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Tanggal
                 </th>
@@ -38,9 +36,7 @@
                 <td class="px-6 py-5 whitespace-nowrap">
                   <div class="text-sm font-bold text-gray-900">#{{ String(order.id).padStart(4, '0') }}</div>
                 </td>
-                <td class="px-6 py-5 whitespace-nowrap">
-                  <div class="text-sm font-medium text-blue-800">{{ order.toko?.toko_name || "Toko Tidak Diketahui" }}</div>
-                </td>
+
                 <td class="px-6 py-5 whitespace-nowrap">
                   <div class="text-sm text-gray-600">{{ formatDate(order.created_at) }}</div>
                 </td>
