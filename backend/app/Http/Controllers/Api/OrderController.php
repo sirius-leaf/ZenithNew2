@@ -182,7 +182,8 @@ class OrderController extends Controller
                         'user_id' => $user->id,
                         'toko_id' => $tokoId,
                         'total_harga' => $totalHargaPesanan,
-                        'status' => 'pending',
+                        // Jika COD, langsung 'confirmed' agar seller bisa proses. Jika Transfer, 'pending' tunggu bayar.
+                        'status' => $validated['payment_method'] === 'cod' ? 'confirmed' : 'pending',
                         'alamat_pengiriman' => $validated['alamat_pengiriman'],
                         'payment_method' => $validated['payment_method'] // Simpan metode pembayaran
                     ]);
@@ -325,6 +326,145 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Status pesanan berhasil diperbarui.',
+            'data' => $pesanan
+        ]);
+    }
+
+    /**
+     * Cancel order by User
+     */
+    public function cancel(Request $request, $id)
+    {
+        $user = Auth::user();
+        $pesanan = Pesanan::where('id', $id)->where('user_id', $user->id)->first();
+
+        if (!$pesanan) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pesanan tidak ditemukan atau akses ditolak.'
+            ], 404);
+        }
+
+        // Cek apakah status masih bisa dibatalkan
+        $allowedStatuses = ['pending', 'paid', 'confirmed'];
+
+        if (!in_array($pesanan->status, $allowedStatuses)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pesanan tidak dapat dibatalkan karena status saat ini: ' . $pesanan->status
+            ], 400);
+        }
+
+        $request->validate([
+            'alasan' => 'required|string|max:500'
+        ]);
+
+        // Simpan status sebelumnya dan ubah ke 'cancellation_requested'
+        $pesanan->previous_status = $pesanan->status;
+        $pesanan->status = 'cancellation_requested';
+        $pesanan->alasan_pembatalan = $request->alasan;
+        $pesanan->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pengajuan pembatalan berhasil dikirim. Menunggu persetujuan seller.',
+            'data' => $pesanan
+        ]);
+    }
+
+    /**
+     * Approve Cancellation (Seller)
+     */
+    public function approveCancellation($id)
+    {
+        $user = Auth::user();
+        $pesanan = Pesanan::findOrFail($id);
+
+        // Pastikan user adalah pemilik toko
+        if (!$user->toko || $user->toko->id !== $pesanan->toko_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($pesanan->status !== 'cancellation_requested') {
+            return response()->json(['message' => 'Status pesanan tidak valid untuk disetujui.'], 400);
+        }
+
+        $pesanan->status = 'cancelled';
+        $pesanan->save();
+
+        // Kembalikan stok
+        foreach ($pesanan->detailPesanans as $detail) {
+            $variant = Variant::find($detail->id_varian);
+            if ($variant) {
+                $variant->increment('stok', $detail->kuantitas);
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pembatalan disetujui.',
+            'data' => $pesanan
+        ]);
+    }
+
+    /**
+     * Reject Cancellation (Seller)
+     */
+    public function rejectCancellation($id)
+    {
+        $user = Auth::user();
+        $pesanan = Pesanan::findOrFail($id);
+
+        // Pastikan user adalah pemilik toko
+        if (!$user->toko || $user->toko->id !== $pesanan->toko_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($pesanan->status !== 'cancellation_requested') {
+            return response()->json(['message' => 'Status pesanan tidak valid untuk ditolak.'], 400);
+        }
+
+        // Kembalikan ke status sebelumnya atau default ke 'confirmed'
+        // Jika status sebelumnya 'paid', kita ubah ke 'confirmed' agar seller bisa langsung proses (kemas)
+        // Jika 'pending', tetap 'pending'
+        $newStatus = $pesanan->previous_status ?? 'confirmed';
+
+        if ($newStatus === 'paid') {
+            $newStatus = 'confirmed';
+        }
+
+        $pesanan->status = $newStatus;
+        $pesanan->is_cancellation_rejected = true;
+        $pesanan->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pembatalan ditolak. Status dikembalikan.',
+            'data' => $pesanan
+        ]);
+    }
+
+    /**
+     * Mark order as paid (Called by Frontend after Midtrans success)
+     * Workaround for localhost webhook issue.
+     */
+    public function markAsPaid(Request $request, $id)
+    {
+        $user = Auth::user();
+        $pesanan = Pesanan::where('id', $id)->where('user_id', $user->id)->first();
+
+        if (!$pesanan) {
+            return response()->json(['message' => 'Pesanan tidak ditemukan.'], 404);
+        }
+
+        if ($pesanan->status === 'pending') {
+            $pesanan->status = 'paid';
+            $pesanan->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status pesanan diperbarui menjadi dibayar.',
             'data' => $pesanan
         ]);
     }

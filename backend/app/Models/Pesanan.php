@@ -14,11 +14,15 @@ class Pesanan extends Model
         'toko_id',
         'total_harga',
         'status',
-        'alamat_pengiriman'
+        'alamat_pengiriman',
+        'alasan_pembatalan',
+        'previous_status',
+        'is_cancellation_rejected'
     ];
 
     // Relasi: Pesanan ini milik siapa
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 

@@ -57,11 +57,7 @@ class MyTokoProductController extends Controller
 
             // ... (Sisa logika store Anda) ...
 
-            foreach ($validated['kategori'] as $k) {
-                $produk->categoryDetail()->create([
-                    'id_kategori' => $k
-                ]);
-            }
+            $produk->categories()->attach($validated['kategori']);
 
             foreach ($validated['varian'] as $i => $varianData) {
                 $path = $request->file("varian.$i.gambar_varian")->store('varians', 'public');
@@ -122,14 +118,16 @@ class MyTokoProductController extends Controller
             'nama_produk' => 'required',
             'deskripsi' => 'nullable|string',
             'merek' => 'required|string',
-            'detail.*.kategori' => 'required',
+            'kategori' => 'required|array',
+            'kategori.*' => 'exists:categories,id_kategori',
             'varian.*.nama_varian' => 'required|string',
             'varian.*.harga' => 'required|numeric|min:0',
             'varian.*.stok' => 'required|numeric|min:0',
             'varian.*.gambar_varian' => 'nullable|file|image',
         ]);
 
-        // ... (Logika update kategori) ...
+        // Update kategori
+        $produk->categories()->sync($validated['kategori']);
         // ... (Logika update varian + Hapus file) ...
         // (Salin dari kode Anda sebelumnya)
 
@@ -157,7 +155,7 @@ class MyTokoProductController extends Controller
 
         foreach ($produk->variant as $variant) {
             if ($variant->gambar_varian) {
-                 Storage::disk('public')->delete($variant->gambar_varian);
+                Storage::disk('public')->delete($variant->gambar_varian);
             }
             $variant->delete();
         }

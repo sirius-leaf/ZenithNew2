@@ -97,7 +97,7 @@
         </div>
 
         <div
-          v-for="(item, index) in form.detail"
+          v-for="(item, index) in form.kategori"
           :key="item.id || `new-${index}`"
           class="mb-3 p-3 border rounded-md"
         >
@@ -125,8 +125,8 @@
             </button>
           </div>
         </div>
-        <div v-if="errors.detail" class="text-red-500 text-sm mt-1">
-          {{ errors.detail[0] }}
+        <div v-if="errors.kategori" class="text-red-500 text-sm mt-1">
+          {{ errors.kategori[0] }}
         </div>
       </div>
 
@@ -280,7 +280,7 @@ const form = ref({
   nama_produk: "",
   merek: "",
   deskripsi: "",
-  detail: [],
+  kategori: [],
   varian: [],
 });
 
@@ -308,8 +308,7 @@ const fetchProduct = async () => {
       nama_produk: product.nama_produk,
       merek: product.merek,
       deskripsi: product.deskripsi,
-      detail: product.category_detail.map((detail) => ({
-        id: detail.id,
+      kategori: product.category_detail.map((detail) => ({
         id_kategori: detail.id_kategori,
       })),
       varian: product.variant.map((v) => ({
@@ -333,13 +332,13 @@ const fetchProduct = async () => {
 
 // Add new kategori field
 const addKategori = () => {
-  form.value.detail.push({ id_kategori: "" });
+  form.value.kategori.push({ id_kategori: "" });
 };
 
 // Remove kategori field
 const removeKategori = (index) => {
-  if (form.value.detail.length > 1) {
-    form.value.detail.splice(index, 1);
+  if (form.value.kategori.length > 1) {
+    form.value.kategori.splice(index, 1);
   }
 };
 
@@ -381,9 +380,8 @@ const submitProduct = async () => {
   formData.append("deskripsi", form.value.deskripsi);
 
   // Kategori
-  form.value.detail.forEach((d, i) => {
-    formData.append(`detail[${i}][id]`, d.id || "");
-    formData.append(`detail[${i}][kategori]`, d.id_kategori);
+  form.value.kategori.forEach((k, i) => {
+    formData.append(`kategori[${i}]`, k.id_kategori);
   });
 
   // Varian
@@ -431,7 +429,7 @@ onMounted(() => {
     router.push("/login");
     return;
   }
-  
+
   fetchProduct();
 });
 </script>

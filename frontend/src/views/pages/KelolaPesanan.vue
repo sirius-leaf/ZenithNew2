@@ -62,6 +62,7 @@
             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
               Pembeli
             </th>
+
             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
               Total Item
             </th>
@@ -92,7 +93,9 @@
               {{ formatDate(order.created_at) }}
             </td>
             <td class="px-4 py-3 text-gray-800">
-              {{ order.buyer_name || `User #${order.user_id}` }}
+              {{
+                order.user?.name || order.buyer_name || `User #${order.user_id}`
+              }}
             </td>
             <td class="px-4 py-3 text-gray-800">
               {{
@@ -213,6 +216,24 @@
                   Kirim
                 </button>
 
+                <div
+                  v-else-if="order.status === 'cancellation_requested'"
+                  class="flex flex-wrap gap-1"
+                >
+                  <button
+                    @click="approveCancellation(order)"
+                    class="bg-green-600 hover:bg-green-700 text-white text-xs px-2.5 py-1 rounded flex items-center gap-1"
+                  >
+                    Setuju
+                  </button>
+                  <button
+                    @click="rejectCancellation(order)"
+                    class="bg-red-600 hover:bg-red-700 text-white text-xs px-2.5 py-1 rounded flex items-center gap-1"
+                  >
+                    Tolak
+                  </button>
+                </div>
+
                 <span
                   v-else-if="
                     ['shipped', 'completed', 'cancelled'].includes(order.status)
@@ -234,7 +255,7 @@
       class="fixed inset-0 backdrop-blur-sm bg-black/20 flex items-center justify-center z-50 p-4"
     >
       <div
-        class="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-y-auto"
+        class="bg-white rounded-xl w-full max-w-3xl max-h-[80vh] overflow-y-auto"
         @click.stop
       >
         <div
@@ -250,49 +271,144 @@
             &times;
           </button>
         </div>
-        <div class="p-5 space-y-3">
-          <p>
-            <span class="font-medium">Pembeli:</span>
-            {{ selectedOrder?.buyer_name || `User #${selectedOrder?.user_id}` }}
-          </p>
-          <p>
-            <span class="font-medium">Tanggal:</span>
-            {{ formatDate(selectedOrder?.created_at) }}
-          </p>
-          <p>
-            <span class="font-medium">Alamat:</span>
-            {{ selectedOrder?.alamat_pengiriman || "–" }}
-          </p>
-          <p>
-            <span class="font-medium">Total:</span> Rp
-            {{ parseFloat(selectedOrder?.total_harga).toLocaleString("id-ID") }}
-          </p>
-          <p>
-            <span class="font-medium">Status:</span>
-            {{ getStatusLabel(selectedOrder?.status) }}
-          </p>
-          <p v-if="selectedOrder?.resi">
-            <span class="font-medium">Nomor Resi:</span>
-            {{ selectedOrder.resi }}
-          </p>
 
-          <div>
-            <h3 class="font-bold text-gray-800 mb-2">Produk:</h3>
-            <ul class="space-y-2">
-              <li
+        <div class="p-6 space-y-4">
+          <!-- Informasi Umum -->
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="text-gray-500">ID Pesanan</p>
+              <p class="font-medium text-gray-900">
+                ORD-{{ String(selectedOrder?.id).padStart(4, "0") }}
+              </p>
+            </div>
+            <div>
+              <p class="text-gray-500">Tanggal</p>
+              <p class="font-medium text-gray-900">
+                {{ formatDate(selectedOrder?.created_at) }}
+              </p>
+            </div>
+            <div>
+              <p class="text-gray-500">Status</p>
+              <span
+                class="px-2 py-0.5 text-xs font-medium rounded-full inline-block mt-1"
+                :class="getStatusClass(selectedOrder?.status)"
+              >
+                {{ getStatusLabel(selectedOrder?.status) }}
+              </span>
+            </div>
+            <div>
+              <p class="text-gray-500">Metode Pembayaran</p>
+              <p class="font-medium text-gray-900 uppercase">
+                {{ selectedOrder?.payment_method || "Midtrans" }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Alasan Pembatalan (Jika ada) -->
+          <div
+            v-if="
+              selectedOrder?.status === 'cancelled' &&
+              selectedOrder?.alasan_pembatalan
+            "
+            class="bg-red-50 p-3 rounded-lg border border-red-100"
+          >
+            <p class="text-sm text-red-800">
+              <span class="font-bold">Alasan Pembatalan:</span>
+              {{ selectedOrder.alasan_pembatalan }}
+            </p>
+          </div>
+
+          <div class="border-t border-gray-100 pt-4">
+            <h3 class="font-bold text-gray-800 mb-3 text-sm">
+              Informasi Pembeli
+            </h3>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p class="text-gray-500">ID User</p>
+                <p class="font-medium text-gray-900">
+                  #{{ selectedOrder?.user_id }}
+                </p>
+              </div>
+              <div>
+                <p class="text-gray-500">Nama User</p>
+                <p class="font-medium text-gray-900">
+                  {{
+                    selectedOrder?.user?.name ||
+                    selectedOrder?.buyer_name ||
+                    "-"
+                  }}
+                </p>
+              </div>
+              <div class="col-span-2">
+                <p class="text-gray-500">Alamat Pengiriman</p>
+                <p class="font-medium text-gray-900">
+                  {{ selectedOrder?.alamat_pengiriman || "–" }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-100 pt-4">
+            <h3 class="font-bold text-gray-800 mb-3 text-sm">Detail Produk</h3>
+            <div class="bg-gray-50 rounded-lg p-3 space-y-3">
+              <div
                 v-for="(item, idx) in selectedOrder?.detail_pesanans"
                 :key="idx"
-                class="flex justify-between border-b pb-2 border-gray-100"
+                class="flex justify-between items-start text-sm border-b border-gray-200 last:border-0 pb-2 last:pb-0"
               >
-                <div>
-                  <div>ID Varian: {{ item.id_varian }}</div>
-                  <div class="text-sm text-gray-500">
-                    {{ item.kuantitas }} item × Rp
+                <div class="flex-1">
+                  <p class="font-medium text-gray-900">
+                    {{ item.variant?.product?.nama_produk }}
+                  </p>
+                  <p class="text-gray-500 text-xs">
+                    Varian: {{ item.variant?.nama_varian }}
+                  </p>
+                  <p class="text-gray-500 text-xs mt-1">
+                    {{ item.kuantitas }} x Rp
                     {{ parseFloat(item.harga).toLocaleString("id-ID") }}
-                  </div>
+                  </p>
                 </div>
-              </li>
-            </ul>
+                <div class="text-right font-medium text-gray-900">
+                  Rp {{ (item.kuantitas * item.harga).toLocaleString("id-ID") }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="border-t border-gray-100 pt-4 flex justify-between items-center"
+          >
+            <div>
+              <p class="text-sm text-gray-500">Total Item</p>
+              <p class="font-bold text-gray-900">
+                {{
+                  selectedOrder?.detail_pesanans?.reduce(
+                    (sum, item) => sum + item.kuantitas,
+                    0
+                  )
+                }}
+                Pcs
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-gray-500">Total Harga</p>
+              <p class="text-xl font-bold text-blue-600">
+                Rp
+                {{
+                  parseFloat(selectedOrder?.total_harga).toLocaleString("id-ID")
+                }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            v-if="selectedOrder?.resi"
+            class="bg-blue-50 p-3 rounded-lg border border-blue-100 mt-2"
+          >
+            <p class="text-sm text-blue-800">
+              <span class="font-bold">Nomor Resi:</span>
+              {{ selectedOrder.resi }}
+            </p>
           </div>
         </div>
         <div class="p-5 border-t border-gray-200 text-right">
@@ -428,6 +544,8 @@ const getStatusLabel = (status) => {
     shipped: "Dikirim",
     completed: "Selesai",
     cancelled: "Dibatalkan",
+    invalid: "Invalid",
+    cancellation_requested: "Pengajuan Pembatalan",
   };
   return map[status] || status;
 };
@@ -441,6 +559,8 @@ const getStatusClass = (status) => {
     shipped: "bg-blue-100 text-blue-800",
     completed: "bg-emerald-100 text-emerald-800",
     cancelled: "bg-red-100 text-red-800",
+    invalid: "bg-red-100 text-red-800",
+    cancellation_requested: "bg-yellow-100 text-yellow-800",
   };
   return classes[status] || "bg-gray-100 text-gray-800";
 };
@@ -491,6 +611,34 @@ const updateStatus = (order, newStatus) => {
   submitStatusUpdate(order, newStatus);
 };
 
+const approveCancellation = async (order) => {
+  if (!confirm("Apakah Anda yakin ingin menyetujui pembatalan ini?")) return;
+  try {
+    await axios.post(
+      `http://127.0.0.1:8000/api/orders/${order.id}/approve-cancellation`
+    );
+    alert("Pembatalan disetujui.");
+    loadOrders();
+  } catch (err) {
+    console.error("Gagal menyetujui pembatalan:", err);
+    alert("Gagal memproses persetujuan.");
+  }
+};
+
+const rejectCancellation = async (order) => {
+  if (!confirm("Apakah Anda yakin ingin menolak pembatalan ini?")) return;
+  try {
+    await axios.post(
+      `http://127.0.0.1:8000/api/orders/${order.id}/reject-cancellation`
+    );
+    alert("Pembatalan ditolak.");
+    loadOrders();
+  } catch (err) {
+    console.error("Gagal menolak pembatalan:", err);
+    alert("Gagal memproses penolakan.");
+  }
+};
+
 const submitStatusUpdate = async (order, status, resi = null) => {
   try {
     const payload = { status };
@@ -521,6 +669,8 @@ const statusOptions = [
   { value: "packed", label: "Dikemas" },
   { value: "shipped", label: "Dikirim" },
   { value: "completed", label: "Selesai" },
+  { value: "cancellation_requested", label: "Pengajuan Pembatalan" },
   { value: "cancelled", label: "Dibatalkan" },
+  { value: "invalid", label: "Invalid" },
 ];
 </script>
