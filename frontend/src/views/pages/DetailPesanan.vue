@@ -25,13 +25,21 @@
         <!-- Informasi Toko -->
         <div class="bg-white rounded-xl shadow border border-gray-200 p-5">
           <div class="flex items-center gap-3">
-            <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
+            <div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
+              <img
+                v-if="order.toko?.user?.store_photo"
+                :src="`http://127.0.0.1:8000/storage/${order.toko.user.store_photo}`"
+                alt="Store Logo"
+                class="w-full h-full object-cover"
+              />
+              <div v-else class="w-full h-full bg-blue-100 flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
             </div>
             <div>
-              <h2 class="font-bold text-gray-800">{{ order.toko?.nama_toko || 'Toko Tidak Diketahui' }}</h2>
+              <h2 class="font-bold text-gray-800">{{ order.toko?.toko_name || 'Toko Tidak Diketahui' }}</h2>
               <p class="text-sm text-gray-600">ID Pesanan: #{{ String(order.id).padStart(4, '0') }}</p>
             </div>
           </div>
@@ -97,7 +105,11 @@
               :key="idx"
               class="flex gap-4"
             >
-              <div class="bg-gray-100 w-16 h-16 rounded-lg flex-shrink-0"></div>
+              <img
+                :src="item.variant?.gambar_varian ? `http://127.0.0.1:8000/storage/${item.variant.gambar_varian}` : 'https://via.placeholder.com/150'"
+                alt="Product Image"
+                class="w-16 h-16 rounded-lg object-cover flex-shrink-0 border border-gray-200"
+              />
               <div class="flex-1">
                 <h4 class="font-medium text-gray-800">
                   {{ item.variant?.product?.nama_produk || 'Produk Tidak Diketahui' }}

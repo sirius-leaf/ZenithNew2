@@ -243,7 +243,7 @@ class OrderController extends Controller
         $user = Auth::user();
 
         // Cari pesanan berdasarkan ID dan pastikan milik user yang login
-        $pesanan = Pesanan::with(['detailPesanans.variant.product', 'toko'])
+        $pesanan = Pesanan::with(['detailPesanans.variant.product', 'toko.user'])
             ->where('id', $id)
             ->where('user_id', $user->id)
             ->first();

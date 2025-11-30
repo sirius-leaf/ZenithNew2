@@ -345,6 +345,9 @@ onMounted(() => {
             >
               <div class="text-gray-700">
                 <div class="font-medium">{{ item.variant.product.nama_produk }}</div>
+                <div class="text-xs text-gray-500 mt-0.5" v-if="item.variant.nama_varian">
+                  {{ item.variant.nama_varian }}
+                </div>
                 <div class="text-xs text-gray-500 mt-1">x{{ item.kuantitas }}</div>
               </div>
               <span class="font-bold text-blue-800">
