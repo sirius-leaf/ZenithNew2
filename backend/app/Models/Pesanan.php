@@ -37,4 +37,9 @@ class Pesanan extends Model
     {
         return $this->hasMany(DetailPesanan::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'id_pesanan');
+    }
 }

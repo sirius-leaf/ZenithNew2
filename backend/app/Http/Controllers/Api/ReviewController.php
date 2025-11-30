@@ -15,54 +15,67 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'komentar' => 'required',
-            'rating' => 'required',
-            'id_produk' => 'required',
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'id_produk' => 'required|exists:products,id_produk',
+            'id_variant' => 'nullable|exists:variants,id_varian',
+            'id_pesanan' => 'required|exists:pesanans,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'komentar' => 'required|string',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $review = Review::create([
-            'komentar' => $validated['komentar'],
-            'rating' => $validated['rating'],
-            'id_produk' => $validated['id_produk'],
-            'id_user' => Auth::id(),
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Ulasan berhasil disimpan!',
-            'data' => $review
-        ]);
-    }
-
-    public function getReview($productId)
-    {
-        $review = Review::where('id_produk', $productId)
-            ->where('id_user', Auth::id())
-            ->first();
-
-        if ($review) {
-            return response()->json($review);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        return response()->json(null);
+        $user = Auth::user();
+
+        // Check if already reviewed
+        $existingReview = Review::where('id_pesanan', $request->id_pesanan)
+            ->where('id_produk', $request->id_produk)
+            ->where('id_variant', $request->id_variant)
+            ->first();
+
+        if ($existingReview) {
+            return response()->json(['message' => 'Anda sudah mengulas produk ini untuk pesanan ini.'], 400);
+        }
+
+        $review = Review::create([
+            'id_user' => $user->id,
+            'id_produk' => $request->id_produk,
+            'id_variant' => $request->id_variant,
+            'id_pesanan' => $request->id_pesanan,
+            'rating' => $request->rating,
+            'komentar' => $request->komentar,
+        ]);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('review_images', 'public');
+                \App\Models\ReviewImage::create([
+                    'id_review' => $review->id_ulasan,
+                    'image_path' => $path,
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Ulasan berhasil dikirim.', 'data' => $review], 201);
+    }
+
+    public function index($productId)
+    {
+        $reviews = Review::with(['user', 'images', 'variant'])
+            ->where('id_produk', $productId)
+            ->latest()
+            ->get();
+
+        return response()->json(['data' => $reviews]);
     }
 
     public function canReview($productId)
     {
-        $userId = Auth::id();
-
-        // Cek apakah user pernah membeli produk ini
-        $hasPurchased = DetailPesanan::whereHas('variant.product', function ($query) use ($productId) {
-            $query->where('id_produk', $productId); // atau 'id' jika primary key-nya id
-        })
-            ->whereHas('pesanan', function ($query) use ($userId) {
-                $query->where('user_id', $userId)
-                    ->where('status', 'paid'); // opsional: hanya pesanan selesai
-            })
-            ->exists();
-
-        return response()->json(['can_review' => $hasPurchased]);
+        // Deprecated or can be updated if needed, but we rely on order detail page now
+        return response()->json(['message' => 'Use order detail to review']);
     }
 
     /**

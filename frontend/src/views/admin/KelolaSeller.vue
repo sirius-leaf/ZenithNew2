@@ -98,6 +98,56 @@
                 </svg>
               </RouterLink>
 
+              <!-- ❄️ Freeze / Unfreeze -->
+              <button
+                v-if="!seller.toko?.is_frozen"
+                @click="openFreezeModal(seller)"
+                class="p-2 rounded-full text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
+                title="Bekukan Toko"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </button>
+              <button
+                v-else
+                @click="unfreezeStore(seller)"
+                class="p-2 rounded-full text-green-600 hover:bg-green-50 hover:text-green-700 transition-colors duration-150"
+                title="Cairkan Toko"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </button>
+
               <!-- 🗑️ Delete (opsional — bisa diimplementasi nanti) -->
               <button
                 class="p-2 rounded-full text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 disabled:opacity-50"
@@ -144,6 +194,46 @@
         <p class="mt-3">No seller found.</p>
       </div>
     </div>
+
+    <!-- Freeze Modal -->
+    <div
+      v-if="showFreezeModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
+    >
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-bold mb-4 text-gray-900">Bekukan Toko</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Apakah Anda yakin ingin membekukan toko
+          <span class="font-bold">{{ selectedSeller?.store_name }}</span
+          >? Seller tidak akan bisa menambah produk baru.
+        </p>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Alasan Pembekuan</label
+          >
+          <textarea
+            v-model="freezeReason"
+            class="w-full border rounded-md p-2 text-sm"
+            rows="3"
+            placeholder="Contoh: Melanggar syarat dan ketentuan..."
+          ></textarea>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button
+            @click="closeFreezeModal"
+            class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+          >
+            Batal
+          </button>
+          <button
+            @click="confirmFreeze"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Bekukan
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -155,6 +245,11 @@ const sellers = ref([]);
 const searchQuery = ref("");
 const loading = ref(false);
 
+// Freeze Logic
+const showFreezeModal = ref(false);
+const selectedSeller = ref(null);
+const freezeReason = ref("");
+
 onMounted(async () => {
   await fetchSellers();
 });
@@ -163,13 +258,14 @@ const fetchSellers = async () => {
   loading.value = true;
   try {
     // ✅ Tambahkan params: role=penjual
-    const res = await axios.get("/users", {
+    const res = await axios.get("http://127.0.0.1:8000/api/users", {
       params: {
         role: "penjual",
         search: searchQuery.value.trim(),
         page: 1,
         per_page: 10,
       },
+      headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
     });
     // Sesuaikan dengan struktur respons pagination
     sellers.value = res.data.data || res.data;
@@ -193,6 +289,65 @@ const filteredSellers = computed(() => {
       s.email.toLowerCase().includes(q)
   );
 });
+
+const openFreezeModal = (seller) => {
+  selectedSeller.value = seller;
+  freezeReason.value = "";
+  showFreezeModal.value = true;
+};
+
+const closeFreezeModal = () => {
+  showFreezeModal.value = false;
+  selectedSeller.value = null;
+};
+
+const confirmFreeze = async () => {
+  if (!selectedSeller.value || !selectedSeller.value.toko) {
+    alert("Data toko tidak valid.");
+    return;
+  }
+
+  try {
+    await axios.post(
+      `http://127.0.0.1:8000/api/manage/toko/${selectedSeller.value.toko.id}/freeze`,
+      {
+        reason: freezeReason.value,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      }
+    );
+    alert("Toko berhasil dibekukan.");
+    closeFreezeModal();
+    fetchSellers(); // Refresh data
+  } catch (e) {
+    console.error(e);
+    alert("Gagal membekukan toko.");
+  }
+};
+
+const unfreezeStore = async (seller) => {
+  if (!confirm(`Cairkan toko ${seller.store_name}?`)) return;
+
+  try {
+    await axios.post(
+      `http://127.0.0.1:8000/api/manage/toko/${seller.toko.id}/unfreeze`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      }
+    );
+    alert("Toko berhasil dicairkan.");
+    fetchSellers(); // Refresh data
+  } catch (e) {
+    console.error(e);
+    alert("Gagal mencairkan toko.");
+  }
+};
 </script>
 
 <style scoped>

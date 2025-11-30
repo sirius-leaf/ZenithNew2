@@ -50,7 +50,7 @@
         <!-- Status & Ringkasan -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Status -->
-          <div class="bg-white rounded-xl shadow border border-gray-200 p-5">
+          <div class="bg-white rounded-xl border border-gray-200 p-5">
             <h3 class="font-semibold text-gray-700 mb-3">Status Pesanan</h3>
             <div class="flex items-center gap-2">
               <span
@@ -82,7 +82,7 @@
           </div>
 
           <!-- Ringkasan Pembayaran -->
-          <div class="bg-white rounded-xl shadow border border-gray-200 p-5">
+          <div class="bg-white rounded-xl border border-gray-200 p-5">
             <h3 class="font-semibold text-gray-700 mb-3">Ringkasan</h3>
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
@@ -115,13 +115,13 @@
         </div>
 
         <!-- Alamat Pengiriman -->
-        <div class="bg-white rounded-xl shadow border border-gray-200 p-5">
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
           <h3 class="font-semibold text-gray-700 mb-3">Alamat Pengiriman</h3>
           <p class="text-gray-800">{{ order.alamat_pengiriman || "–" }}</p>
         </div>
 
         <!-- Daftar Produk -->
-        <div class="bg-white rounded-xl shadow border border-gray-200 p-5">
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
           <h3 class="font-semibold text-gray-700 mb-4">Produk</h3>
           <div class="space-y-4">
             <div
@@ -194,10 +194,190 @@
         <!-- Nomor Resi (jika ada) -->
         <div
           v-if="order.resi"
-          class="bg-white rounded-xl shadow border border-gray-200 p-5"
+          class="bg-white rounded-xl border border-gray-200 p-5"
         >
           <h3 class="font-semibold text-gray-700 mb-2">Nomor Resi</h3>
           <p class="text-blue-800 font-medium">{{ order.resi }}</p>
+        </div>
+
+        <!-- Ulas Produk (Only if completed) -->
+        <div
+          v-if="order.status === 'completed'"
+          class="bg-white rounded-xl border border-gray-200 p-5"
+        >
+          <h3 class="font-semibold text-gray-700 mb-4">Ulas Produk</h3>
+          <div class="space-y-6">
+            <div
+              v-for="(item, idx) in order.detail_pesanans"
+              :key="idx"
+              class="border-b border-gray-100 pb-6 last:border-0"
+            >
+              <div class="flex gap-4 mb-4">
+                <img
+                  :src="
+                    item.variant?.gambar_varian
+                      ? item.variant.gambar_varian.startsWith('http')
+                        ? item.variant.gambar_varian
+                        : `http://127.0.0.1:8000/storage/${item.variant.gambar_varian}`
+                      : 'https://via.placeholder.com/150'
+                  "
+                  class="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                />
+                <div>
+                  <h4 class="font-medium text-gray-800">
+                    {{ item.variant?.product?.nama_produk }}
+                  </h4>
+                  <p class="text-sm text-pink-600">
+                    {{ item.variant?.nama_varian }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Review Form or Existing Review -->
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <div v-if="getExistingReview(item)">
+                  <!-- Display Existing Review -->
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="flex">
+                      <svg
+                        v-for="i in 5"
+                        :key="i"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        :class="
+                          i <= getExistingReview(item).rating
+                            ? 'text-yellow-400'
+                            : 'text-gray-300'
+                        "
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path
+                          d="M12 2.5L14.8 9.2L21.5 12L14.8 14.8L12 21.5L9.2 14.8L2.5 12L9.2 9.2L12 2.5Z"
+                        />
+                      </svg>
+                    </div>
+                    <span class="text-sm text-gray-500"
+                      >Dinilai pada
+                      {{ formatDate(getExistingReview(item).created_at) }}</span
+                    >
+                  </div>
+                  <p class="text-gray-700 text-sm mb-3">
+                    {{ getExistingReview(item).komentar }}
+                  </p>
+                  <div
+                    v-if="
+                      getExistingReview(item).images &&
+                      getExistingReview(item).images.length > 0
+                    "
+                    class="flex gap-2"
+                  >
+                    <img
+                      v-for="img in getExistingReview(item).images"
+                      :key="img.id"
+                      :src="
+                        img.image_path.startsWith('http')
+                          ? img.image_path
+                          : `http://127.0.0.1:8000/storage/${img.image_path}`
+                      "
+                      class="w-16 h-16 object-cover rounded-md border border-gray-200"
+                    />
+                  </div>
+                </div>
+
+                <div v-else>
+                  <!-- Rating Input -->
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >Rating</label
+                    >
+                    <div class="flex gap-1">
+                      <button
+                        v-for="star in 5"
+                        :key="star"
+                        @click="setRating(item.id, star)"
+                        type="button"
+                        class="focus:outline-none"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-6 w-6 transition-colors"
+                          :class="
+                            getRating(item.id) >= star
+                              ? 'text-yellow-400'
+                              : 'text-gray-300'
+                          "
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path
+                            d="M12 2.5L14.8 9.2L21.5 12L14.8 14.8L12 21.5L9.2 14.8L2.5 12L9.2 9.2L12 2.5Z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Comment Input -->
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >Ulasan</label
+                    >
+                    <textarea
+                      v-model="reviews[item.id].komentar"
+                      rows="3"
+                      class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      placeholder="Tulis ulasan Anda di sini..."
+                    ></textarea>
+                  </div>
+
+                  <!-- Image Upload -->
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >Foto (Maks 5)</label
+                    >
+                    <div class="flex items-center gap-4">
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        @change="(e) => handleImageUpload(e, item.id)"
+                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                      />
+                      <span class="text-xs text-gray-500"
+                        >{{ reviews[item.id].images.length }} files
+                        selected.</span
+                      >
+                    </div>
+                    <div
+                      v-if="reviews[item.id].images.length > 0"
+                      class="flex gap-2 mt-2"
+                    >
+                      <div
+                        v-for="(img, i) in reviews[item.id].previews"
+                        :key="i"
+                        class="w-16 h-16 rounded border overflow-hidden"
+                      >
+                        <img :src="img" class="w-full h-full object-cover" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    @click="submitReview(item)"
+                    :disabled="reviews[item.id].submitting"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {{
+                      reviews[item.id].submitting
+                        ? "Mengirim..."
+                        : "Kirim Ulasan"
+                    }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Aksi: Konfirmasi Diterima -->
@@ -311,7 +491,94 @@ const goToStore = (storeId) => {
   }
 };
 
-onMounted(() => {
-  fetchOrder();
+const reviews = ref({});
+
+const initReviewState = () => {
+  if (order.value && order.value.detail_pesanans) {
+    order.value.detail_pesanans.forEach((item) => {
+      reviews.value[item.id] = {
+        rating: 0,
+        komentar: "",
+        images: [],
+        previews: [],
+        submitting: false,
+      };
+    });
+  }
+};
+
+const setRating = (itemId, rating) => {
+  if (reviews.value[itemId]) {
+    reviews.value[itemId].rating = rating;
+  }
+};
+
+const getRating = (itemId) => {
+  return reviews.value[itemId]?.rating || 0;
+};
+
+const handleImageUpload = (event, itemId) => {
+  const files = Array.from(event.target.files);
+  if (files.length > 5) {
+    alert("Maksimal 5 gambar.");
+    return;
+  }
+
+  reviews.value[itemId].images = files;
+  reviews.value[itemId].previews = files.map((file) =>
+    URL.createObjectURL(file)
+  );
+};
+
+const getExistingReview = (item) => {
+  if (!order.value.reviews) return null;
+  return order.value.reviews.find((r) => r.id_variant === item.id_varian);
+};
+
+const submitReview = async (item) => {
+  const reviewData = reviews.value[item.id];
+  if (reviewData.rating === 0) {
+    alert("Silakan beri rating.");
+    return;
+  }
+  if (!reviewData.komentar) {
+    alert("Silakan tulis komentar.");
+    return;
+  }
+
+  reviewData.submitting = true;
+  try {
+    const formData = new FormData();
+    formData.append("id_pesanan", orderId);
+    formData.append("id_produk", item.variant.product.id_produk);
+    formData.append("id_variant", item.variant.id_varian);
+    formData.append("rating", reviewData.rating);
+    formData.append("komentar", reviewData.komentar);
+
+    reviewData.images.forEach((file, index) => {
+      formData.append(`images[${index}]`, file);
+    });
+
+    const token = localStorage.getItem("authToken");
+    await axios.post("http://127.0.0.1:8000/api/reviews", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    alert("Ulasan berhasil dikirim!");
+    // Optional: Hide form or mark as reviewed
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Gagal mengirim ulasan.");
+  } finally {
+    reviewData.submitting = false;
+  }
+};
+
+onMounted(async () => {
+  await fetchOrder();
+  initReviewState();
 });
 </script>

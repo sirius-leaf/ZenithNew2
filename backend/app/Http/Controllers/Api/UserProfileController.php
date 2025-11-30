@@ -14,7 +14,7 @@ class UserProfileController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        return response()->json($request->user());
+        return response()->json($request->user()->load('toko'));
     }
 
     /**

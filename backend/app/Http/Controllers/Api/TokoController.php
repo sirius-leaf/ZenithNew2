@@ -139,4 +139,42 @@ class TokoController extends Controller
 
         return response()->json($users);
     }
+
+    /**
+     * Freeze a store (Admin only).
+     */
+    public function freeze(Request $request, $id)
+    {
+        // Ensure admin
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $toko = Toko::findOrFail($id);
+        $toko->update([
+            'is_frozen' => true,
+            'frozen_reason' => $request->input('reason', 'Violation of terms'),
+        ]);
+
+        return response()->json(['message' => 'Toko berhasil dibekukan.', 'data' => $toko]);
+    }
+
+    /**
+     * Unfreeze a store (Admin only).
+     */
+    public function unfreeze($id)
+    {
+        // Ensure admin
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $toko = Toko::findOrFail($id);
+        $toko->update([
+            'is_frozen' => false,
+            'frozen_reason' => null,
+        ]);
+
+        return response()->json(['message' => 'Toko berhasil dicairkan.', 'data' => $toko]);
+    }
 }
