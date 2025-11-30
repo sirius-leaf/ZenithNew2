@@ -102,7 +102,7 @@
     <Teleport to="body">
       <div
         v-if="showFreezeModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
+        class="fixed inset-0 z-[70] flex items-center justify-center bg-white/10 backdrop-blur-sm"
       >
         <div
           class="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl border border-gray-100"
@@ -615,8 +615,6 @@ const confirmFreeze = async () => {
       }
     );
     alert("Toko berhasil dibekukan.");
-    closeFreezeModal();
-    fetchSellers(); // Refresh data
 
     // Update detail modal state if open and matching
     if (
@@ -625,6 +623,9 @@ const confirmFreeze = async () => {
     ) {
       selectedDetail.value.is_frozen = 1;
     }
+
+    fetchSellers(); // Refresh data
+    closeFreezeModal();
   } catch (e) {
     console.error(e);
     alert("Gagal membekukan toko.");

@@ -1,15 +1,17 @@
 <template>
   <div class="container mx-auto px-4 py-8">
     <!-- Toggle Switch -->
-    <div class="flex justify-center mb-8">
-      <div class="bg-gray-100 p-1 rounded-full inline-flex">
+    <div class="flex justify-center mb-10">
+      <div
+        class="bg-white p-1.5 rounded-full inline-flex shadow-md border border-gray-100"
+      >
         <button
           @click="activeTab = 'user'"
           :class="[
-            'px-6 py-2 rounded-full text-sm font-medium transition-all duration-200',
+            'px-8 py-3 rounded-full text-base font-bold transition-all duration-300 transform',
             activeTab === 'user'
-              ? 'bg-white text-blue-600 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700',
+              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
           ]"
         >
           Kelola User
@@ -17,10 +19,10 @@
         <button
           @click="activeTab = 'seller'"
           :class="[
-            'px-6 py-2 rounded-full text-sm font-medium transition-all duration-200',
+            'px-8 py-3 rounded-full text-base font-bold transition-all duration-300 transform',
             activeTab === 'seller'
-              ? 'bg-white text-pink-600 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700',
+              ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-lg scale-105'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
           ]"
         >
           Kelola Seller
