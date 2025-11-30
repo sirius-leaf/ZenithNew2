@@ -54,6 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::patch('/order/{id}/status', [OrderController::class, 'updateStatus']);
     Route::get('/manage/orders', [OrderController::class, 'sellerIndex']); // <-- Route baru untuk seller
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
+    Route::post('/orders/{id}/approve-cancellation', [OrderController::class, 'approveCancellation']);
+    Route::post('/orders/{id}/reject-cancellation', [OrderController::class, 'rejectCancellation']);
+    Route::post('/orders/{id}/pay', [OrderController::class, 'markAsPaid']); // <-- Route cancel order
     Route::post('/payment/simulate/{order_id}', [PaymentController::class, 'simulate']);
 
     Route::get('/profile', [UserProfileController::class, 'me']);

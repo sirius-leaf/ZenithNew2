@@ -117,8 +117,20 @@ const finalizeCheckout = async () => {
       // Jika Transfer/Online, Buka Popup Midtrans Snap
       if (window.snap && snapToken) {
         window.snap.pay(snapToken, {
-          onSuccess: function (result) {
+          onSuccess: async function (result) {
             console.log("Payment Success:", result);
+            // Panggil API untuk update status jadi 'paid'
+            try {
+              for (const orderId of orderIds) {
+                await axios.post(
+                  `http://127.0.0.1:8000/api/orders/${orderId}/pay`,
+                  {},
+                  { headers: { Authorization: `Bearer ${token}` } }
+                );
+              }
+            } catch (e) {
+              console.error("Gagal update status paid:", e);
+            }
             handleSuccess(orderIds);
           },
           onPending: function (result) {
@@ -172,15 +184,27 @@ onMounted(() => {
   <div class="font-ubuntu container mx-auto p-4 md:p-8">
     <div class="flex items-center gap-3 mb-8">
       <div class="bg-pink-100 p-2 rounded-lg">
-        <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        <svg
+          class="w-6 h-6 text-pink-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+          />
         </svg>
       </div>
       <h1 class="text-3xl font-bold text-blue-800">Proses Checkout</h1>
     </div>
 
     <div v-if="loading" class="text-center py-10 text-gray-500">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500 mb-3"></div>
+      <div
+        class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500 mb-3"
+      ></div>
       Memuat data checkout...
     </div>
 
@@ -199,20 +223,51 @@ onMounted(() => {
 
     <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Kolom Kiri: Form Checkout -->
-      <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md border border-gray-200">
-        <h2 class="text-xl font-bold mb-5 text-blue-800 flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      <div
+        class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md border border-gray-200"
+      >
+        <h2
+          class="text-xl font-bold mb-5 text-blue-800 flex items-center gap-2"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            />
           </svg>
           Detail Pengiriman
         </h2>
 
         <form @submit.prevent="finalizeCheckout" class="space-y-5">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
-              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <label
+              class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1"
+            >
+              <svg
+                class="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
               </svg>
               Nama Penerima
             </label>
@@ -225,9 +280,21 @@ onMounted(() => {
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
-              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <label
+              class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1"
+            >
+              <svg
+                class="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
               </svg>
               Email
             </label>
@@ -240,10 +307,27 @@ onMounted(() => {
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
-              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            <label
+              class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1"
+            >
+              <svg
+                class="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
               </svg>
               Alamat Pengiriman Lengkap <span class="text-pink-600">*</span>
             </label>
@@ -256,14 +340,29 @@ onMounted(() => {
             ></textarea>
           </div>
 
-          <div v-if="apiError" class="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+          <div
+            v-if="apiError"
+            class="p-3 bg-red-100 text-red-700 rounded-lg text-sm"
+          >
             {{ apiError }}
           </div>
 
           <div class="pt-4 border-t border-gray-200">
-            <h3 class="text-md font-semibold text-blue-800 mb-3 flex items-center gap-2">
-              <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <h3
+              class="text-md font-semibold text-blue-800 mb-3 flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5 text-pink-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               Pilih Metode Pembayaran
             </h3>
@@ -272,7 +371,11 @@ onMounted(() => {
               <!-- Midtrans -->
               <label
                 class="flex items-start p-4 border rounded-xl cursor-pointer transition-all hover:shadow-sm"
-                :class="paymentMethod === 'transfer' ? 'border-pink-500 bg-pink-50' : 'border-gray-300'"
+                :class="
+                  paymentMethod === 'transfer'
+                    ? 'border-pink-500 bg-pink-50'
+                    : 'border-gray-300'
+                "
               >
                 <input
                   type="radio"
@@ -282,7 +385,9 @@ onMounted(() => {
                   class="form-radio h-5 w-5 text-pink-600 focus:ring-pink-500 mt-1"
                 />
                 <div class="ml-4">
-                  <p class="font-medium text-gray-800">Pembayaran Online (Midtrans)</p>
+                  <p class="font-medium text-gray-800">
+                    Pembayaran Online (Midtrans)
+                  </p>
                   <p class="text-xs text-gray-600 mt-1">
                     Transfer Bank, GoPay, ShopeePay, QRIS — aman & instan.
                   </p>
@@ -292,7 +397,11 @@ onMounted(() => {
               <!-- COD -->
               <label
                 class="flex items-start p-4 border rounded-xl cursor-pointer transition-all hover:shadow-sm"
-                :class="paymentMethod === 'cod' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'"
+                :class="
+                  paymentMethod === 'cod'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-300'
+                "
               >
                 <input
                   type="radio"
@@ -316,8 +425,19 @@ onMounted(() => {
             :disabled="loadingCheckout || apiError"
             class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3.5 rounded-xl transition-all disabled:bg-gray-300 flex justify-center items-center gap-2 shadow-md hover:shadow-lg"
           >
-            <svg v-if="!loadingCheckout" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            <svg
+              v-if="!loadingCheckout"
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
             </svg>
             <span v-if="loadingCheckout">Memproses...</span>
             <span v-else>Bayar Sekarang</span>
@@ -327,10 +447,22 @@ onMounted(() => {
 
       <!-- Kolom Kanan: Ringkasan -->
       <div class="lg:col-span-1">
-        <div class="bg-white p-6 rounded-xl shadow-inner border border-gray-200 sticky top-6">
+        <div
+          class="bg-white p-6 rounded-xl shadow-inner border border-gray-200 sticky top-6"
+        >
           <div class="flex items-center gap-2 mb-4">
-            <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <svg
+              class="w-5 h-5 text-pink-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
             </svg>
             <h2 class="text-xl font-bold text-blue-800">
               Ringkasan ({{ totalItems }} Item)
@@ -344,21 +476,35 @@ onMounted(() => {
               class="flex justify-between text-sm py-2 border-b border-gray-100 last:border-0"
             >
               <div class="text-gray-700">
-                <div class="font-medium">{{ item.variant.product.nama_produk }}</div>
-                <div class="text-xs text-gray-500 mt-0.5" v-if="item.variant.nama_varian">
+                <div class="font-medium">
+                  {{ item.variant.product.nama_produk }}
+                </div>
+                <div
+                  class="text-xs text-gray-500 mt-0.5"
+                  v-if="item.variant.nama_varian"
+                >
                   {{ item.variant.nama_varian }}
                 </div>
-                <div class="text-xs text-gray-500 mt-1">x{{ item.kuantitas }}</div>
+                <div class="text-xs text-gray-500 mt-1">
+                  x{{ item.kuantitas }}
+                </div>
               </div>
               <span class="font-bold text-blue-800">
-                Rp {{ (item.variant.harga * item.kuantitas).toLocaleString("id-ID") }}
+                Rp
+                {{
+                  (item.variant.harga * item.kuantitas).toLocaleString("id-ID")
+                }}
               </span>
             </div>
           </div>
 
-          <div class="flex justify-between text-xl font-bold mt-5 pt-4 border-t border-gray-300">
+          <div
+            class="flex justify-between text-xl font-bold mt-5 pt-4 border-t border-gray-300"
+          >
             <span>Total Bayar</span>
-            <span class="text-pink-600">Rp {{ totalPrice.toLocaleString("id-ID") }}</span>
+            <span class="text-pink-600"
+              >Rp {{ totalPrice.toLocaleString("id-ID") }}</span
+            >
           </div>
         </div>
       </div>
