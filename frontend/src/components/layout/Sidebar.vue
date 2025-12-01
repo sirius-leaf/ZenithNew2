@@ -43,7 +43,7 @@ const route = useRoute()
 
 const menuItems = [
   { label: 'Beranda', path: '/dashboard' },
-  { label: 'Manage PC Build', path: '/dashboard/manage/pcBuild' }
+  { label: 'Desktop Lab', path: '/dashboard/manage/desktopLab' }
 ]
 
 // Fungsi untuk cek apakah route saat ini sama dengan path menu

@@ -47,17 +47,17 @@ const modal = ref({
 });
 
 const componentList = [
-  { key: 'motherboard', label: 'Motherboard' },
-  { key: 'cpu', label: 'CPU' },
-  { key: 'ram', label: 'RAM' },
-  { key: 'psu', label: 'Power Supply' },
-  { key: 'storage', label: 'Storage' },
-  { key: 'cooler', label: 'CPU Cooler' },
-  { key: 'video-card', label: 'Video Card' },
-  { key: 'case', label: 'Case' },
-  { key: 'monitor', label: 'Monitor' },
-  { key: 'mouse', label: 'Mouse' },
-  { key: 'keyboard', label: 'Keyboard' },
+  { key: 'motherboard', label: 'Motherboard', category: 'Motherboard' },
+  { key: 'cpu', label: 'CPU', category: 'Processor' },
+  { key: 'ram', label: 'RAM', category: 'RAM' },
+  { key: 'psu', label: 'Power Supply', category: 'Power Supply' },
+  { key: 'storage', label: 'Storage', category: 'Storage' },
+  { key: 'cooler', label: 'CPU Cooler', category: 'Cooler' },
+  { key: 'video-card', label: 'Video Card', category: 'VGA Card' },
+  { key: 'case', label: 'Case', category: 'Casing PC' },
+  { key: 'monitor', label: 'Monitor', category: 'Monitor' },
+  { key: 'mouse', label: 'Mouse', category: 'Mouse' },
+  { key: 'keyboard', label: 'Keyboard', category: 'Keyboard' },
 ];
 
 const errorMessage = ref(null);
@@ -138,7 +138,7 @@ const updateBuild = async () => {
     );
 
     successMessage.value = "Berhasil memperbarui build!";
-    setTimeout(() => router.push("/dashboard/manage/pcBuild"), 1000);
+    setTimeout(() => router.push("/dashboard/manage/desktopLab"), 1000);
   } catch (err) {
     errorMessage.value = err.response?.data?.message || "Gagal update data.";
   } finally {
@@ -265,6 +265,7 @@ const updateBuild = async () => {
       :key="'modal-' + comp.key"
       :open="modal[comp.key]"
       :label="comp.label"
+      :category="comp.category"
       :products="products"
       @close="modal[comp.key] = false"
       @select="(id) => { form.komponen[comp.key].produk = id; updateHarga(); }"

@@ -24,11 +24,7 @@ const hero = "/src/assets/hero.png";
         >
           Shop Now
         </router-link>
-        <button
-          class="border border-pink-600 text-pink-600 px-6 py-3 rounded-lg hover:bg-pink-600 hover:text-white transition"
-        >
-          Open Store Now
-        </button>
+
       </div>
     </div>
 

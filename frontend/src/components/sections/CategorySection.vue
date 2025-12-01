@@ -74,7 +74,7 @@ const getImage = (file) =>
       <!-- Optional: View All Button -->
       <div class="text-center mt-10">
         <RouterLink
-          to="/categories"
+          to="/searching"
           class="inline-flex items-center px-6 py-3 bg-pink-600 text-white font-medium rounded-xl hover:bg-pink-400 transition-colors shadow-sm hover:shadow-md"
         >
           <span>Lihat Semua Kategori</span>

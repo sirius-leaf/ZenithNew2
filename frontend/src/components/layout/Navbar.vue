@@ -138,7 +138,7 @@ const handleSearch = () => {
       <!-- Desktop Lab Button -->
       <RouterLink
         v-if="!user || user.role !== 'admin'"
-        to="/dashboard/manage/pcBuild"
+        to="/dashboard/manage/desktopLab"
         class="hidden md:inline-flex items-center px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-sm whitespace-nowrap ml-auto"
       >
         <img :src="desktopIcon" alt="Desktop Lab" class="w-5 h-5 mr-2" />

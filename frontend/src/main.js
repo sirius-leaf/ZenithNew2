@@ -182,10 +182,10 @@ const router = createRouter({
       component: ProdukEdit,
     },
 
-    { path: "/dashboard/manage/pcBuild", component: PcBuildIndex },
-    { path: "/dashboard/manage/pcBuild/create", component: PcBuildCreate },
+    { path: "/dashboard/manage/desktopLab", component: PcBuildIndex },
+    { path: "/dashboard/manage/desktopLab/create", component: PcBuildCreate },
     {
-      path: "/dashboard/manage/pcBuild/:id/edit",
+      path: "/dashboard/manage/desktopLab/:id/edit",
       component: PcBuildEdit,
       props: true,
     },

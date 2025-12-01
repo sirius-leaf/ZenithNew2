@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Variant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -13,7 +14,7 @@ class BuildDetail extends Model
 
     public function variant()
     {
-        return $this->belongsTo(Product::class, 'id_varian');
+        return $this->belongsTo(Variant::class, 'id_varian', 'id_varian');
     }
 
     public function pcBuild()

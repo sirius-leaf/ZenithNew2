@@ -19,7 +19,7 @@ class PcBuildController extends Controller
     {
         $pcBuild = Auth::user()
             ->pcBuild()
-            ->with('buildDetail.variant')
+            ->with('buildDetail.variant.product')
             ->get();
 
         return response()->json([
@@ -34,7 +34,7 @@ class PcBuildController extends Controller
      */
     public function products()
     {
-        $products = Product::with('variant', 'toko')->get();
+        $products = Product::with('variant', 'toko', 'categoryDetail.category')->get();
         $variants = Variant::all();
 
         return response()->json([
@@ -53,17 +53,17 @@ class PcBuildController extends Controller
         $validated = $request->validate([
             'nama_build' => 'required',
             'komponen' => 'required|array',
-            'komponen.motherboard' => 'required',
-            'komponen.cpu' => 'required',
-            'komponen.ram' => 'required',
-            'komponen.psu' => 'required',
-            'komponen.storage' => 'required',
-            'komponen.cooler' => 'required',
-            'komponen.video-card' => 'required',
-            'komponen.case' => 'required',
-            'komponen.monitor' => 'required',
-            'komponen.mouse' => 'required',
-            'komponen.keyboard' => 'required',
+            'komponen.motherboard' => 'nullable',
+            'komponen.cpu' => 'nullable',
+            'komponen.ram' => 'nullable',
+            'komponen.psu' => 'nullable',
+            'komponen.storage' => 'nullable',
+            'komponen.cooler' => 'nullable',
+            'komponen.video-card' => 'nullable',
+            'komponen.case' => 'nullable',
+            'komponen.monitor' => 'nullable',
+            'komponen.mouse' => 'nullable',
+            'komponen.keyboard' => 'nullable',
         ]);
 
         $build = PcBuild::create([
@@ -72,10 +72,12 @@ class PcBuildController extends Controller
         ]);
 
         foreach ($validated['komponen'] as $bagian => $produk) {
-            $build->buildDetail()->create([
-                'id_varian' => $produk,
-                'bagian_komponen' => $bagian,
-            ]);
+            if ($produk) { // Only create if product is selected
+                $build->buildDetail()->create([
+                    'id_varian' => $produk,
+                    'bagian_komponen' => $bagian,
+                ]);
+            }
         }
 
         return response()->json([
@@ -91,7 +93,7 @@ class PcBuildController extends Controller
      */
     public function show($id)
     {
-        $build = PcBuild::with('buildDetail.variant')->findOrFail($id);
+        $build = PcBuild::with('buildDetail.variant.product')->findOrFail($id);
 
         return response()->json([
             'status' => 'success',
@@ -110,17 +112,34 @@ class PcBuildController extends Controller
         $validated = $request->validate([
             'nama_build' => 'required',
             'komponen' => 'required|array',
-            'komponen.*.id' => 'required|numeric',
-            'komponen.*.produk' => 'required|numeric',
+            'komponen.*.id' => 'nullable|numeric', // Detail ID might be null if adding new component
+            'komponen.*.produk' => 'nullable|numeric', // Product ID can be null if removing
         ]);
 
         foreach ($validated['komponen'] as $bagian => $item) {
-            $detail = $build->buildDetail()->find($item['id']);
-            if ($detail) {
-                $detail->update([
-                    'id_varian' => $item['produk'],
-                    'bagian_komponen' => $bagian,
-                ]);
+            // Check if we have an existing detail ID
+            if (isset($item['id']) && $item['id']) {
+                $detail = $build->buildDetail()->find($item['id']);
+                if ($detail) {
+                    if ($item['produk']) {
+                        // Update existing component
+                        $detail->update([
+                            'id_varian' => $item['produk'],
+                            'bagian_komponen' => $bagian,
+                        ]);
+                    } else {
+                        // Remove component if product is null
+                        $detail->delete();
+                    }
+                }
+            } else {
+                // No existing detail ID, check if we need to create one
+                if (isset($item['produk']) && $item['produk']) {
+                    $build->buildDetail()->create([
+                        'id_varian' => $item['produk'],
+                        'bagian_komponen' => $bagian,
+                    ]);
+                }
             }
         }
 
