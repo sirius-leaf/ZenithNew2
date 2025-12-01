@@ -21,14 +21,15 @@ class LoginController extends Controller
         $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
-            'recaptcha' => ['required'],
+            // 'recaptcha' => ['required'],
         ]);
 
-        if (!$recaptchaService->verify($request->recaptcha)) {
-            return response()->json([
-                'message' => 'Recaptcha verification failed.'
-            ], 422);
-        }
+        //
+        // if (!$recaptchaService->verify($request->recaptcha)) {
+        //     return response()->json([
+        //         'message' => 'Recaptcha verification failed.'
+        //     ], 422);
+        // }
 
         // ✅ Gunakan Auth::attempt() agar kompatibel dengan Sanctum & middleware
         $credentials = $request->only('email', 'password');

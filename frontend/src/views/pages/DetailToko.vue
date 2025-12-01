@@ -120,6 +120,13 @@
                   >
                 </div>
               </div>
+              <div class="flex items-center gap-3 ml-4">
+                <button @click="openStoreReviewForm"
+                  class="px-4 py-1.5 border border-pink-600 text-pink-600 font-semibold rounded-lg text-sm hover:bg-pink-50 transition"
+                >
+                  Beri Rating
+                </button>
+              </div>
             </div>
 
             <!-- Description -->
@@ -224,20 +231,73 @@
       </div>
     </div>
   </div>
+  <!-- Login Required Modal -->
+  <div
+    v-if="showLoginModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
+  >
+    <div class="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
+      <div class="mb-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-12 w-12 text-pink-600 mx-auto"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+          />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-2">Login Diperlukan</h3>
+      <p class="text-gray-600 mb-6">
+        Tertarik dengan toko ini? Silahkan login terlebih dahulu.
+      </p>
+      <div class="flex gap-3">
+        <button
+          @click="showLoginModal = false"
+          class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+        >
+          Batal
+        </button>
+        <button
+          @click="$router.push('/login')"
+          class="flex-1 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition"
+        >
+          Login
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 
 const route = useRoute();
+const router = useRouter();
 const tokoId = route.params.id;
 
 const toko = ref({});
 const products = ref([]);
 const loading = ref(true);
 const ratingToko = ref({ "rata-rata": 0, jumlah: 0 });
+const showLoginModal = ref(false);
+
+const openStoreReviewForm = () => {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showLoginModal.value = true;
+    return;
+  }
+  router.push({ name: 'review.create', params: { type: 'toko', id: tokoId } });
+};
 
 const storeName = computed(() => {
   if (toko.value && toko.value.user && toko.value.user.store_name) {

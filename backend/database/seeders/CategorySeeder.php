@@ -14,10 +14,9 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        // Disable foreign key checks to allow truncation
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Category::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // Delete existing categories instead of truncate to avoid DB-specific commands
+        // and to stay compatible with SQLite, MySQL, etc.
+        Category::query()->delete();
 
         $categories = [
             'Laptop',

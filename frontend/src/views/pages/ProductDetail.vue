@@ -109,6 +109,15 @@ const handleBuyNow = () => {
 // State untuk modal login
 const showLoginModal = ref(false);
 
+const openReviewForm = () => {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showLoginModal.value = true;
+    return;
+  }
+  router.push({ name: 'review.create', params: { type: 'product', id: route.params.id } });
+};
+
 // Fungsi untuk tombol "Keranjang"
 const handleAddToCart = () => {
   // Cek Login
@@ -453,6 +462,15 @@ onMounted(() => {
         </div>
 
         <!-- Product Reviews -->
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold text-gray-900 mb-0">Ulasan Pembeli</h2>
+          <button
+            @click="openReviewForm"
+            class="px-3 py-1 bg-pink-600 text-white rounded-md text-sm hover:bg-pink-700 transition"
+          >
+            Tulis Ulasan
+          </button>
+        </div>
         <ProductReviews
           :reviews="reviews"
           :averageRating="rating?.['rata-rata'] || 0"

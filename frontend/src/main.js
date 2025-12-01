@@ -39,6 +39,7 @@ import Profile from "./views/pages/ProfileUser.vue";
 import EditProfile from "./views/pages/EditProfile.vue";
 import OrderHistory from "./views/pages/OrderHistory.vue";
 import DetailToko from "./views/pages/DetailToko.vue";
+import RatingForm from "./views/pages/RatingForm.vue";
 import ManageStore from "./views/pages/ManageStore.vue";
 import NotFound from "./views/pages/NotFound.vue";
 import KelolaPesanan from "./views/pages/KelolaPesanan.vue";
@@ -124,6 +125,12 @@ const router = createRouter({
       path: "/toko",
       name: "toko.manage",
       component: ManageStore,
+    },
+    {
+      path: "/review/:type/:id",
+      name: "review.create",
+      component: RatingForm,
+      props: true,
     },
     {
       path: "/pesanan",
