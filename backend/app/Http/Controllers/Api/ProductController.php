@@ -357,6 +357,8 @@ class ProductController extends Controller
                 'nama_produk' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
                 'merek' => 'required|string|max:255',
+                'kategori' => 'array',
+                'kategori.*' => 'exists:categories,id_kategori',
                 'detail' => 'array',
                 'detail.*.id' => 'nullable|exists:category_details,id',
                 'detail.*.kategori' => 'required|exists:categories,id_kategori',
@@ -381,24 +383,34 @@ class ProductController extends Controller
                 $product->update($request->only('nama_produk', 'merek', 'deskripsi'));
 
                 // --- Handle Categories ---
-                $existingDetailIds = $product->categoryDetail->pluck('id')->toArray();
-                $incomingDetailIds = collect($request->detail)->pluck('id')->filter()->toArray();
-
-                // Delete removed categories
-                $toDeleteCategory = array_diff($existingDetailIds, $incomingDetailIds);
-                if (!empty($toDeleteCategory)) {
-                    $product->categoryDetail()->whereIn('id', $toDeleteCategory)->delete();
-                }
-
-                // Update or create categories
-                foreach ($request->detail as $d) {
-                    if (!empty($d['id'])) {
-                        $detail = $product->categoryDetail()->find($d['id']);
-                        if ($detail) {
-                            $detail->update(['id_kategori' => $d['kategori']]);
+                if ($request->has('kategori')) {
+                    // Simple sync: delete all and recreate
+                    $product->categoryDetail()->delete();
+                    if (is_array($request->kategori)) {
+                        foreach ($request->kategori as $kId) {
+                            $product->categoryDetail()->create(['id_kategori' => $kId]);
                         }
-                    } else {
-                        $product->categoryDetail()->create(['id_kategori' => $d['kategori']]);
+                    }
+                } elseif ($request->has('detail')) {
+                    $existingDetailIds = $product->categoryDetail->pluck('id')->toArray();
+                    $incomingDetailIds = collect($request->detail)->pluck('id')->filter()->toArray();
+
+                    // Delete removed categories
+                    $toDeleteCategory = array_diff($existingDetailIds, $incomingDetailIds);
+                    if (!empty($toDeleteCategory)) {
+                        $product->categoryDetail()->whereIn('id', $toDeleteCategory)->delete();
+                    }
+
+                    // Update or create categories
+                    foreach ($request->detail as $d) {
+                        if (!empty($d['id'])) {
+                            $detail = $product->categoryDetail()->find($d['id']);
+                            if ($detail) {
+                                $detail->update(['id_kategori' => $d['kategori']]);
+                            }
+                        } else {
+                            $product->categoryDetail()->create(['id_kategori' => $d['kategori']]);
+                        }
                     }
                 }
 
