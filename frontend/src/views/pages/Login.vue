@@ -97,7 +97,7 @@
           </div>
 
           <!-- Recaptcha temporarily disabled -->
-          <!-- <div id="recaptcha-box" class="w-full flex justify-center"></div> -->
+          <div id="recaptcha-box" class="w-full flex justify-center"></div>
 
           <!-- Error Message -->
           <div
@@ -164,6 +164,10 @@ const form = ref({
 });
 
 onMounted(() => {
+  window.onCaptchaSuccess = (token) => {
+    form.value.recaptcha = token;
+  };
+
   const interval = setInterval(() => {
     if (window.grecaptcha) {
       window.grecaptcha.render("recaptcha-box", {
@@ -184,7 +188,7 @@ const loginUser = async () => {
 
   try {
     // Recaptcha temporarily disabled
-    form.value.recaptcha = "dummy-token";
+    // form.value.recaptcha = "dummy-token";
 
     const response = await axios.post("http://127.0.0.1:8000/api/login", {
       email: form.value.email,
