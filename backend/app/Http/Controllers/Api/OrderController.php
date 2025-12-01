@@ -436,13 +436,32 @@ class OrderController extends Controller
         // Cari pesanan
         $pesanan = Pesanan::findOrFail($id);
 
-        // Pastikan user adalah pemilik toko dari pesanan ini
-        // Kita asumsikan user->toko->id harus sama dengan pesanan->toko_id
-        if (!$user->toko || $user->toko->id !== $pesanan->toko_id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Unauthorized. Anda bukan pemilik toko pesanan ini.'
-            ], 403);
+        // Authorization
+        // - Seller dapat merubah status kecuali 'completed'
+        // - User dapat merubah status menjadi 'completed' jika sudah diterima
+        $requestedStatus = $request->status;
+
+        if ($requestedStatus === 'completed') {
+            if ($pesanan->user_id === $user->id && !in_array($pesanan->status, ['shipped', 'packed'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pesanan belum dikirim; tidak dapat dikonfirmasi sebagai diterima.'
+                ], 400);
+            }
+
+            if ($pesanan->user_id !== $user->id && (!$user->toko || $user->toko->id !== $pesanan->toko_id)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized. Anda bukan pemilik toko atau pembeli pesanan ini.'
+                ], 403);
+            }
+        } else {
+            if (!$user->toko || $user->toko->id !== $pesanan->toko_id) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized. Anda bukan pemilik toko pesanan ini.'
+                ], 403);
+            }
         }
 
         // Update status

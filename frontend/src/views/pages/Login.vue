@@ -96,8 +96,8 @@
             </div>
           </div>
 
-          <!-- Recaptcha -->
-          <div id="recaptcha-box" class="w-full flex justify-center"></div>
+          <!-- Recaptcha temporarily disabled -->
+          <!-- <div id="recaptcha-box" class="w-full flex justify-center"></div> -->
 
           <!-- Error Message -->
           <div
@@ -183,12 +183,13 @@ const loginUser = async () => {
   errorMessage.value = null;
 
   try {
-    form.value.recaptcha = window.__captchaToken || "";
+    // Recaptcha temporarily disabled
+    form.value.recaptcha = "dummy-token";
 
     const response = await axios.post("http://127.0.0.1:8000/api/login", {
       email: form.value.email,
       password: form.value.password,
-      recaptcha: form.value.recaptcha,
+      recaptcha: form.value.recaptcha, // dummy token for backend bypass
     });
 
     const role = response.data.user.role;

@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration {
     /**
@@ -11,9 +10,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE build_details MODIFY bagian_komponen ENUM(
-            'motherboard', 'cpu', 'ram', 'psu', 'storage', 'cooler', 'video-card', 'case', 'monitor', 'mouse', 'keyboard'
-        )");
+        Schema::table('build_details', function (Blueprint $table) {
+            $table->enum('bagian_komponen', ['motherboard', 'cpu', 'ram', 'psu', 'storage', 'cooler', 'video-card', 'case', 'monitor', 'mouse', 'keyboard'])->change();
+        });
     }
 
     /**
@@ -21,8 +20,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE build_details MODIFY bagian_komponen ENUM(
-            'motherboard', 'cpu', 'ram', 'psu', 'storage'
-        )");
+        Schema::table('build_details', function (Blueprint $table) {
+            $table->enum('bagian_komponen', ['motherboard', 'cpu', 'ram', 'psu', 'storage'])->change();
+        });
     }
 };
