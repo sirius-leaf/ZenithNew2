@@ -10,6 +10,31 @@ class ProductPageController extends Controller
 {
     /**
      * Menampilkan halaman daftar semua produk (Halaman 'Toko' atau Homepage).
+     *
+     * @OA\Get(
+     *     path="/api/products",
+     *     tags={"Products"},
+     *     summary="Get all products",
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="Filter by category name",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="q",
+     *         in="query",
+     *         description="Search query",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of products",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function index(Request $request)
     {
@@ -40,6 +65,25 @@ class ProductPageController extends Controller
     /**
      * Menampilkan halaman detail untuk satu produk.
      * Halaman ini akan menampilkan semua variannya.
+     *
+     * @OA\Get(
+     *     path="/api/products/{id}",
+     *     tags={"Products"},
+     *     summary="Get product details",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product details",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=404, description="Product not found")
+     * )
      */
     public function show($id_produk)
     {

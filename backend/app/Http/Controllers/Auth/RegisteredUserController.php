@@ -26,6 +26,30 @@ class RegisteredUserController extends Controller
     /**
      * Handle an incoming registration request.
      *
+     * @OA\Post(
+     *     path="/api/register",
+     *     tags={"Auth"},
+     *     summary="Register a new user",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Registration successful",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Registrasi berhasil. Silakan login."),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): JsonResponse

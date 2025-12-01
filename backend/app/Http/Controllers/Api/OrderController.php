@@ -14,6 +14,34 @@ use Midtrans\Snap;
 
 class OrderController extends Controller
 {
+    /**
+     * @OA\Post(
+     *     path="/api/order/preview",
+     *     tags={"Orders"},
+     *     summary="Preview order (check stock and calculate total)",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"cartItems"},
+     *             @OA\Property(
+     *                 property="cartItems",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id_varian", type="integer"),
+     *                     @OA\Property(property="kuantitas", type="integer")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Order preview",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=400, description="Stock insufficient or self-purchase")
+     * )
+     */
     public function preview(Request $request)
     {
         // ... (Bagian preview tidak berubah, biarkan sama seperti sebelumnya) ...
@@ -75,6 +103,19 @@ class OrderController extends Controller
         ], 200);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/order/history",
+     *     tags={"Orders"},
+     *     summary="Get user order history",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of orders",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
     public function index()
     {
         $orders = Auth::user()->pesanans()->with(['toko', 'detailPesanans.variant.product'])->get();
@@ -88,6 +129,19 @@ class OrderController extends Controller
 
     /**
      * Get orders for the seller's store.
+     *
+     * @OA\Get(
+     *     path="/api/manage/orders",
+     *     tags={"Orders"},
+     *     summary="Get seller orders",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of seller orders",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=404, description="Store not found")
+     * )
      */
     public function sellerIndex()
     {
@@ -114,6 +168,35 @@ class OrderController extends Controller
 
     /**
      * Memproses pesanan dan Generate Midtrans Token.
+     *
+     * @OA\Post(
+     *     path="/api/order/store",
+     *     tags={"Orders"},
+     *     summary="Create new order",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"alamat_pengiriman","payment_method","cartItems"},
+     *             @OA\Property(property="alamat_pengiriman", type="string"),
+     *             @OA\Property(property="payment_method", type="string", enum={"cod","transfer"}),
+     *             @OA\Property(
+     *                 property="cartItems",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id_varian", type="integer"),
+     *                     @OA\Property(property="kuantitas", type="integer")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Order created",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=400, description="Stock insufficient or self-purchase")
+     * )
      */
     public function store(Request $request)
     {
@@ -265,6 +348,27 @@ class OrderController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/orders/{id}",
+     *     tags={"Orders"},
+     *     summary="Get order details",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Order ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Order details",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=404, description="Order not found")
+     * )
+     */
     public function show($id)
     {
         $user = Auth::user();
@@ -290,6 +394,34 @@ class OrderController extends Controller
 
     /**
      * Update status pesanan (Seller Only)
+     *
+     * @OA\Patch(
+     *     path="/api/order/{id}/status",
+     *     tags={"Orders"},
+     *     summary="Update order status",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Order ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"status"},
+     *             @OA\Property(property="status", type="string", enum={"confirmed","packed","shipped","completed","cancelled"}),
+     *             @OA\Property(property="resi", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status updated",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function updateStatus(Request $request, $id)
     {
@@ -332,6 +464,33 @@ class OrderController extends Controller
 
     /**
      * Cancel order by User
+     *
+     * @OA\Post(
+     *     path="/api/orders/{id}/cancel",
+     *     tags={"Orders"},
+     *     summary="Cancel order",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Order ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"alasan"},
+     *             @OA\Property(property="alasan", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cancellation requested",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=400, description="Cannot cancel")
+     * )
      */
     public function cancel(Request $request, $id)
     {

@@ -18,6 +18,21 @@ class ProductController extends Controller
     /**
      * Display a listing of the products.
      */
+    /**
+     * Display a listing of the products.
+     *
+     * @OA\Get(
+     *     path="/api/manage/product",
+     *     tags={"Product Management"},
+     *     summary="Get seller products",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of seller products",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
     public function index()
     {
         if (Auth::user()->role === 'penjual' && Auth::user()->toko) {
@@ -37,6 +52,22 @@ class ProductController extends Controller
 
     /**
      * Display a listing of ALL products for ADMIN.
+     */
+    /**
+     * Display a listing of ALL products for ADMIN.
+     *
+     * @OA\Get(
+     *     path="/api/manage/all-products",
+     *     tags={"Product Management"},
+     *     summary="Get all products (Admin)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of all products",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function adminIndex()
     {
@@ -88,6 +119,36 @@ class ProductController extends Controller
 
     /**
      * Store a newly created product in storage.
+     */
+    /**
+     * Store a newly created product in storage.
+     *
+     * @OA\Post(
+     *     path="/api/manage/product",
+     *     tags={"Product Management"},
+     *     summary="Create a product",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"nama_produk","merek","kategori","varian"},
+     *                 @OA\Property(property="nama_produk", type="string"),
+     *                 @OA\Property(property="deskripsi", type="string"),
+     *                 @OA\Property(property="merek", type="string"),
+     *                 @OA\Property(property="kategori[]", type="array", @OA\Items(type="integer")),
+     *                 @OA\Property(property="varian", type="array", @OA\Items(type="object"))
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Product created",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized or Store Frozen")
+     * )
      */
     public function store(Request $request)
     {
@@ -195,6 +256,28 @@ class ProductController extends Controller
     /**
      * Display the specified product.
      */
+    /**
+     * Display the specified product.
+     *
+     * @OA\Get(
+     *     path="/api/manage/product/{id}",
+     *     tags={"Product Management"},
+     *     summary="Get product details (Management)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product details",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
     public function show(int $id)
     {
         $product = Product::with(['variant', 'categoryDetail'])->findOrFail($id);
@@ -230,6 +313,40 @@ class ProductController extends Controller
 
     /**
      * Update the specified product in storage.
+     */
+    /**
+     * Update the specified product in storage.
+     *
+     * @OA\Post(
+     *     path="/api/manage/product/{id}",
+     *     tags={"Product Management"},
+     *     summary="Update a product",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="_method", type="string", example="PUT"),
+     *                 @OA\Property(property="nama_produk", type="string"),
+     *                 @OA\Property(property="deskripsi", type="string"),
+     *                 @OA\Property(property="merek", type="string")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product updated",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function update(Request $request, int $id)
     {
@@ -354,6 +471,28 @@ class ProductController extends Controller
 
     /**
      * Remove the specified product from storage.
+     */
+    /**
+     * Remove the specified product from storage.
+     *
+     * @OA\Delete(
+     *     path="/api/manage/product/{id}",
+     *     tags={"Product Management"},
+     *     summary="Delete a product",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product deleted",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function destroy(int $id)
     {

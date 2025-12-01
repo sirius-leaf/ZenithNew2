@@ -11,6 +11,36 @@ class UserRoleController extends Controller
     /**
      * User mengajukan permintaan menjadi penjual (API)
      */
+    /**
+     * User mengajukan permintaan menjadi penjual (API)
+     *
+     * @OA\Post(
+     *     path="/api/role/request-seller",
+     *     tags={"Roles"},
+     *     summary="Request to become a seller",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"store_name","address","description","ktp","npwp"},
+     *                 @OA\Property(property="store_name", type="string"),
+     *                 @OA\Property(property="address", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="ktp", type="string", format="binary"),
+     *                 @OA\Property(property="npwp", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Request submitted",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=409, description="Already requested or already a seller")
+     * )
+     */
     public function requestSeller(Request $request)
     {
         $user = $request->user();
@@ -63,6 +93,21 @@ class UserRoleController extends Controller
     /**
      * Admin melihat semua request penjual (API)
      */
+    /**
+     * Admin melihat semua request penjual (API)
+     *
+     * @OA\Get(
+     *     path="/api/role/seller-requests",
+     *     tags={"Roles"},
+     *     summary="Get seller requests (Admin)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of requests",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
     public function index()
     {
         // Mengambil user dengan role 'penjual_pending' dengan pagination
@@ -76,6 +121,28 @@ class UserRoleController extends Controller
 
     /**
      * Admin menyetujui permintaan user menjadi penjual (API)
+     */
+    /**
+     * Admin menyetujui permintaan user menjadi penjual (API)
+     *
+     * @OA\Post(
+     *     path="/api/role/approve-seller/{id}",
+     *     tags={"Roles"},
+     *     summary="Approve seller request (Admin)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="User ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Request approved",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function approve($id)
     {
@@ -103,6 +170,26 @@ class UserRoleController extends Controller
         ], 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/role/reject-seller/{id}",
+     *     tags={"Roles"},
+     *     summary="Reject seller request (Admin)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="User ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Request rejected",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
     public function reject($id)
     {
         $user = User::findOrFail($id);

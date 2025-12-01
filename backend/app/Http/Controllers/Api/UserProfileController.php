@@ -11,6 +11,18 @@ class UserProfileController extends Controller
 {
     /**
      * Ambil data profil user yang sedang login
+     *
+     * @OA\Get(
+     *     path="/api/profile",
+     *     tags={"Profile"},
+     *     summary="Get current user profile",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="User profile",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function me(Request $request): JsonResponse
     {
@@ -19,6 +31,30 @@ class UserProfileController extends Controller
 
     /**
      * Update profil user (nama, nomor telepon, alamat)
+     *
+     * @OA\Post(
+     *     path="/api/profile/update",
+     *     tags={"Profile"},
+     *     summary="Update user profile",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="name", type="string"),
+     *                 @OA\Property(property="no_telpon", type="string"),
+     *                 @OA\Property(property="alamat", type="string"),
+     *                 @OA\Property(property="profile_photo", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Profile updated",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function updateProfile(Request $request): JsonResponse
     {
@@ -54,6 +90,30 @@ class UserProfileController extends Controller
 
     /**
      * Update password user
+     *
+     * @OA\Put(
+     *     path="/api/profile/update-password",
+     *     tags={"Profile"},
+     *     summary="Update password",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"current_password","new_password","new_password_confirmation"},
+     *             @OA\Property(property="current_password", type="string", format="password"),
+     *             @OA\Property(property="new_password", type="string", format="password"),
+     *             @OA\Property(property="new_password_confirmation", type="string", format="password")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password updated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Password berhasil diperbarui")
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function updatePassword(Request $request): JsonResponse
     {
@@ -82,6 +142,31 @@ class UserProfileController extends Controller
     }
     /**
      * Update profil toko (nama toko, alamat, deskripsi, foto toko)
+     *
+     * @OA\Post(
+     *     path="/api/profile/store/update",
+     *     tags={"Profile"},
+     *     summary="Update store profile",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="store_name", type="string"),
+     *                 @OA\Property(property="address", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="store_photo", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store profile updated",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function updateStoreProfile(Request $request): JsonResponse
     {

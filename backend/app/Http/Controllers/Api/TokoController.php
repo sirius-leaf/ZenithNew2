@@ -13,6 +13,21 @@ class TokoController extends Controller
     /**
      * Cek status toko user saat ini.
      * Berguna untuk frontend mengetahui apakah user sudah punya toko atau belum.
+     *
+     * @OA\Get(
+     *     path="/api/manage/toko",
+     *     tags={"Toko"},
+     *     summary="Check current user's store status",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store status",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="exists"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function index()
     {
@@ -36,6 +51,31 @@ class TokoController extends Controller
 
     /**
      * Menyimpan Toko Baru.
+     *
+     * @OA\Post(
+     *     path="/api/manage/toko",
+     *     tags={"Toko"},
+     *     summary="Create a new store",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"toko_name","deskripsi"},
+     *             @OA\Property(property="toko_name", type="string", example="My Store"),
+     *             @OA\Property(property="deskripsi", type="string", example="Best store ever")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Store created",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Forbidden (Not a seller)"),
+     *     @OA\Response(response=409, description="Conflict (Store already exists)")
+     * )
      */
     public function store(Request $request)
     {
@@ -76,6 +116,26 @@ class TokoController extends Controller
         ], 201); // 201 Created
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/toko/{id}",
+     *     tags={"Toko"},
+     *     summary="Get store details",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Store ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store details",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=404, description="Store not found")
+     * )
+     */
     public function show($id_toko)
     {
         $toko = Toko::findOrFail($id_toko);
@@ -104,6 +164,24 @@ class TokoController extends Controller
 
     /**
      * Search for shops (users with role 'penjual').
+     *
+     * @OA\Get(
+     *     path="/api/shops",
+     *     tags={"Toko"},
+     *     summary="Search shops",
+     *     @OA\Parameter(
+     *         name="q",
+     *         in="query",
+     *         description="Search query",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of shops",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *     )
+     * )
      */
     public function search(Request $request)
     {
@@ -142,6 +220,33 @@ class TokoController extends Controller
 
     /**
      * Freeze a store (Admin only).
+     *
+     * @OA\Post(
+     *     path="/api/manage/toko/{id}/freeze",
+     *     tags={"Toko"},
+     *     summary="Freeze a store",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Store ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             @OA\Property(property="reason", type="string", example="Violation of terms")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store frozen",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Toko berhasil dibekukan.")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function freeze(Request $request, $id)
     {
@@ -161,6 +266,28 @@ class TokoController extends Controller
 
     /**
      * Unfreeze a store (Admin only).
+     *
+     * @OA\Post(
+     *     path="/api/manage/toko/{id}/unfreeze",
+     *     tags={"Toko"},
+     *     summary="Unfreeze a store",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Store ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store unfrozen",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Toko berhasil diaktifkan kembali")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function unfreeze($id)
     {
@@ -178,6 +305,36 @@ class TokoController extends Controller
         return response()->json(['message' => 'Toko berhasil diaktifkan kembali']);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/manage/toko/{id}/appeal",
+     *     tags={"Toko"},
+     *     summary="Submit appeal for frozen store",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Store ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"appeal_reason"},
+     *             @OA\Property(property="appeal_reason", type="string", example="I will be good")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Appeal submitted",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Banding berhasil diajukan")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
+     */
     public function submitAppeal(Request $request, $id)
     {
         $request->validate([

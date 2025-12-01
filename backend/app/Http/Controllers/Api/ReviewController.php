@@ -12,6 +12,34 @@ class ReviewController extends Controller
 {
     /**
      * Store a newly created resource in storage.
+     *
+     * @OA\Post(
+     *     path="/api/reviews",
+     *     tags={"Reviews"},
+     *     summary="Create a review",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"id_produk","id_pesanan","rating","komentar"},
+     *                 @OA\Property(property="id_produk", type="integer"),
+     *                 @OA\Property(property="id_variant", type="integer"),
+     *                 @OA\Property(property="id_pesanan", type="integer"),
+     *                 @OA\Property(property="rating", type="integer", minimum=1, maximum=5),
+     *                 @OA\Property(property="komentar", type="string"),
+     *                 @OA\Property(property="images[]", type="array", @OA\Items(type="string", format="binary"))
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Review created",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=400, description="Already reviewed")
+     * )
      */
     public function store(Request $request)
     {
@@ -62,6 +90,25 @@ class ReviewController extends Controller
         return response()->json(['message' => 'Ulasan berhasil dikirim.', 'data' => $review], 201);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/reviews/{productId}",
+     *     tags={"Reviews"},
+     *     summary="Get reviews for a product",
+     *     @OA\Parameter(
+     *         name="productId",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of reviews",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
     public function index($productId)
     {
         $reviews = Review::with(['user', 'images', 'variant'])
