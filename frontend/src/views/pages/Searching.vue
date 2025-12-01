@@ -442,8 +442,15 @@ const fetchShops = async () => {
             const imagePath = p.variant[0].gambar_varian;
             if (imagePath) {
               if (imagePath.startsWith("http")) return imagePath;
-              const cleanPath = imagePath.replace(/^(\.\.\/)+/, "");
-              return `http://127.0.0.1:8000/${cleanPath}`;
+              
+              // Remove any leading ./ or ../
+              const cleanPath = imagePath.replace(/^(\.\.\/)+/, "").replace(/^\.\//, "");
+              
+              // Check if path already contains 'storage/'
+              if (cleanPath.startsWith("storage/")) {
+                return `http://127.0.0.1:8000/${cleanPath}`;
+              }
+              return `http://127.0.0.1:8000/storage/${cleanPath}`;
             }
           }
           return "https://via.placeholder.com/100?text=No+Image";
@@ -455,7 +462,7 @@ const fetchShops = async () => {
         // If user doesn't have a toko record yet, this might be an issue.
         // But for now let's use user.toko?.id_toko || user.id and handle it.
         // Actually, let's check if user.toko exists.
-        tokoId: user.toko?.id_toko,
+        tokoId: user.toko?.id,
         name: user.store_name,
         location: user.address,
         image: user.store_photo

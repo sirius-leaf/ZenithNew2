@@ -211,7 +211,7 @@ class TokoController extends Controller
 
         $users = $query->with([
             'toko.products' => function ($q) {
-                $q->latest()->take(3);
+                $q->with('variant')->latest()->take(3);
             }
         ])->paginate(12);
 

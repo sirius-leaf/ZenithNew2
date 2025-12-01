@@ -97,7 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/seller-requests/{id}/approve', [UserRoleController::class, 'approve']);
 
         // 4. Admin: Get ALL products
-        Route::get('/all-products', [ProductController::class, 'adminIndex']);
+        Route::get('/all-products', [ProductController::class, 'adminIndex'])->middleware('admin');
     });
 });
 
@@ -109,21 +109,26 @@ Route::get('/variant/check/{id_varian}', function ($id_varian) {
     return response()->json(['exists' => true, 'variant' => $variant], 200);
 })->where('id_varian', '[0-9]+');
 
-// 🔑 Manajemen User (Admin-only — pastikan middleware tambahan jika perlu)
-Route::prefix('users')->name('users.')->group(function () {
+// 🔑 Manajemen User (Admin-only)
+Route::middleware(['auth:sanctum', 'admin'])->prefix('users')->name('users.')->group(function () {
     Route::get('/', [UserController::class, 'index']);           // GET /api/users
     Route::put('/{user}', [UserController::class, 'update']);   // PUT /api/users/1
     Route::delete('/{user}', [UserController::class, 'destroy']); // DELETE /api/users/1
+    // 🔒 Ban / Unban
+    Route::post('/{user}/ban', [UserController::class, 'ban']);
+    Route::post('/{user}/unban', [UserController::class, 'unban']);
 });
 
-// 🔒 Ban / Unban
-Route::post('/users/{user}/ban', [UserController::class, 'ban']);
-Route::post('/users/{user}/unban', [UserController::class, 'unban']);
 
-// 🔐 Manajemen Role (User → Seller) — ✅ DIPINDAH KE DALAM GROUP INI
+// 🔐 Manajemen Role (User → Seller)
 Route::prefix('role')->name('role.')->group(function () {
-    Route::post('/request-seller', [UserRoleController::class, 'requestSeller']);
-    Route::get('/seller-requests', [UserRoleController::class, 'index']); // untuk admin
-    Route::post('/approve-seller/{id}', [UserRoleController::class, 'approve']);
-    Route::post('/reject-seller/{id}', [UserRoleController::class, 'reject']);
+    // User request seller (harus login, tapi tidak harus admin)
+    Route::middleware('auth:sanctum')->post('/request-seller', [UserRoleController::class, 'requestSeller']);
+
+    // Admin actions
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        Route::get('/seller-requests', [UserRoleController::class, 'index']);
+        Route::post('/approve-seller/{id}', [UserRoleController::class, 'approve']);
+        Route::post('/reject-seller/{id}', [UserRoleController::class, 'reject']);
+    });
 });

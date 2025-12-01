@@ -99,7 +99,7 @@ const router = createRouter({
     {
       path: "/admin",
       component: AdminLayout,
-      meta: { hideLayout: true },
+      meta: { hideLayout: true, requiresAuth: true, role: 'admin' },
       children: [
         { path: "", component: AdminDashboard },
         { path: "kelolaproduk", component: KelolaProduk },
@@ -197,6 +197,30 @@ const router = createRouter({
     /* ---------- 404 Fallback ---------- */
     { path: "/:pathMatch(.*)*", component: NotFound },
   ],
+});
+
+/* =========================================================
+   📌 NAVIGATION GUARD
+   ========================================================= */
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("auth_token");
+  
+  // 1. Cek apakah route butuh auth (Hanya Admin)
+  if (to.matched.some((record) => record.meta.role === 'admin')) {
+    if (!token) {
+      // Tidak ada token -> Redirect ke halaman 404 (seolah-olah tidak ada)
+      return next({ path: "/404" });
+    }
+  }
+
+  // 2. Cek apakah route khusus guest (Login/Register) tapi user sudah login
+  if (to.path === '/login' || to.path === '/register') {
+    if (token) {
+      return next('/'); // Redirect ke home jika sudah login
+    }
+  }
+
+  next();
 });
 
 /* =========================================================
