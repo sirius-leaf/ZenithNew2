@@ -70,20 +70,6 @@
                       <button @click="$router.push('/profile/edit')" class="text-[#e84797] text-sm font-medium hover:underline">Ubah</button>
                     </div>
                   </div>
-                  
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                    <span class="text-gray-500 text-sm">Tanggal Lahir</span>
-                    <div class="sm:col-span-2 flex items-center gap-2">
-                      <span class="text-[#e84797] text-sm font-medium cursor-pointer hover:underline">Tambah Tanggal Lahir</span>
-                    </div>
-                  </div>
-
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                    <span class="text-gray-500 text-sm">Jenis Kelamin</span>
-                    <div class="sm:col-span-2 flex items-center gap-2">
-                      <span class="text-[#e84797] text-sm font-medium cursor-pointer hover:underline">Tambah Jenis Kelamin</span>
-                    </div>
-                  </div>
                 </div>
               </div>
 

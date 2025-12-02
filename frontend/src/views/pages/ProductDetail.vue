@@ -4,18 +4,19 @@ import axios from "axios";
 import { useRoute, useRouter } from "vue-router";
 import { useCartStore } from "@/stores/cartStore";
 import ProductReviews from "@/components/product/ProductReviews.vue";
+import Swal from 'sweetalert2';
 
 const route = useRoute();
 const router = useRouter();
 const { updateCartItem } = useCartStore();
 
 const product = ref(null);
-const tokoData = ref(null); // Full toko data
+const tokoData = ref(null);
 const tokoRating = ref(0);
 const rating = ref(null);
 const loading = ref(true);
 const error = ref(null);
-const user = ref(null); // Data user yang sedang login
+const user = ref(null);
 
 // State untuk varian yang dipilih
 const selectedVariant = ref(null);
@@ -87,26 +88,33 @@ const decrementQuantity = () => {
 // Fungsi untuk tombol "Beli Langsung"
 const handleBuyNow = () => {
   if (!selectedVariant.value) {
-    alert("Silakan pilih varian terlebih dahulu.");
+    Swal.fire("Peringatan", "Silakan pilih varian terlebih dahulu.", "warning");
     return;
   }
   if (selectedVariant.value.stok <= 0) {
-    alert("Stok habis. Tidak bisa membeli.");
+    Swal.fire("Stok Habis", "Stok habis. Tidak bisa membeli.", "error");
     return;
   }
-
   if (tokoData.value?.is_frozen) {
-    alert("Toko sedang dibekukan. Tidak dapat melakukan pembelian.");
+    Swal.fire("Toko Dibekukan", "Toko sedang dibekukan. Tidak dapat melakukan pembelian.", "error");
     return;
   }
 
-  // Di sini bisa redirect ke halaman checkout dengan varian dan kuantitas
-  alert(
-    `Beli langsung ${quantity.value}x ${selectedVariant.value.nama_varian}`
-  );
+  // Redirect langsung ke checkout (hapus alert testing)
+  const buyNowItem = [{
+    id_varian: selectedVariant.value.id_varian,
+    kuantitas: quantity.value,
+    nama_varian: selectedVariant.value.nama_varian,
+    harga: selectedVariant.value.harga,
+    stok: selectedVariant.value.stok,
+    product_name: product.value.nama_produk,
+    product_id: product.value.id_produk,
+    toko_id: product.value.toko?.id
+  }];
+  localStorage.setItem("checkout_selection", JSON.stringify(buyNowItem));
+  router.push({ name: "checkout" });
 };
 
-// State untuk modal login
 const showLoginModal = ref(false);
 
 const openReviewForm = () => {
@@ -118,9 +126,7 @@ const openReviewForm = () => {
   router.push({ name: 'review.create', params: { type: 'product', id: route.params.id } });
 };
 
-// Fungsi untuk tombol "Keranjang"
 const handleAddToCart = () => {
-  // Cek Login
   const token = localStorage.getItem("authToken");
   if (!token) {
     showLoginModal.value = true;
@@ -128,29 +134,27 @@ const handleAddToCart = () => {
   }
 
   if (!selectedVariant.value) {
-    alert("Silakan pilih varian terlebih dahulu.");
+    Swal.fire("Peringatan", "Silakan pilih varian terlebih dahulu.", "warning");
     return;
   }
   if (selectedVariant.value.stok <= 0) {
-    alert("Stok habis. Tidak bisa menambahkan ke keranjang.");
+    Swal.fire("Stok Habis", "Stok habis. Tidak bisa menambahkan ke keranjang.", "error");
     return;
   }
-
   if (tokoData.value?.is_frozen) {
-    alert("Toko sedang dibekukan. Tidak dapat menambahkan ke keranjang.");
+    Swal.fire("Toko Dibekukan", "Toko sedang dibekukan. Tidak dapat menambahkan ke keranjang.", "error");
     return;
   }
-
-  // Cek Self-Purchase
   if (
     user.value &&
     user.value.toko &&
     product.value.toko &&
     user.value.toko.id === product.value.toko.id
   ) {
-    alert("Anda tidak dapat membeli produk dari toko Anda sendiri.");
+    Swal.fire("Produk Sendiri", "Anda tidak dapat membeli produk dari toko Anda sendiri.", "info");
     return;
   }
+
   updateCartItem(selectedVariant.value.id_varian, quantity.value, {
     nama_varian: selectedVariant.value.nama_varian,
     harga: selectedVariant.value.harga,
@@ -158,9 +162,7 @@ const handleAddToCart = () => {
     product_name: product.value.nama_produk,
   });
 
-  alert(
-    `Berhasil menambahkan ${quantity.value}x ${selectedVariant.value.nama_varian} ke keranjang!`
-  );
+  Swal.fire("Berhasil!", `Berhasil menambahkan ${quantity.value}x ${selectedVariant.value.nama_varian} ke keranjang!`, "success");
 };
 
 const goToStore = () => {
