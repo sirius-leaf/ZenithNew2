@@ -122,6 +122,7 @@
               </div>
               <div class="flex items-center gap-3 ml-4">
                 <button @click="openStoreReviewForm"
+                  v-if="!user || user.role !== 'admin'"
                   class="px-4 py-1.5 border border-pink-600 text-pink-600 font-semibold rounded-lg text-sm hover:bg-pink-50 transition"
                 >
                   Beri Rating
@@ -289,6 +290,20 @@ const products = ref([]);
 const loading = ref(true);
 const ratingToko = ref({ "rata-rata": 0, jumlah: 0 });
 const showLoginModal = ref(false);
+const user = ref(null);
+
+const fetchUser = async () => {
+  const token = localStorage.getItem("authToken");
+  if (!token) return;
+  try {
+    const res = await axios.get("http://127.0.0.1:8000/api/user", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    user.value = res.data;
+  } catch (e) {
+    console.error("Gagal ambil data user", e);
+  }
+};
 
 const openStoreReviewForm = () => {
   const token = localStorage.getItem('authToken');
@@ -337,6 +352,7 @@ const getProductPrice = (product) => {
 };
 
 onMounted(async () => {
+  fetchUser();
   try {
     const res = await axios.get(`http://127.0.0.1:8000/api/toko/${tokoId}`);
 

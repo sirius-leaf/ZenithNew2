@@ -463,13 +463,6 @@ onMounted(() => {
 
         <!-- Product Reviews -->
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-lg font-bold text-gray-900 mb-0">Ulasan Pembeli</h2>
-          <button
-            @click="openReviewForm"
-            class="px-3 py-1 bg-pink-600 text-white rounded-md text-sm hover:bg-pink-700 transition"
-          >
-            Tulis Ulasan
-          </button>
         </div>
         <ProductReviews
           :reviews="reviews"
@@ -610,6 +603,7 @@ onMounted(() => {
           <!-- Buttons -->
           <div class="space-y-3">
             <button
+              v-if="!user || user.role !== 'admin'"
               @click="handleAddToCart"
               :disabled="tokoData?.is_frozen"
               :class="[

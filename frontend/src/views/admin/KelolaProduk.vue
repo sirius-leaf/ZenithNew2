@@ -87,23 +87,30 @@
             <td class="py-2 px-4">{{ product.category }}</td>
             <td class="py-2 px-4 text-center">
               <button
-                @click="deleteProduct(product.id)"
-                class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-200 text-sm font-medium"
+                @click="handleDetail(product.id)"
+                class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200 text-sm font-medium"
               >
                 <svg
-                  class="w-4 h-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
                   fill="none"
-                  stroke="currentColor"
                   viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M19 7l-.867 12.142A1 1 0 0117.133 21H6.867A1 1 0 016 19.133L4.867 7H19zm-1 8.133L18 19H6l-1.133-4.133A1 1 0 015 14v-2a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1z"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
-                Hapus
+                Detail
               </button>
             </td>
           </tr>
@@ -135,21 +142,221 @@
         {{ page }}
       </button>
     </div>
-  </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-white/30 px-4"
+      @click.self="closeDetailModal"
+    >
+      <div
+        class="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-fade-in"
+      >
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Detail Produk</h2>
+            <button
+              @click="closeDetailModal"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div v-if="loadingDetail" class="text-center py-12">
+            <div
+              class="inline-block w-8 h-8 border-4 border-pink-300 border-t-pink-600 rounded-full animate-spin"
+            ></div>
+            <p class="mt-3 text-gray-600">Memuat detail...</p>
+          </div>
+
+          <div v-else-if="selectedProduct" class="space-y-6">
+            <!-- Header Info -->
+            <div class="flex flex-col md:flex-row gap-6">
+              <div class="w-full md:w-1/3">
+                <div
+                  class="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
+                >
+                  <img
+                    :src="selectedImage"
+                    class="w-full h-full object-contain"
+                    alt="Product Image"
+                  />
+                </div>
+              </div>
+              <div class="w-full md:w-2/3 space-y-4">
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900">
+                    {{ selectedProduct.nama_produk }}
+                  </h3>
+                  <p class="text-sm text-gray-500">
+                    {{ selectedCategoryName || "Uncategorized" }}
+                  </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p class="text-gray-500">Toko</p>
+                    <p class="font-medium text-gray-900">
+                      {{ selectedProduct.toko?.toko_name || "-" }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-gray-500">Merek</p>
+                    <p class="font-medium text-gray-900">
+                      {{ selectedProduct.merek || "-" }}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="text-gray-500 text-sm mb-1">Deskripsi</p>
+                  <div
+                    class="bg-gray-50 p-3 rounded-lg text-sm text-gray-700 max-h-32 overflow-y-auto whitespace-pre-line"
+                  >
+                    {{ selectedProduct.deskripsi }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variants -->
+            <div v-if="selectedProduct.variant && selectedProduct.variant.length > 0">
+              <h4 class="font-bold text-gray-900 mb-3">Varian Produk</h4>
+              <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                      >
+                        Gambar
+                      </th>
+                      <th
+                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                      >
+                        Nama Varian
+                      </th>
+                      <th
+                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                      >
+                        Harga
+                      </th>
+                      <th
+                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                      >
+                        Stok
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-for="variant in selectedProduct.variant" :key="variant.id">
+                      <td class="px-4 py-2">
+                        <img
+                          :src="getVariantImage(variant)"
+                          class="w-10 h-10 object-cover rounded border cursor-pointer hover:ring-2 hover:ring-blue-500"
+                          alt="Variant"
+                          @click="selectedImage = getVariantImage(variant)"
+                        />
+                      </td>
+                      <td class="px-4 py-2 text-sm text-gray-900">
+                        {{ variant.nama_varian }}
+                      </td>
+                      <td class="px-4 py-2 text-sm text-gray-900">
+                        Rp {{ Number(variant.harga).toLocaleString("id-ID") }}
+                      </td>
+                      <td class="px-4 py-2 text-sm text-gray-900">
+                        {{ variant.stok }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-6 py-4 flex justify-between rounded-b-xl">
+          <button
+            @click="confirmDelete"
+            class="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition font-medium"
+          >
+            Hapus Produk
+          </button>
+          <button
+            @click="closeDetailModal"
+            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium"
+          >
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      v-if="showDeleteConfirm"
+      class="fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm bg-black/20 px-4"
+    >
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate-fade-in">
+        <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Hapus</h3>
+        <p class="text-gray-600 mb-6">
+          Apakah Anda yakin ingin menghapus produk ini? Tindakan ini tidak dapat
+          dibatalkan.
+        </p>
+        <div class="flex justify-end gap-3">
+          <button
+            @click="showDeleteConfirm = false"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium"
+          >
+            Batal
+          </button>
+          <button
+            @click="deleteProduct"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+          >
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
+import { useToast } from "vue-toastification";
 
 const router = useRouter();
+const toast = useToast();
 const products = ref([]);
 const loading = ref(false);
 const searchQuery = ref("");
 const selectedCategory = ref("");
 const currentPage = ref(1);
 const itemsPerPage = 5;
+
+// Modal State
+const showModal = ref(false);
+const selectedProduct = ref(null);
+const loadingDetail = ref(false);
+const selectedCategoryName = ref("");
+const selectedImage = ref("");
+const showDeleteConfirm = ref(false);
 
 // Extract unique categories from products
 const categories = computed(() => {
@@ -203,22 +410,75 @@ const fetchProducts = async () => {
   }
 };
 
-const deleteProduct = async (id) => {
-  if (
-    !confirm(
-      "Apakah Anda yakin ingin menghapus produk ini? Produk akan hilang dari pencarian dan toko seller."
-    )
-  )
-    return;
+const handleDetail = async (id) => {
+  console.log("Opening detail for id:", id);
+  showModal.value = true;
+  loadingDetail.value = true;
+  selectedProduct.value = null;
+  selectedCategoryName.value = "";
+  selectedImage.value = "";
+
+  // Get category from existing list
+  const listProduct = products.value.find((p) => p.id === id);
+  if (listProduct) {
+    selectedCategoryName.value = listProduct.category;
+  }
 
   try {
-    await axios.delete(`/manage/product/${id}`);
-    alert("Produk berhasil dihapus.");
+    const response = await axios.get(`http://127.0.0.1:8000/api/products/${id}`);
+    if (response.data && response.data.data) {
+      selectedProduct.value = response.data.data;
+      selectedImage.value = getMainImage(selectedProduct.value);
+    }
+  } catch (error) {
+    console.error("Gagal memuat detail produk:", error);
+    toast.error("Gagal memuat detail produk.");
+    showModal.value = false;
+  } finally {
+    loadingDetail.value = false;
+  }
+};
+
+const closeDetailModal = () => {
+  showModal.value = false;
+  selectedProduct.value = null;
+  showDeleteConfirm.value = false;
+};
+
+const confirmDelete = () => {
+  showDeleteConfirm.value = true;
+};
+
+const deleteProduct = async () => {
+  if (!selectedProduct.value) return;
+
+  try {
+    await axios.delete(`/manage/product/${selectedProduct.value.id_produk}`);
+    toast.success("Produk berhasil dihapus.");
+    closeDetailModal();
     fetchProducts(); // Refresh list
   } catch (error) {
     console.error("Gagal menghapus produk:", error);
-    alert("Gagal menghapus produk. Silakan coba lagi.");
+    toast.error("Gagal menghapus produk. Silakan coba lagi.");
   }
+};
+
+const getMainImage = (product) => {
+  if (product.variant && product.variant.length > 0 && product.variant[0].gambar_varian) {
+    const path = product.variant[0].gambar_varian;
+    if (path.startsWith("http")) return path;
+    return `http://127.0.0.1:8000/storage/${path}`;
+  }
+  return "https://via.placeholder.com/300?text=No+Image";
+};
+
+const getVariantImage = (variant) => {
+  if (variant.gambar_varian) {
+    const path = variant.gambar_varian;
+    if (path.startsWith("http")) return path;
+    return `http://127.0.0.1:8000/storage/${path}`;
+  }
+  return "https://via.placeholder.com/100?text=No+Image";
 };
 
 const getImageUrl = (path) => {
@@ -228,6 +488,7 @@ const getImageUrl = (path) => {
 };
 
 onMounted(() => {
+  console.log("KelolaProduk mounted");
   const token = localStorage.getItem("authToken");
   if (!token) {
     router.push("/login");
@@ -235,7 +496,7 @@ onMounted(() => {
   }
 
   if (localStorage.getItem("userRole") !== "admin") {
-    alert("Akses ditolak, Anda bukan admin");
+    toast.error("Akses ditolak, Anda bukan admin");
     router.push("/");
     return;
   }

@@ -73,15 +73,18 @@ const handleSearch = () => {
     <div class="flex items-center justify-between px-4 md:px-8 py-3">
       <!-- Logo -->
       <!-- Logo -->
+      <!-- Logo -->
       <div class="flex items-center gap-2 select-none">
-        <img src="/src/assets/logo.png" alt="Zenith Logo" class="h-14 w-auto" />
+        <RouterLink to="/dashboard">
+          <img src="/src/assets/logo.png" alt="Zenith Logo" class="h-14 w-auto" />
+        </RouterLink>
       </div>
 
       <!-- Akun: tampilkan nama dari API -->
-      <RouterLink
+      <!-- Akun: tampilkan nama dari API -->
+      <div
         v-if="isLoggedIn"
-        to="/profile"
-        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-200 transition-colors cursor-pointer"
+        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-200 transition-colors cursor-default"
       >
         <img :src="accountIcon" alt="Profile" class="h-8 w-8 rounded-full" />
         <span class="text-sm font-medium text-gray-700">
@@ -93,7 +96,7 @@ const handleSearch = () => {
         >
           Logout
         </button>
-      </RouterLink>
+      </div>
 
       <div v-else class="flex gap-2">
         <RouterLink

@@ -176,12 +176,43 @@
         &raquo;
       </button>
     </div>
+
+
+    <!-- Custom Confirmation Modal -->
+    <div
+      v-if="showConfirmModal"
+      class="fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm bg-black/20 px-4"
+    >
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate-fade-in">
+        <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi</h3>
+        <p class="text-gray-600 mb-6 whitespace-pre-line">
+          {{ confirmMessage }}
+        </p>
+        <div class="flex justify-end gap-3">
+          <button
+            @click="showConfirmModal = false"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium"
+          >
+            Batal
+          </button>
+          <button
+            @click="handleConfirm"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+          >
+            Ya, Lanjutkan
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import axios from "axios";
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
 
 // State
 const users = ref([]);
@@ -208,9 +239,10 @@ const fetchUsers = async () => {
     });
     users.value = data.data;
     meta.value = data.meta;
+
   } catch (error) {
     console.error("[API Error]", error.response?.data || error.message);
-    alert("❌ Gagal memuat data. Periksa konsol untuk detail.");
+    toast.error("❌ Gagal memuat data. Periksa konsol untuk detail.");
   } finally {
     loading.value = false;
   }
@@ -258,15 +290,28 @@ const goToPage = (page) => {
   }
 };
 
+// Confirmation Modal State
+const showConfirmModal = ref(false);
+const confirmMessage = ref("");
+const confirmCallback = ref(null);
+
+const openConfirmModal = (message, callback) => {
+  confirmMessage.value = message;
+  confirmCallback.value = callback;
+  showConfirmModal.value = true;
+};
+
+const handleConfirm = () => {
+  if (confirmCallback.value) confirmCallback.value();
+  showConfirmModal.value = false;
+};
+
 // 🔒 Ban / Unban
 const confirmBan = (id) => {
-  if (
-    confirm(
-      "⚠️ Yakin ingin membatasi akun ini?\nUser yang terbatasi tidak dapat login."
-    )
-  ) {
-    banUser(id);
-  }
+  openConfirmModal(
+    "⚠️ Yakin ingin membatasi akun ini?\nUser yang terbatasi tidak dapat login.",
+    () => banUser(id)
+  );
 };
 
 const banUser = async (id) => {
@@ -276,17 +321,18 @@ const banUser = async (id) => {
     if (userIndex !== -1) {
       users.value[userIndex].is_banned = true;
     }
-    alert("✅ Akun berhasil dibatasi.");
+    toast.success("✅ Akun berhasil dibatasi.");
   } catch (error) {
     console.error("[Ban Error]", error.response?.data || error.message);
-    alert("❌ Gagal membatasi akun.");
+    toast.error("❌ Gagal membatasi akun.");
   }
 };
 
 const confirmUnban = (id) => {
-  if (confirm("⚠️ Yakin ingin mengembalikan akses akun ini?")) {
-    unbanUser(id);
-  }
+  openConfirmModal(
+    "⚠️ Yakin ingin mengembalikan akses akun ini?",
+    () => unbanUser(id)
+  );
 };
 
 const unbanUser = async (id) => {
@@ -296,10 +342,10 @@ const unbanUser = async (id) => {
     if (userIndex !== -1) {
       users.value[userIndex].is_banned = false;
     }
-    alert("✅ Akun berhasil dikembalikan.");
+    toast.success("✅ Akun berhasil dikembalikan.");
   } catch (error) {
     console.error("[Unban Error]", error.response?.data || error.message);
-    alert("❌ Gagal mengembalikan akses akun.");
+    toast.error("❌ Gagal mengembalikan akses akun.");
   }
 };
 

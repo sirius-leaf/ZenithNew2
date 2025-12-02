@@ -82,7 +82,8 @@ axios.defaults.withCredentials = true;
 // Interceptor: banned auto logout
 axios.interceptors.response.use(null, (error) => {
   if (error.response?.status === 403 && error.response.data?.banned) {
-    localStorage.removeItem("auth_token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userRole");
     router.push("/login");
     alert("🔒 " + error.response.data.message);
   }
@@ -203,12 +204,13 @@ const router = createRouter({
    📌 NAVIGATION GUARD
    ========================================================= */
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("auth_token");
-  
+  const token = localStorage.getItem("authToken");
+  const role = localStorage.getItem("userRole");
+
   // 1. Cek apakah route butuh auth (Hanya Admin)
   if (to.matched.some((record) => record.meta.role === 'admin')) {
-    if (!token) {
-      // Tidak ada token -> Redirect ke halaman 404 (seolah-olah tidak ada)
+    if (!token || role !== 'admin') {
+      // Tidak ada token atau bukan admin -> Redirect ke halaman 404
       return next({ path: "/404" });
     }
   }
@@ -216,7 +218,8 @@ router.beforeEach((to, from, next) => {
   // 2. Cek apakah route khusus guest (Login/Register) tapi user sudah login
   if (to.path === '/login' || to.path === '/register') {
     if (token) {
-      return next('/'); // Redirect ke home jika sudah login
+      if (role === 'admin') return next('/admin');
+      return next('/dashboard'); // Redirect ke dashboard jika sudah login
     }
   }
 

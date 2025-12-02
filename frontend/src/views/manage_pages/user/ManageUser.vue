@@ -2,6 +2,10 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import { RouterLink, useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
+const router = useRouter();
 
 // State
 const users = ref([]);
@@ -53,37 +57,52 @@ const updateRole = async (user) => {
     );
 
     // Tampilkan notifikasi sukses sementara
-    showSuccess("Role berhasil diperbarui!");
+    toast.success("Role berhasil diperbarui!");
   } catch (err) {
     console.error(err);
-    alert("Gagal mengubah role.");
+    toast.error("Gagal mengubah role.");
     user.role = oldRole; // Kembalikan ke role lama jika gagal
   }
 };
 
-// 3. Fungsi Hapus User
-const deleteUser = async (id) => {
-  if (!confirm("Yakin ingin menghapus akun ini?")) return;
+// Confirmation Modal State
+const showConfirmModal = ref(false);
+const confirmMessage = ref("");
+const confirmCallback = ref(null);
 
-  try {
-    await axios.delete(
-      `http://127.0.0.1:8000/api/manage/users/${id}`,
-      authConfig
-    );
-
-    // Hapus user dari list lokal agar tidak perlu refresh halaman
-    users.value = users.value.filter((u) => u.id !== id);
-    showSuccess("User berhasil dihapus!");
-  } catch (err) {
-    console.error(err);
-    alert("Gagal menghapus user.");
-  }
+const openConfirmModal = (message, callback) => {
+  confirmMessage.value = message;
+  confirmCallback.value = callback;
+  showConfirmModal.value = true;
 };
 
-// Helper untuk notifikasi sukses
+const handleConfirm = () => {
+  if (confirmCallback.value) confirmCallback.value();
+  showConfirmModal.value = false;
+};
+
+// 3. Fungsi Hapus User
+const deleteUser = (id) => {
+  openConfirmModal("Yakin ingin menghapus akun ini?", async () => {
+    try {
+      await axios.delete(
+        `http://127.0.0.1:8000/api/manage/users/${id}`,
+        authConfig
+      );
+
+      // Hapus user dari list lokal agar tidak perlu refresh halaman
+      users.value = users.value.filter((u) => u.id !== id);
+      toast.success("User berhasil dihapus!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Gagal menghapus user.");
+    }
+  });
+};
+
+// Helper untuk notifikasi sukses (Deprecated, replaced by toast)
 const showSuccess = (msg) => {
-  successMessage.value = msg;
-  setTimeout(() => (successMessage.value = null), 3000); // Hilang dalam 3 detik
+  toast.success(msg);
 };
 
 // Appeal Review State
@@ -95,28 +114,28 @@ const viewAppeal = (user) => {
   showAppealModal.value = true;
 };
 
-const unfreezeStore = async (user) => {
-  if (!confirm("Aktifkan kembali toko ini?")) return;
-
-  try {
-    await axios.post(
-      `http://127.0.0.1:8000/api/manage/toko/${user.toko.id}/unfreeze`,
-      {},
-      authConfig
-    );
-    showSuccess("Toko berhasil diaktifkan kembali!");
-    showAppealModal.value = false;
-    
-    // Update local state
-    if (user.toko) {
-      user.toko.is_frozen = false;
-      user.toko.frozen_reason = null;
-      user.toko.appeal_reason = null;
+const unfreezeStore = (user) => {
+  openConfirmModal("Aktifkan kembali toko ini?", async () => {
+    try {
+      await axios.post(
+        `http://127.0.0.1:8000/api/manage/toko/${user.toko.id}/unfreeze`,
+        {},
+        authConfig
+      );
+      toast.success("Toko berhasil diaktifkan kembali!");
+      showAppealModal.value = false;
+      
+      // Update local state
+      if (user.toko) {
+        user.toko.is_frozen = false;
+        user.toko.frozen_reason = null;
+        user.toko.appeal_reason = null;
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Gagal mengaktifkan toko.");
     }
-  } catch (err) {
-    console.error(err);
-    alert("Gagal mengaktifkan toko.");
-  }
+  });
 };
 
 // Store Detail View State
@@ -152,7 +171,7 @@ const viewStoreDetail = async (user) => {
 // Jalankan saat komponen dimuat
 onMounted(() => {
   if (localStorage.getItem("userRole") !== "admin") {
-    alert("Akses ditolak, Anda bukan admin");
+    toast.error("Akses ditolak, Anda bukan admin");
     router.push("/dashboard");
   }
 
@@ -166,15 +185,7 @@ onMounted(() => {
       <h1 class="text-2xl font-bold text-gray-800">Daftar User</h1>
     </div>
 
-    <!-- Notifikasi Sukses -->
-    <div
-      v-if="successMessage"
-      class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg border border-green-200"
-    >
-      {{ successMessage }}
-    </div>
-
-    <!-- Notifikasi Error -->
+    <!-- Notifikasi Error (Deprecated, replaced by toast) -->
     <div
       v-if="error"
       class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200"
@@ -460,6 +471,33 @@ onMounted(() => {
             class="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition"
           >
             Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div
+      v-if="showConfirmModal"
+      class="fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm bg-black/20 px-4"
+    >
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate-fade-in">
+        <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi</h3>
+        <p class="text-gray-600 mb-6">
+          {{ confirmMessage }}
+        </p>
+        <div class="flex justify-end gap-3">
+          <button
+            @click="showConfirmModal = false"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium"
+          >
+            Batal
+          </button>
+          <button
+            @click="handleConfirm"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+          >
+            Ya, Lanjutkan
           </button>
         </div>
       </div>
