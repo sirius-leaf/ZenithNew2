@@ -44,7 +44,7 @@
             <span class="font-light text-xs text-red-600 italic"
               >Alasan: {{ user.toko.frozen_reason }}</span
             >
-            
+
             <!-- Tombol Ajukan Banding -->
             <button
               v-if="!user.toko.appeal_reason"
@@ -290,7 +290,7 @@
         class="bg-white rounded-2xl shadow-xl max-w-6xl w-full p-6 transform transition-all scale-100 max-h-[90vh] overflow-y-auto"
       >
         <div class="flex justify-between items-center mb-6">
-          <h3 class="text-xl font-bold text-gray-900">
+          <h3 class="text-xl font-bold text-blue-800">
             {{ isEditing ? "Edit Produk" : "Tambah Produk Baru" }}
           </h3>
           <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
@@ -316,7 +316,7 @@
             <!-- Informasi Utama -->
             <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
               <h4
-                class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4"
+                class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-4"
               >
                 Informasi Produk
               </h4>
@@ -330,7 +330,7 @@
                     type="text"
                     required
                     placeholder="Contoh: Laptop Gaming Zenith X1"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e84797] focus:border-transparent outline-none transition"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
                   />
                 </div>
 
@@ -343,7 +343,7 @@
                     type="text"
                     required
                     placeholder="Contoh: Zenith"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e84797] focus:border-transparent outline-none transition"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
                   />
                 </div>
                 <div>
@@ -368,7 +368,7 @@
                       <select
                         v-model="catItem.id_kategori"
                         required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e84797] focus:border-transparent outline-none transition bg-white"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition bg-white"
                       >
                         <option value="" disabled>Pilih Kategori</option>
                         <option
@@ -412,7 +412,7 @@
                     v-model="form.deskripsi"
                     rows="3"
                     placeholder="Jelaskan detail produkmu..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e84797] focus:border-transparent outline-none transition"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
                   ></textarea>
                 </div>
               </div>
@@ -422,7 +422,7 @@
             <div>
               <div class="flex justify-between items-center mb-4">
                 <h4
-                  class="text-sm font-bold text-gray-800 uppercase tracking-wider"
+                  class="text-sm font-bold text-blue-800 uppercase tracking-wider"
                 >
                   Varian Produk
                 </h4>
@@ -453,7 +453,7 @@
                 <div
                   v-for="(variant, index) in form.variants"
                   :key="index"
-                  class="bg-white border border-gray-200 rounded-xl p-4 relative group hover:border-pink-200 transition-colors"
+                  class="bg-white border border-gray-200 rounded-xl p-4 relative group hover:border-pink-300 transition-colors"
                 >
                   <button
                     v-if="form.variants.length > 1"
@@ -487,7 +487,7 @@
                         >Foto Varian</label
                       >
                       <div
-                        class="relative w-full aspect-square bg-gray-50 rounded-lg border border-dashed border-gray-300 hover:border-pink-400 transition-colors overflow-hidden flex items-center justify-center cursor-pointer group-image"
+                        class="relative w-full aspect-square bg-gray-50 rounded-lg border border-dashed border-gray-300 hover:border-pink-400 transition-colors overflow-hidden flex items-center justify-center cursor-pointer"
                       >
                         <img
                           v-if="variant.gambar_preview"
@@ -535,7 +535,7 @@
                           v-model="variant.nama_varian"
                           type="text"
                           placeholder="Contoh: Merah, XL, 256GB"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e84797] focus:border-transparent outline-none text-sm"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none text-sm"
                         />
                       </div>
                       <div>
@@ -547,7 +547,7 @@
                           v-model="variant.harga"
                           type="number"
                           min="0"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e84797] focus:border-transparent outline-none text-sm"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none text-sm"
                         />
                       </div>
                       <div>
@@ -559,7 +559,7 @@
                           v-model="variant.stok"
                           type="number"
                           min="0"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e84797] focus:border-transparent outline-none text-sm"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none text-sm"
                         />
                       </div>
                     </div>
@@ -580,7 +580,7 @@
             <button
               type="submit"
               :disabled="loadingSubmit"
-              class="flex-1 px-4 py-2.5 bg-[#e84797] text-white font-medium rounded-xl hover:bg-[#d03a84] transition shadow-sm disabled:opacity-70 flex justify-center items-center shadow-pink-200"
+              class="flex-1 px-4 py-2.5 bg-pink-600 text-white font-medium rounded-xl hover:bg-pink-700 transition shadow-sm disabled:opacity-70 flex justify-center items-center"
             >
               <span v-if="loadingSubmit" class="mr-2 animate-spin">⌛</span>
               {{ isEditing ? "Simpan Perubahan" : "Tambah Produk" }}

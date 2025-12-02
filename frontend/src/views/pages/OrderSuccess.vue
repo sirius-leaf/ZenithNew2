@@ -173,12 +173,27 @@ onMounted(() => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
               <p class="text-gray-500 text-sm mb-1">Metode Pembayaran</p>
-              <p class="font-bold text-gray-800 uppercase flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              <p
+                class="font-bold text-gray-800 uppercase flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-gray-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                  />
                 </svg>
                 {{
-                  orderData.payment_method === "cod" ? "COD (Bayar di Tempat)" : "Pembayaran Online (Midtrans)"
+                  orderData.payment_method === "cod"
+                    ? "COD (Bayar di Tempat)"
+                    : "Pembayaran Online (Midtrans)"
                 }}
               </p>
             </div>
@@ -193,9 +208,22 @@ onMounted(() => {
 
           <!-- Product List -->
           <div class="mb-8">
-            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            <h3
+              class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-pink-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
               </svg>
               Rincian Produk
             </h3>
@@ -206,7 +234,9 @@ onMounted(() => {
                 class="flex gap-4 p-4 rounded-xl border border-gray-100 hover:border-pink-100 hover:bg-pink-50/30 transition-colors"
               >
                 <!-- Product Image -->
-                <div class="w-20 h-20 flex-shrink-0 bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div
+                  class="w-20 h-20 flex-shrink-0 bg-white rounded-lg border border-gray-200 overflow-hidden"
+                >
                   <img
                     :src="getImageUrl(item.variant?.gambar_varian)"
                     :alt="item.variant?.product?.nama_produk"
@@ -220,7 +250,10 @@ onMounted(() => {
                     {{ item.variant?.product?.nama_produk || "Produk dihapus" }}
                   </h4>
                   <p class="text-sm text-gray-500 mb-1">
-                    Varian: <span class="text-gray-700 font-medium">{{ item.variant?.nama_varian || "-" }}</span>
+                    Varian:
+                    <span class="text-gray-700 font-medium">{{
+                      item.variant?.nama_varian || "-"
+                    }}</span>
                   </p>
                   <div class="flex justify-between items-end mt-2">
                     <p class="text-sm text-gray-500">
@@ -255,7 +288,10 @@ onMounted(() => {
                 :disabled="processingPayment"
                 class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-pink-200 disabled:opacity-50 flex justify-center items-center gap-2"
               >
-                <span v-if="processingPayment" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
+                <span
+                  v-if="processingPayment"
+                  class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"
+                ></span>
                 {{ processingPayment ? "Memproses..." : "Bayar Sekarang" }}
               </button>
               <p class="text-center text-xs text-gray-400 mt-2">
@@ -271,7 +307,8 @@ onMounted(() => {
               "
               class="bg-blue-50 text-blue-800 p-4 rounded-xl text-center text-sm font-medium mb-4"
             >
-              Pesanan akan diproses oleh penjual. Silakan siapkan uang tunai saat kurir datang.
+              Pesanan akan diproses oleh penjual. Silakan siapkan uang tunai
+              saat kurir datang.
             </div>
 
             <!-- Navigation Buttons -->
@@ -284,7 +321,7 @@ onMounted(() => {
               </button>
               <button
                 @click="$router.push(`/riwayat/${orderData.id}`)"
-                class="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-gray-800 transition shadow-lg shadow-gray-200"
+                class="w-full px-6 py-3 bg-blue-800 text-white font-bold rounded-xl hover:bg-blue-900 hover:border-pink-500 border-2 border-transparent transition"
               >
                 Lihat Pesanan
               </button>
