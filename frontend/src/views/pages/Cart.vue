@@ -62,7 +62,7 @@
       >
         <p class="text-lg text-gray-600">Keranjang Anda masih kosong.</p>
         <router-link
-          to="/product"
+          to="/dashboard"
           class="mt-4 inline-block text-blue-600 hover:underline font-medium"
         >
           Lihat Semua Produk
