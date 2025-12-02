@@ -11,7 +11,7 @@
     <!-- Main Content - Flex grow untuk push footer ke bawah -->
     <div class="flex-1 flex items-center justify-center relative px-4 py-8 sm:py-0">
       <!-- Registration Form Card -->
-      <div class="w-full max-w-[288px] sm:w-72 px-5 sm:px-7 py-6 sm:py-7 bg-blue-900/20 rounded-[5px] shadow-xl backdrop-blur-3xl">
+      <div class="w-full max-w-[400px] sm:w-[450px] px-8 sm:px-10 py-8 sm:py-10 bg-blue-900/20 rounded-[5px] shadow-xl backdrop-blur-3xl">
         <form @submit.prevent="registerUser" class="w-full flex flex-col items-center gap-8 sm:gap-14">
           <!-- Logo/Avatar -->
           <img :src="zenith" alt="zenith" class="w-12 h-12 sm:w-16 sm:h-16 object-contain"/>

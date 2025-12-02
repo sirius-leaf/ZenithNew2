@@ -52,7 +52,7 @@
     >
       <!-- Login Form Card -->
       <div
-        class="w-full max-w-[288px] sm:w-72 px-5 sm:px-7 py-6 sm:py-7 bg-blue-900/20 rounded-[5px] shadow-xl backdrop-blur-3xl"
+        class="w-full max-w-[400px] sm:w-[450px] px-8 sm:px-10 py-8 sm:py-10 bg-blue-900/20 rounded-[5px] shadow-xl backdrop-blur-3xl"
       >
         <form
           @submit.prevent="loginUser"
