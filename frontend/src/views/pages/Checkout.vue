@@ -131,7 +131,10 @@ const finalizeCheckout = async () => {
             } catch (e) {
               console.error("Gagal update status paid:", e);
             }
-            handleSuccess(orderIds);
+            // handleSuccess(orderIds);
+            clearCart();
+            localStorage.removeItem("checkout_selection");
+            router.push(`/riwayat/${orderIds[0]}`);
           },
           onPending: function (result) {
             console.log("Payment Pending:", result);

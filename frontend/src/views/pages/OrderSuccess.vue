@@ -12,6 +12,26 @@ const loading = ref(true);
 const processingPayment = ref(false);
 const error = ref(null);
 
+// Helper untuk format tanggal
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+  return new Date(dateString).toLocaleDateString("id-ID", options);
+};
+
+// Helper untuk URL gambar
+const getImageUrl = (path) => {
+  if (!path) return "https://via.placeholder.com/100?text=No+Image";
+  if (path.startsWith("http")) return path;
+  return `http://127.0.0.1:8000/storage/${path}`;
+};
+
 // Fungsi mengambil data pesanan
 const fetchOrderDetails = async () => {
   loading.value = true;
@@ -70,137 +90,206 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="font-ubuntu container mx-auto p-4 md:p-8">
-    <div
-      class="max-w-xl mx-auto bg-white shadow-xl rounded-xl p-8 text-center border-t-4"
-      :class="
-        orderData?.status === 'paid' ? 'border-blue-600' : 'border-pink-500'
-      "
-    >
-      <div v-if="loading" class="py-10 text-gray-500">Memuat data...</div>
-      <div v-else-if="error" class="py-10 text-pink-600">{{ error }}</div>
-
-      <div v-else>
-        <!-- Icon Status -->
-        <div class="mb-6 flex justify-center">
-          <div
-            v-if="orderData.status === 'paid'"
-            class="bg-blue-50 p-4 rounded-full"
-          >
-            <svg
-              class="w-12 h-12 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <div v-else class="bg-pink-50 p-4 rounded-full">
-            <svg
-              class="w-12 h-12 text-pink-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-        </div>
-
-        <!-- Judul -->
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">
-          {{
-            orderData.status === "paid"
-              ? "Pembayaran Berhasil!"
-              : "Menunggu Pembayaran"
-          }}
-        </h1>
-
-        <p class="text-gray-500 mb-6">ID Pesanan: #{{ orderData.id }}</p>
-
-        <!-- Detail Pembayaran -->
+  <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-ubuntu">
+    <div class="max-w-3xl mx-auto">
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-12">
         <div
-          class="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-100 text-left"
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"
+        ></div>
+        <p class="text-gray-500">Memuat detail pesanan...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <div class="text-red-500 text-xl mb-4">⚠️</div>
+        <p class="text-gray-800 font-medium">{{ error }}</p>
+        <button
+          @click="$router.push('/')"
+          class="mt-4 text-pink-600 hover:underline"
         >
-          <div class="flex justify-between mb-2">
-            <span class="text-gray-600">Metode</span>
-            <span class="font-medium uppercase text-blue-800">
-              {{ orderData.payment_method === "midtrans" ? "Midtrans" : "COD" }}
-            </span>
+          Kembali ke Beranda
+        </button>
+      </div>
+
+      <!-- Success Content -->
+      <div v-else class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header Status -->
+        <div
+          class="bg-gradient-to-r p-8 text-center text-white"
+          :class="
+            orderData.status === 'paid'
+              ? 'from-blue-600 to-blue-500'
+              : 'from-pink-600 to-pink-500'
+          "
+        >
+          <div class="mb-4 flex justify-center">
+            <div class="bg-white/20 p-4 rounded-full backdrop-blur-sm">
+              <svg
+                v-if="orderData.status === 'paid'"
+                class="w-12 h-12 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <svg
+                v-else
+                class="w-12 h-12 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
           </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Total Bayar</span>
-            <span class="font-bold text-blue-800">
-              Rp {{ parseFloat(orderData.total_harga).toLocaleString("id-ID") }}
-            </span>
-          </div>
+          <h1 class="text-3xl font-bold mb-2">
+            {{
+              orderData.status === "paid"
+                ? "Pembayaran Berhasil!"
+                : "Menunggu Pembayaran"
+            }}
+          </h1>
+          <p class="text-white/90">ID Pesanan: #{{ orderData.id }}</p>
+          <p class="text-white/80 text-sm mt-1">
+            {{ formatDate(orderData.created_at) }}
+          </p>
         </div>
 
-        <!-- Aksi -->
-        <div class="space-y-4">
-          <!-- Midtrans: Tombol Bayar (Simulasi) -->
-          <div
-            v-if="
-              orderData.status === 'pending' &&
-              orderData.payment_method === 'midtrans'
-            "
-          >
-            <p class="text-sm text-gray-500 mb-3">
-              Klik tombol di bawah untuk mensimulasikan pembayaran sukses.
-            </p>
-            <button
-              @click="simulatePayment"
-              :disabled="processingPayment"
-              class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-lg transition disabled:opacity-50"
-            >
-              {{
-                processingPayment ? "Memproses..." : "Bayar Sekarang (Simulasi)"
-              }}
-            </button>
-          </div>
-
-          <!-- COD: Tidak ada aksi bayar -->
-          <div
-            v-else-if="
-              orderData.status === 'pending' &&
-              orderData.payment_method === 'cod'
-            "
-          >
-            <div
-              class="bg-blue-50 p-4 rounded text-blue-800 text-sm font-medium"
-            >
-              Pesanan Anda menggunakan metode
-              <strong>Bayar di Tempat (COD)</strong>.<br />
-              Silakan bayar tunai ke kurir saat barang sampai.
+        <div class="p-8">
+          <!-- Order Info Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <p class="text-gray-500 text-sm mb-1">Metode Pembayaran</p>
+              <p class="font-bold text-gray-800 uppercase flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                {{
+                  orderData.payment_method === "cod" ? "COD (Bayar di Tempat)" : "Pembayaran Online (Midtrans)"
+                }}
+              </p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <p class="text-gray-500 text-sm mb-1">Total Pembayaran</p>
+              <p class="font-bold text-pink-600 text-xl">
+                Rp
+                {{ parseFloat(orderData.total_harga).toLocaleString("id-ID") }}
+              </p>
             </div>
           </div>
 
-          <!-- Status selain pending -->
-          <div
-            v-else
-            class="bg-blue-50 p-4 rounded text-blue-800 text-sm font-medium"
-          >
-            Terima kasih! Pesanan Anda sedang diproses oleh penjual.
+          <!-- Product List -->
+          <div class="mb-8">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              Rincian Produk
+            </h3>
+            <div class="space-y-4">
+              <div
+                v-for="item in orderData.detail_pesanans"
+                :key="item.id"
+                class="flex gap-4 p-4 rounded-xl border border-gray-100 hover:border-pink-100 hover:bg-pink-50/30 transition-colors"
+              >
+                <!-- Product Image -->
+                <div class="w-20 h-20 flex-shrink-0 bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <img
+                    :src="getImageUrl(item.variant?.gambar_varian)"
+                    :alt="item.variant?.product?.nama_produk"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+
+                <!-- Product Details -->
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-bold text-gray-900 truncate">
+                    {{ item.variant?.product?.nama_produk || "Produk dihapus" }}
+                  </h4>
+                  <p class="text-sm text-gray-500 mb-1">
+                    Varian: <span class="text-gray-700 font-medium">{{ item.variant?.nama_varian || "-" }}</span>
+                  </p>
+                  <div class="flex justify-between items-end mt-2">
+                    <p class="text-sm text-gray-500">
+                      {{ item.kuantitas }} x
+                      <span class="font-medium">
+                        Rp {{ parseFloat(item.harga).toLocaleString("id-ID") }}
+                      </span>
+                    </p>
+                    <p class="font-bold text-gray-900">
+                      Rp
+                      {{
+                        (item.kuantitas * item.harga).toLocaleString("id-ID")
+                      }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Navigasi Kembali (opsional) -->
-          <router-link
-            :to="`/riwayat/${orderData.id}`"
-            class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition text-center"
-          >
-            Lihat Pesanan Anda
-          </router-link>
+          <!-- Action Buttons -->
+          <div class="space-y-3 pt-6 border-t border-gray-100">
+            <!-- Midtrans Action -->
+            <div
+              v-if="
+                orderData.status === 'pending' &&
+                orderData.payment_method !== 'cod'
+              "
+            >
+              <button
+                @click="simulatePayment"
+                :disabled="processingPayment"
+                class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-pink-200 disabled:opacity-50 flex justify-center items-center gap-2"
+              >
+                <span v-if="processingPayment" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
+                {{ processingPayment ? "Memproses..." : "Bayar Sekarang" }}
+              </button>
+              <p class="text-center text-xs text-gray-400 mt-2">
+                *Ini adalah simulasi pembayaran untuk lingkungan development
+              </p>
+            </div>
+
+            <!-- COD Info -->
+            <div
+              v-else-if="
+                orderData.status === 'pending' &&
+                orderData.payment_method === 'cod'
+              "
+              class="bg-blue-50 text-blue-800 p-4 rounded-xl text-center text-sm font-medium mb-4"
+            >
+              Pesanan akan diproses oleh penjual. Silakan siapkan uang tunai saat kurir datang.
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+              <button
+                @click="$router.push('/')"
+                class="w-full px-6 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition"
+              >
+                Belanja Lagi
+              </button>
+              <button
+                @click="$router.push(`/riwayat/${orderData.id}`)"
+                class="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-gray-800 transition shadow-lg shadow-gray-200"
+              >
+                Lihat Pesanan
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

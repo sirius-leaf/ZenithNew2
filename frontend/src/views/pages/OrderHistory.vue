@@ -53,7 +53,7 @@
                 </td>
               </tr>
               <tr
-                v-for="order in orders"
+                v-for="order in paginatedOrders"
                 :key="order.id"
                 class="hover:bg-blue-50 transition-colors"
               >
@@ -123,6 +123,44 @@
             </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div
+        v-if="totalPages > 1"
+        class="flex items-center justify-center gap-2 mt-6"
+      >
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 1"
+          class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
+
+        <div class="flex gap-1">
+          <button
+            v-for="page in totalPages"
+            :key="page"
+            @click="goToPage(page)"
+            :class="[
+              'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+              currentPage === page
+                ? 'bg-blue-600 text-white'
+                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50',
+            ]"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+          class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
       </div>
     </div>
 
@@ -222,7 +260,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 
 const orders = ref([]);
@@ -232,12 +270,17 @@ const cancelStep = ref(1);
 const selectedReason = ref("");
 const customReason = ref("");
 
+// Pagination State
+const currentPage = ref(1);
+const itemsPerPage = 10;
+
 const cancelReasons = [
   "Salah Produk",
   "Salah Alamat",
   "Berubah Pikiran",
   "Double Order Tidak Disengaja",
   "Salah Memilih Varian",
+  "Lainnya",
 ];
 
 const fetchOrders = async () => {
@@ -250,6 +293,41 @@ const fetchOrders = async () => {
   } catch (err) {
     console.error("Gagal mengambil riwayat pesanan:", err);
   }
+};
+
+// Computed: Sort by Newest First
+const sortedOrders = computed(() => {
+  return [...orders.value].sort((a, b) => {
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+});
+
+// Computed: Pagination
+const totalPages = computed(() => {
+  return Math.ceil(sortedOrders.value.length / itemsPerPage);
+});
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return sortedOrders.value.slice(start, end);
+});
+
+// Pagination Controls
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const goToPage = (page) => {
+  currentPage.value = page;
 };
 
 const formatPrice = (value) => {
