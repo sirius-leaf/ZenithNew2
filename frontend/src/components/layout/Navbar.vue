@@ -97,29 +97,23 @@ const handleSearch = () => {
 
 <template>
   <header class="bg-white shadow-sm border-b border-gray-200 relative z-50">
-    <div class="flex items-center justify-between px-4 md:px-8 py-3 gap-6">
+    <div
+      class="max-w-7xl mx-auto w-full px-4 md:px-6 lg:px-8 flex items-center justify-between py-3 gap-6 relative"
+    >
       <!-- Logo -->
       <RouterLink to="/dashboard" class="flex-shrink-0">
         <img src="/src/assets/logo.png" alt="Zenith Logo" class="h-12 w-auto" />
       </RouterLink>
 
       <!-- Pencarian -->
-      <div class="flex-1 max-w-4xl">
-        <div class="relative">
-          <input
-            v-model="searchQuery"
-            @keypress.enter.prevent="handleSearch"
-            type="text"
-            placeholder="Cari produk..."
-            class="w-full px-5 py-2.5 text-md text-gray-700 bg-gray-100 border-none rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all"
-          />
-          <button
-            @click="handleSearch"
-            class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 bg-pink-600 rounded-full text-white hover:bg-pink-700 transition"
+      <div class="flex-1 max-w-xl md:ml-12 mr-auto">
+        <div class="relative group">
+          <div
+            class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
+              class="h-5 w-5 text-gray-400 group-focus-within:text-pink-500 transition-colors"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -131,7 +125,16 @@ const handleSearch = () => {
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-          </button>
+          </div>
+          <input
+            v-model="searchQuery"
+            @keypress.enter.prevent="handleSearch"
+            type="text"
+            placeholder="Cari produk impianmu..."
+            class="w-full pl-11 pr-4 py-2.5 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:bg-white focus:ring-2 focus:ring-pink-100 focus:border-pink-500 transition-all duration-300 shadow-sm hover:shadow-md hover:bg-white"
+          />
+          <!-- Optional: Search Button inside right (hidden for cleaner look or keep it?) -->
+          <!-- Let's keep it clean with just the icon on the left as per modern standards, or add a subtle arrow on right -->
         </div>
       </div>
 
