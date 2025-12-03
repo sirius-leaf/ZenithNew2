@@ -14,6 +14,18 @@ class PcBuildController extends Controller
     /**
      * GET /api/pc-build
      * List semua build milik user login
+     *
+     * @OA\Get(
+     *     path="/api/manage/pcBuild",
+     *     tags={"PC Build"},
+     *     summary="Get user PC builds",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of PC builds",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function index()
     {
@@ -31,6 +43,17 @@ class PcBuildController extends Controller
     /**
      * GET /api/pc-build/products
      * Ambil data produk untuk form (motherboard, cpu, dll)
+     *
+     * @OA\Get(
+     *     path="/api/productAll",
+     *     tags={"PC Build"},
+     *     summary="Get products for PC Build",
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of products and variants",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function products()
     {
@@ -47,6 +70,26 @@ class PcBuildController extends Controller
     /**
      * POST /api/pc-build
      * Simpan build baru
+     *
+     * @OA\Post(
+     *     path="/api/manage/pcBuild",
+     *     tags={"PC Build"},
+     *     summary="Create a new PC build",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nama_build","komponen"},
+     *             @OA\Property(property="nama_build", type="string"),
+     *             @OA\Property(property="komponen", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="PC build created",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -90,6 +133,25 @@ class PcBuildController extends Controller
     /**
      * GET /api/pc-build/{id}
      * Detail satu build
+     *
+     * @OA\Get(
+     *     path="/api/manage/pcBuild/{id}",
+     *     tags={"PC Build"},
+     *     summary="Get PC build details",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Build ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="PC build details",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function show($id)
     {
@@ -104,6 +166,33 @@ class PcBuildController extends Controller
     /**
      * PUT /api/pc-build/{id}
      * Update build
+     *
+     * @OA\Put(
+     *     path="/api/manage/pcBuild/{id}",
+     *     tags={"PC Build"},
+     *     summary="Update PC build",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Build ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nama_build","komponen"},
+     *             @OA\Property(property="nama_build", type="string"),
+     *             @OA\Property(property="komponen", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="PC build updated",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -156,6 +245,25 @@ class PcBuildController extends Controller
 
     /**
      * DELETE /api/pc-build/{id}
+     *
+     * @OA\Delete(
+     *     path="/api/manage/pcBuild/{id}",
+     *     tags={"PC Build"},
+     *     summary="Delete PC build",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Build ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="PC build deleted",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function destroy($id)
     {

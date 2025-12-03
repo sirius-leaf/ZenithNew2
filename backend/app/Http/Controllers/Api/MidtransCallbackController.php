@@ -10,6 +10,26 @@ use Midtrans\Notification;
 
 class MidtransCallbackController extends Controller
 {
+    /**
+     * Handle Midtrans Callback
+     *
+     * @OA\Post(
+     *     path="/api/midtrans/callback",
+     *     tags={"Payment"},
+     *     summary="Handle Midtrans callback",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Callback processed",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=400, description="Invalid notification"),
+     *     @OA\Response(response=404, description="Order not found")
+     * )
+     */
     public function handle(Request $request)
     {
         // 1. Konfigurasi Midtrans (Wajib agar bisa membaca notifikasi)
@@ -41,8 +61,8 @@ class MidtransCallbackController extends Controller
 
         // Cari pesanan milik user ini yang masih pending
         $orders = Pesanan::where('user_id', $userIdFromTrx)
-                         ->where('status', 'pending')
-                         ->get();
+            ->where('status', 'pending')
+            ->get();
 
         if ($orders->isEmpty()) {
             return response()->json(['message' => 'Order not found or already paid'], 404);

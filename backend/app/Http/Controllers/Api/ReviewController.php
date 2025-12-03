@@ -119,6 +119,26 @@ class ReviewController extends Controller
         return response()->json(['data' => $reviews]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/review/can-review/{productId}",
+     *     tags={"Reviews"},
+     *     summary="Check if user can review a product",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="productId",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Check result",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
     public function canReview($productId)
     {
         // Deprecated or can be updated if needed, but we rely on order detail page now
@@ -127,6 +147,33 @@ class ReviewController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @OA\Put(
+     *     path="/api/review/{id}",
+     *     tags={"Reviews"},
+     *     summary="Update a review",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Review ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"rating","komentar"},
+     *             @OA\Property(property="rating", type="integer", minimum=1, maximum=5),
+     *             @OA\Property(property="komentar", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Review updated",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -148,6 +195,25 @@ class ReviewController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @OA\Delete(
+     *     path="/api/review/{id}",
+     *     tags={"Reviews"},
+     *     summary="Delete a review",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Review ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Review deleted",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
      */
     public function destroy($id)
     {

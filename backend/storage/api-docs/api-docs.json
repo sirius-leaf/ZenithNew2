@@ -46,6 +46,44 @@
                 }
             }
         },
+        "/api/midtrans/callback": {
+            "post": {
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Handle Midtrans callback",
+                "description": "Handle Midtrans Callback",
+                "operationId": "132d18b9964ec13302b1613879bd2c46",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Callback processed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid notification"
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    }
+                }
+            }
+        },
         "/api/order/preview": {
             "post": {
                 "tags": [
@@ -390,6 +428,401 @@
                     },
                     "400": {
                         "description": "Cannot cancel"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/orders/{id}/approve-cancellation": {
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Approve order cancellation (Seller)",
+                "description": "Approve Cancellation (Seller)",
+                "operationId": "0bc777fdcafc902c3554bab824cf2984",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Order ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cancellation approved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/orders/{id}/reject-cancellation": {
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Reject order cancellation (Seller)",
+                "description": "Reject Cancellation (Seller)",
+                "operationId": "e8390d9ca4d5f2eed0a42497b626c22d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Order ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cancellation rejected",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/orders/{id}/pay": {
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Mark order as paid (Manual/Frontend)",
+                "description": "Mark order as paid (Called by Frontend after Midtrans success)\nWorkaround for localhost webhook issue.",
+                "operationId": "0676aca9bba964ea8e3bb7276cb1ac0c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Order ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order marked as paid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/payment/simulate/{order_id}": {
+            "post": {
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Simulate payment confirmation",
+                "description": "Endpoint simulasi konfirmasi pembayaran.\nMengubah status pesanan dari 'pending' menjadi 'paid'.",
+                "operationId": "f02c8639ce37663404cca72e35da6b96",
+                "parameters": [
+                    {
+                        "name": "order_id",
+                        "in": "path",
+                        "description": "Order ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment confirmed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    },
+                    "400": {
+                        "description": "Order already paid or cancelled"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/manage/pcBuild": {
+            "get": {
+                "tags": [
+                    "PC Build"
+                ],
+                "summary": "Get user PC builds",
+                "description": "GET /api/pc-build\nList semua build milik user login",
+                "operationId": "0f9c5920347af005e4ea05b11cc523f9",
+                "responses": {
+                    "200": {
+                        "description": "List of PC builds",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "PC Build"
+                ],
+                "summary": "Create a new PC build",
+                "description": "POST /api/pc-build\nSimpan build baru",
+                "operationId": "49da3e5e1c4c39c503bee2677db4a8b4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_build",
+                                    "komponen"
+                                ],
+                                "properties": {
+                                    "nama_build": {
+                                        "type": "string"
+                                    },
+                                    "komponen": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "PC build created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/productAll": {
+            "get": {
+                "tags": [
+                    "PC Build"
+                ],
+                "summary": "Get products for PC Build",
+                "description": "GET /api/pc-build/products\nAmbil data produk untuk form (motherboard, cpu, dll)",
+                "operationId": "1855641c923b79a44385edafdb025b46",
+                "responses": {
+                    "200": {
+                        "description": "List of products and variants",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/manage/pcBuild/{id}": {
+            "get": {
+                "tags": [
+                    "PC Build"
+                ],
+                "summary": "Get PC build details",
+                "description": "GET /api/pc-build/{id}\nDetail satu build",
+                "operationId": "9d524ba0dc35d8f2945b6d293b6cd33b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Build ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PC build details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "PC Build"
+                ],
+                "summary": "Update PC build",
+                "description": "PUT /api/pc-build/{id}\nUpdate build",
+                "operationId": "319f4f55e79e33e3fde98b29d68834ff",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Build ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_build",
+                                    "komponen"
+                                ],
+                                "properties": {
+                                    "nama_build": {
+                                        "type": "string"
+                                    },
+                                    "komponen": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "PC build updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "PC Build"
+                ],
+                "summary": "Delete PC build",
+                "description": "DELETE /api/pc-build/{id}",
+                "operationId": "c6b66608d00e30040104e938b189fe22",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Build ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PC build deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -760,6 +1193,141 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/review/can-review/{productId}": {
+            "get": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Check if user can review a product",
+                "operationId": "5389baa591828b50e38cb848e99f755c",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Check result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/review/{id}": {
+            "put": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Update a review",
+                "description": "Update the specified resource in storage.",
+                "operationId": "081a3e97844a3ee846257c5822e3c2db",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Review ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "rating",
+                                    "komentar"
+                                ],
+                                "properties": {
+                                    "rating": {
+                                        "type": "integer",
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "komentar": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Review updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Delete a review",
+                "description": "Remove the specified resource from storage.",
+                "operationId": "20bd1ae8f3105bd62aae8ace4066566a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Review ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Review deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/manage/toko": {
@@ -1959,8 +2527,16 @@
             "description": "Categories"
         },
         {
+            "name": "Payment",
+            "description": "Payment"
+        },
+        {
             "name": "Orders",
             "description": "Orders"
+        },
+        {
+            "name": "PC Build",
+            "description": "PC Build"
         },
         {
             "name": "Product Management",

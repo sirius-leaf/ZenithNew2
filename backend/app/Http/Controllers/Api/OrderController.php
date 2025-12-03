@@ -552,6 +552,26 @@ class OrderController extends Controller
 
     /**
      * Approve Cancellation (Seller)
+     *
+     * @OA\Post(
+     *     path="/api/orders/{id}/approve-cancellation",
+     *     tags={"Orders"},
+     *     summary="Approve order cancellation (Seller)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Order ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cancellation approved",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function approveCancellation($id)
     {
@@ -587,6 +607,26 @@ class OrderController extends Controller
 
     /**
      * Reject Cancellation (Seller)
+     *
+     * @OA\Post(
+     *     path="/api/orders/{id}/reject-cancellation",
+     *     tags={"Orders"},
+     *     summary="Reject order cancellation (Seller)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Order ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cancellation rejected",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function rejectCancellation($id)
     {
@@ -625,6 +665,26 @@ class OrderController extends Controller
     /**
      * Mark order as paid (Called by Frontend after Midtrans success)
      * Workaround for localhost webhook issue.
+     *
+     * @OA\Post(
+     *     path="/api/orders/{id}/pay",
+     *     tags={"Orders"},
+     *     summary="Mark order as paid (Manual/Frontend)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Order ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Order marked as paid",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=404, description="Order not found")
+     * )
      */
     public function markAsPaid(Request $request, $id)
     {
