@@ -85,17 +85,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6 md:p-10 max-w-7xl mx-auto">
+  <div class="font-ubuntu p-6 md:p-10 max-w-7xl mx-auto">
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
       <div>
-        <h2 class="text-3xl font-bold text-gray-900">PC Builds</h2>
+        <h2 class="text-3xl font-bold text-blue-800">PC Builds</h2>
         <p class="text-gray-500 mt-1">Kelola daftar rakitan PC impianmu.</p>
       </div>
 
       <button
         @click="router.push('/dashboard/manage/desktopLab/create')"
-        class="bg-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg shadow-pink-200 hover:bg-pink-700 hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+        class="bg-pink-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-pink-700 transition flex items-center gap-2"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -136,21 +136,21 @@ onMounted(() => {
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-gray-50/50 text-gray-600 text-sm uppercase tracking-wider border-b border-gray-100">
+            <tr class="bg-gray-50/50 text-blue-800 text-sm uppercase tracking-wider border-b border-blue-100">
               <th class="py-4 px-6 font-semibold">Nama Build</th>
               <th class="py-4 px-6 font-semibold">Komponen</th>
               <th class="py-4 px-6 font-semibold">Total Harga</th>
               <th class="py-4 px-6 font-semibold text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
+          <tbody class="divide-y divide-blue-100">
             <tr
               v-for="b in pcBuild"
               :key="b.id_build"
-              class="hover:bg-gray-50/80 transition-colors group"
+              class="hover:bg-blue-50 transition-colors"
             >
               <td class="py-4 px-6">
-                <div class="font-bold text-gray-900 text-lg">{{ b.nama_build }}</div>
+                <div class="font-bold text-blue-900 text-lg">{{ b.nama_build }}</div>
                 <div class="text-xs text-gray-400 mt-0.5">ID: #{{ b.id_build }}</div>
               </td>
               <td class="py-4 px-6">
@@ -169,7 +169,7 @@ onMounted(() => {
                 <div class="flex items-center justify-end gap-2">
                   <button
                     @click="checkoutBuild(b)"
-                    class="p-2 text-white bg-green-500 hover:bg-green-600 rounded-lg transition-colors shadow-sm"
+                    class="p-2 text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
                     title="Checkout ke Keranjang"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -220,3 +220,4 @@ onMounted(() => {
   }
 }
 </style>
+

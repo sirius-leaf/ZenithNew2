@@ -148,14 +148,14 @@ const updateBuild = async () => {
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto my-10 p-6 bg-white rounded-xl shadow-lg">
-    <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">Edit PC Build</h2>
+  <div class="font-ubuntu max-w-5xl mx-auto my-10 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+    <h2 class="text-3xl font-bold mb-8 text-center text-blue-800">Edit PC Build</h2>
 
-    <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
       {{ errorMessage }}
     </div>
 
-    <div v-if="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+    <div v-if="successMessage" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
       {{ successMessage }}
     </div>
 
@@ -165,7 +165,7 @@ const updateBuild = async () => {
       <input 
         v-model="form.nama_build" 
         type="text" 
-        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none transition"
         placeholder="Contoh: PC Gaming 2024"
         required 
       />
@@ -175,26 +175,26 @@ const updateBuild = async () => {
     <div class="overflow-x-auto">
       <table class="w-full border-collapse">
         <thead>
-          <tr class="border-b-2 border-gray-200 text-left">
-            <th class="py-4 px-4 font-semibold text-gray-600">Komponen</th>
-            <th class="py-4 px-4 font-semibold text-gray-600">Gambar</th>
-            <th class="py-4 px-4 font-semibold text-gray-600">Nama Produk</th>
-            <th class="py-4 px-4 font-semibold text-gray-600">Harga</th>
-            <th class="py-4 px-4 font-semibold text-gray-600 text-center">Aksi</th>
+          <tr class="border-b-2 border-blue-100 text-left">
+            <th class="py-4 px-4 font-semibold text-blue-800">Komponen</th>
+            <th class="py-4 px-4 font-semibold text-blue-800">Gambar</th>
+            <th class="py-4 px-4 font-semibold text-blue-800">Nama Produk</th>
+            <th class="py-4 px-4 font-semibold text-blue-800">Harga</th>
+            <th class="py-4 px-4 font-semibold text-blue-800 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="comp in componentList" :key="comp.key" class="border-b border-gray-100 hover:bg-gray-50 transition">
-            <td class="py-4 px-4 font-medium text-gray-800">{{ comp.label }}</td>
+          <tr v-for="comp in componentList" :key="comp.key" class="border-b border-blue-50 hover:bg-blue-50 transition">
+            <td class="py-4 px-4 font-medium text-blue-900">{{ comp.label }}</td>
             
             <!-- Gambar -->
             <td class="py-4 px-4">
               <div v-if="form.komponen[comp.key].produk" class="w-20 h-20 bg-gray-100 rounded-md overflow-hidden border border-gray-200 flex items-center justify-center">
-                 <img 
+                <img 
                   :src="`http://127.0.0.1:8000/storage/${getVariantDetails(form.komponen[comp.key].produk)?.image}`" 
                   class="w-full h-full object-cover"
                   alt="Component"
-                 />
+                />
               </div>
               <div v-else class="w-20 h-20 bg-gray-50 rounded-md border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs">
                 No Image
@@ -207,7 +207,7 @@ const updateBuild = async () => {
                 <p class="font-bold text-pink-600 text-lg">
                   {{ getVariantDetails(form.komponen[comp.key].produk)?.productName }}
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-600">
                   {{ getVariantDetails(form.komponen[comp.key].produk)?.name }}
                 </p>
               </div>
@@ -215,7 +215,7 @@ const updateBuild = async () => {
             </td>
 
             <!-- Harga -->
-            <td class="py-4 px-4 font-medium text-gray-700">
+            <td class="py-4 px-4 font-medium text-gray-800">
               {{ form.komponen[comp.key].produk ? 'Rp ' + Number(getVariantDetails(form.komponen[comp.key].produk)?.price).toLocaleString('id-ID') : '-' }}
             </td>
 
@@ -224,7 +224,7 @@ const updateBuild = async () => {
               <button 
                 type="button"
                 @click="modal[comp.key] = true"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition shadow-sm hover:shadow-md whitespace-nowrap"
+                class="bg-blue-800 hover:bg-blue-900 text-white px-6 py-2 rounded-lg font-medium transition whitespace-nowrap"
               >
                 {{ form.komponen[comp.key].produk ? 'Ubah' : 'Pilih' }}
               </button>
@@ -235,14 +235,14 @@ const updateBuild = async () => {
     </div>
 
     <!-- Footer Actions -->
-    <div class="mt-10 border-t pt-6 flex flex-col md:flex-row justify-between items-center gap-6">
+    <div class="mt-10 border-t border-blue-100 pt-6 flex flex-col md:flex-row justify-between items-center gap-6">
       <div class="text-center md:text-left">
         <p class="text-gray-500 text-sm mb-1">Total Estimasi Harga</p>
-        <p class="text-3xl font-bold text-gray-900">Rp {{ totalHarga.toLocaleString('id-ID') }}</p>
+        <p class="text-3xl font-bold text-blue-900">Rp {{ totalHarga.toLocaleString('id-ID') }}</p>
       </div>
 
       <div class="flex gap-4">
-         <button 
+        <button 
           type="button" 
           @click="$router.back()"
           class="px-8 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition"
@@ -252,7 +252,7 @@ const updateBuild = async () => {
         <button 
           @click="updateBuild"
           :disabled="isLoading"
-          class="px-8 py-3 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+          class="px-8 py-3 rounded-lg bg-pink-600 text-white font-bold hover:bg-pink-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {{ isLoading ? 'Menyimpan...' : 'Simpan Perubahan' }}
         </button>
