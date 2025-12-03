@@ -47,13 +47,13 @@ const checkoutBuild = (build) => {
   let addedCount = 0;
   build.build_detail.forEach((detail) => {
     if (detail.variant) {
-       updateCartItem(detail.variant.id_varian, 1, {
-         nama_varian: detail.variant.nama_varian,
-         harga: detail.variant.harga,
-         stok: detail.variant.stok,
-         product_name: detail.variant.product?.nama_produk || 'Produk',
-       });
-       addedCount++;
+      updateCartItem(detail.variant.id_varian, 1, {
+        nama_varian: detail.variant.nama_varian,
+        harga: detail.variant.harga,
+        stok: detail.variant.stok,
+        product_name: detail.variant.product?.nama_produk || "Produk",
+      });
+      addedCount++;
     }
   });
 
@@ -66,7 +66,8 @@ const checkoutBuild = (build) => {
 const calculateTotalPrice = (build) => {
   if (!build.build_detail) return 0;
   return build.build_detail.reduce((total, detail) => {
-    return total + (detail.variant?.harga || 0);
+    const price = parseFloat(detail.variant?.harga);
+    return total + (isNaN(price) ? 0 : price);
   }, 0);
 };
 
@@ -87,7 +88,9 @@ onMounted(() => {
 <template>
   <div class="font-ubuntu p-6 md:p-10 max-w-7xl mx-auto">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div
+      class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
+    >
       <div>
         <h2 class="text-3xl font-bold text-blue-800">PC Builds</h2>
         <p class="text-gray-500 mt-1">Kelola daftar rakitan PC impianmu.</p>
@@ -97,8 +100,17 @@ onMounted(() => {
         @click="router.push('/dashboard/manage/desktopLab/create')"
         class="bg-pink-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-pink-700 transition flex items-center gap-2"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+            clip-rule="evenodd"
+          />
         </svg>
         Buat Rakitan Baru
       </button>
@@ -109,22 +121,47 @@ onMounted(() => {
       v-if="message"
       class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl mb-6 flex items-center gap-2 animate-fade-in-down"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clip-rule="evenodd"
+        />
       </svg>
       {{ message }}
     </div>
 
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center py-20">
-      <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-pink-600"></div>
+      <div
+        class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-pink-600"
+      ></div>
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="pcBuild.length === 0" class="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+    <div
+      v-else-if="pcBuild.length === 0"
+      class="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200"
+    >
       <div class="bg-white p-4 rounded-full inline-block mb-4 shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+          />
         </svg>
       </div>
       <h3 class="text-lg font-medium text-gray-900">Belum ada rakitan</h3>
@@ -132,11 +169,16 @@ onMounted(() => {
     </div>
 
     <!-- Table List -->
-    <div v-else class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div
+      v-else
+      class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+    >
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-gray-50/50 text-blue-800 text-sm uppercase tracking-wider border-b border-blue-100">
+            <tr
+              class="bg-gray-50/50 text-blue-800 text-sm uppercase tracking-wider border-b border-blue-100"
+            >
               <th class="py-4 px-6 font-semibold">Nama Build</th>
               <th class="py-4 px-6 font-semibold">Komponen</th>
               <th class="py-4 px-6 font-semibold">Total Harga</th>
@@ -150,12 +192,18 @@ onMounted(() => {
               class="hover:bg-blue-50 transition-colors"
             >
               <td class="py-4 px-6">
-                <div class="font-bold text-blue-900 text-lg">{{ b.nama_build }}</div>
-                <div class="text-xs text-gray-400 mt-0.5">ID: #{{ b.id_build }}</div>
+                <div class="font-bold text-blue-900 text-lg">
+                  {{ b.nama_build }}
+                </div>
+                <div class="text-xs text-gray-400 mt-0.5">
+                  ID: #{{ b.id_build }}
+                </div>
               </td>
               <td class="py-4 px-6">
                 <div class="flex items-center gap-2">
-                  <span class="bg-blue-50 text-blue-700 py-1 px-2.5 rounded-md text-xs font-semibold border border-blue-100">
+                  <span
+                    class="bg-blue-50 text-blue-700 py-1 px-2.5 rounded-md text-xs font-semibold border border-blue-100"
+                  >
                     {{ b.build_detail?.length || 0 }} Item
                   </span>
                 </div>
@@ -172,17 +220,39 @@ onMounted(() => {
                     class="p-2 text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
                     title="Checkout ke Keranjang"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
                     </svg>
                   </button>
                   <button
-                    @click="router.push(`/dashboard/manage/desktopLab/${b.id_build}/edit`)"
+                    @click="
+                      router.push(
+                        `/dashboard/manage/desktopLab/${b.id_build}/edit`
+                      )
+                    "
                     class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     title="Edit"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+                      />
                     </svg>
                   </button>
                   <button
@@ -190,8 +260,17 @@ onMounted(() => {
                     class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Hapus"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                        clip-rule="evenodd"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -220,4 +299,3 @@ onMounted(() => {
   }
 }
 </style>
-
