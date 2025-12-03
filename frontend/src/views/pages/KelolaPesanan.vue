@@ -112,7 +112,7 @@
               <span
                 class="px-2 py-1 text-xs font-medium rounded-full bg-pink-100 text-pink-800"
               >
-                Midtrans
+                {{ order.payment_method === 'cod' ? 'COD' : 'Midtrans' }}
               </span>
             </td>
             <td class="px-4 py-3">

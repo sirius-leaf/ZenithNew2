@@ -52,15 +52,17 @@
                 class="w-full bg-transparent border-none outline-none text-white text-sm sm:text-base font-normal font-['Ubuntu'] placeholder-white/70 pb-1"
               />
               <div class="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-white"></div>
+              <span v-if="errorMessage" class="text-red-800 bg-red-200 text-xs font-['Ubuntu'] mt-1">{{ errorMessage }}</span>
             </div>
           </div>
           
           <!-- Register Button -->
           <button 
             type="submit"
-            class="w-full max-w-[208px] h-8 px-8 sm:px-16 py-2 bg-white rounded-2xl flex justify-center items-center hover:bg-gray-100 transition-colors"
+            :disabled="isLoading"
+            class="w-full max-w-[208px] h-8 px-8 sm:px-16 py-2 bg-white rounded-2xl flex justify-center items-center hover:bg-gray-100 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            <span class="text-blue-900 text-sm sm:text-base font-medium font-['Ubuntu']">Register</span>
+            <span class="text-blue-900 text-sm sm:text-base font-medium font-['Ubuntu']">{{ isLoading ? 'Loading...' : 'Register' }}</span>
           </button>
 
           <!-- Register Prompt: Text + Link on new line -->
@@ -102,7 +104,17 @@ const form = ref({
   password: ''
 })
 
+const errorMessage = ref('')
+const isLoading = ref(false)
+
 const registerUser = async () => {
+  if (form.value.password.length < 8) {
+    errorMessage.value = 'Input tidak valid: Password minimal 8 karakter'
+    return
+  }
+  errorMessage.value = ''
+  isLoading.value = true
+
   try {
     const res = await axios.post('http://127.0.0.1:8000/api/register', form.value)
     console.log(res.data)
@@ -120,6 +132,8 @@ const registerUser = async () => {
   } catch (err) {
     console.error(err.response?.data)
     alert('Registrasi gagal!')
+  } finally {
+    isLoading.value = false
   }
 }
 </script>

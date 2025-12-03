@@ -65,6 +65,9 @@ class UserController extends Controller
             });
         }
 
+        // Urutkan dari yang terbaru
+        $query->orderBy('created_at', 'desc');
+
         $users = $query->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([

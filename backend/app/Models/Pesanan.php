@@ -17,7 +17,8 @@ class Pesanan extends Model
         'alamat_pengiriman',
         'alasan_pembatalan',
         'previous_status',
-        'is_cancellation_rejected'
+        'is_cancellation_rejected',
+        'payment_method',
     ];
 
     // Relasi: Pesanan ini milik siapa

@@ -107,7 +107,17 @@ const censorName = (name) => {
           }}</span>
           <span class="text-gray-400 text-xl mb-1">/ 5.0</span>
         </div>
-        <p class="font-medium text-gray-900 mb-1">100% pembeli merasa puas</p>
+        <p class="font-medium text-gray-900 mb-1">
+          {{
+            totalReviews > 0
+              ? Math.round(
+                  ((ratingDistribution[5] + ratingDistribution[4]) /
+                    totalReviews) *
+                    100
+                )
+              : 0
+          }}% pembeli merasa puas
+        </p>
         <p class="text-sm text-gray-500">
           {{ totalReviews }} rating • {{ reviews.length }} ulasan
         </p>
