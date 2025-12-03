@@ -23,9 +23,13 @@
       <div class="space-y-4">
         <div>
           <label class="text-sm text-[#203f9a] font-medium">Email</label>
-          <div class="w-full px-3 py-2 border border-gray-200 rounded-lg mt-1 bg-white flex items-center justify-between">
+          <div
+            class="w-full px-3 py-2 border border-gray-200 rounded-lg mt-1 bg-white flex items-center justify-between"
+          >
             <span>{{ userEmail }}</span>
-            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Terverifikasi</span>
+            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded"
+              >Terverifikasi</span
+            >
           </div>
         </div>
 
@@ -79,7 +83,7 @@ const router = useRouter();
 const editName = ref("");
 const editPhone = ref("");
 const editAddress = ref("");
-const userEmail = ref(""); 
+const userEmail = ref("");
 const loading = ref(false);
 
 onMounted(async () => {
@@ -99,7 +103,6 @@ onMounted(async () => {
     editPhone.value = res.data.no_telpon || "";
     editAddress.value = res.data.alamat || "";
     userEmail.value = res.data.email || "";
-
   } catch (err) {
     console.error("Error fetching profile:", err);
     alert("Gagal memuat data profil.");
@@ -111,7 +114,7 @@ const saveChanges = async () => {
   loading.value = true;
 
   try {
-    await axios.put("http://127.0.0.1:8000/api/profile/update", {
+    await axios.post("http://127.0.0.1:8000/api/profile/update", {
       name: editName.value,
       no_telpon: editPhone.value,
       alamat: editAddress.value,
