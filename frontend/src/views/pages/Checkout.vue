@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const { clearCart } = useCartStore();
+const { clearCart, removeCartItem } = useCartStore();
 
 // State
 const loading = ref(true);
@@ -72,6 +72,15 @@ const fetchCheckoutData = async () => {
   }
 };
 
+// Helper untuk menghapus item yang dibeli saja
+const removePurchasedItems = (items) => {
+  if (items && items.length > 0) {
+    items.forEach((item) => {
+      removeCartItem(item.id_varian);
+    });
+  }
+};
+
 // 2. Proses Checkout (INTEGRASI MIDTRANS)
 const finalizeCheckout = async () => {
   loadingCheckout.value = true;
@@ -111,9 +120,8 @@ const finalizeCheckout = async () => {
     // B. Cek Metode Pembayaran
     if (paymentMethod.value === "cod") {
       // Jika COD, langsung sukses tanpa popup
-      handleSuccess(orderIds);
+      handleSuccess(orderIds, cartItemsPayload);
     } else {
-      clearCart();
       // Jika Transfer/Online, Buka Popup Midtrans Snap
       if (window.snap && snapToken) {
         window.snap.pay(snapToken, {
@@ -131,14 +139,14 @@ const finalizeCheckout = async () => {
             } catch (e) {
               console.error("Gagal update status paid:", e);
             }
-            // handleSuccess(orderIds);
-            clearCart();
+            // Hapus item yang dibeli dari keranjang
+            removePurchasedItems(cartItemsPayload);
             localStorage.removeItem("checkout_selection");
             router.push(`/riwayat/${orderIds[0]}`);
           },
           onPending: function (result) {
             console.log("Payment Pending:", result);
-            handleSuccess(orderIds); // Tetap dianggap sukses order (status pending)
+            handleSuccess(orderIds, cartItemsPayload); // Tetap dianggap sukses order (status pending)
           },
           onError: function (result) {
             console.error("Payment Error:", result);
@@ -170,8 +178,8 @@ const finalizeCheckout = async () => {
 };
 
 // Fungsi Helper setelah order berhasil
-const handleSuccess = (orderIds) => {
-  clearCart(); // Hapus item dari keranjang global
+const handleSuccess = (orderIds, purchasedItems) => {
+  removePurchasedItems(purchasedItems); // Hapus item yang dibeli saja
   localStorage.removeItem("checkout_selection"); // Hapus seleksi
 
   // Redirect ke halaman sukses dengan ID pesanan pertama
