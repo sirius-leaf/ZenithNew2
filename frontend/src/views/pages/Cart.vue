@@ -395,6 +395,7 @@ const updateQuantity = (id_varian, delta) => {
   );
   if (cartItem) {
     cartItem.kuantitas = newQty;
+    cartItem.subtotal = cartItem.variant.harga * newQty;
   }
 };
 
