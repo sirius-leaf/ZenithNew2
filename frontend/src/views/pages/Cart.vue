@@ -85,89 +85,120 @@
             >
           </div>
 
-          <!-- Daftar Produk -->
-          <div class="space-y-4">
+          <!-- Daftar Produk Grouped by Store -->
+          <div class="space-y-6">
             <div
-              v-for="item in cartSummary"
-              :key="item.variant.id_varian"
-              class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-pink-50 transition-colors"
+              v-for="(items, storeName) in groupedCartItems"
+              :key="storeName"
+              class="bg-white border border-gray-200 rounded-lg overflow-hidden"
             >
-              <!-- Checkbox -->
-              <input
-                v-model="checkedItems[item.variant.id_varian]"
-                type="checkbox"
-                class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-2 focus:ring-pink-500 mr-4 flex-shrink-0"
-              />
-
-              <!-- Gambar -->
-              <img
-                :src="getProductImage(item.variant)"
-                :alt="item.variant.product.nama_produk"
-                class="w-16 h-16 object-cover rounded-md mr-4 flex-shrink-0"
-              />
-
-              <!-- Detail -->
-              <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-blue-900 text-sm">
-                  {{ item.variant.product.toko?.toko_name || "Toko" }}
-                </h3>
-                <p class="text-gray-800 font-medium mt-1 text-sm line-clamp-2">
-                  {{ item.variant.product.nama_produk }}
-                </p>
-                <p class="text-gray-500 text-xs mt-1">
-                  {{ item.variant.nama_varian }}
-                </p>
-              </div>
-
-              <!-- Kolom Kanan -->
-              <div class="flex items-center gap-3 ml-4 flex-shrink-0">
-                <!-- Harga -->
-                <p class="font-bold text-gray-800 text-sm">
-                  {{ formatCurrency(item.variant.harga) }}
-                </p>
-
-                <!-- Quantity Controls -->
-                <div class="flex items-center gap-1">
-                  <button
-                    @click="updateQuantity(item.variant.id_varian, -1)"
-                    :disabled="item.kuantitas <= 1"
-                    class="w-7 h-7 flex items-center justify-center bg-blue-900 text-white text-xs rounded hover:bg-blue-800 disabled:bg-gray-400 transition-colors"
-                  >
-                    -
-                  </button>
-                  <span
-                    class="w-8 text-center text-xs font-medium text-gray-800"
-                  >
-                    {{ item.kuantitas }}
-                  </span>
-                  <button
-                    @click="updateQuantity(item.variant.id_varian, 1)"
-                    class="w-7 h-7 flex items-center justify-center bg-blue-900 text-white text-xs rounded hover:bg-blue-800 transition-colors"
-                  >
-                    +
-                  </button>
-                </div>
-
-                <!-- Tombol Hapus -->
-                <button
-                  @click="removeItem(item.variant.id_varian)"
-                  class="w-7 h-7 flex items-center justify-center text-red-600 hover:text-red-800 transition-colors"
-                  title="Hapus item"
+              <!-- Store Header -->
+              <div
+                class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center gap-2"
+              >
+                <div
+                  class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600"
                 >
                   <svg
+                    xmlns="http://www.w3.org/2000/svg"
                     class="w-4 h-4"
                     fill="none"
-                    stroke="currentColor"
                     viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                     />
                   </svg>
-                </button>
+                </div>
+                <h3 class="font-bold text-gray-800">{{ storeName }}</h3>
+              </div>
+
+              <!-- Items -->
+              <div class="divide-y divide-gray-100">
+                <div
+                  v-for="item in items"
+                  :key="item.variant.id_varian"
+                  class="flex items-center p-4 hover:bg-pink-50 transition-colors"
+                >
+                  <!-- Checkbox -->
+                  <input
+                    v-model="checkedItems[item.variant.id_varian]"
+                    type="checkbox"
+                    class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-2 focus:ring-pink-500 mr-4 flex-shrink-0"
+                  />
+
+                  <!-- Gambar -->
+                  <img
+                    :src="getProductImage(item.variant)"
+                    :alt="item.variant.product.nama_produk"
+                    class="w-16 h-16 object-cover rounded-md mr-4 flex-shrink-0"
+                  />
+
+                  <!-- Detail -->
+                  <div class="flex-1 min-w-0">
+                    <p class="text-gray-800 font-medium text-sm line-clamp-2">
+                      {{ item.variant.product.nama_produk }}
+                    </p>
+                    <p class="text-gray-500 text-xs mt-1">
+                      {{ item.variant.nama_varian }}
+                    </p>
+                  </div>
+
+                  <!-- Kolom Kanan -->
+                  <div class="flex items-center gap-3 ml-4 flex-shrink-0">
+                    <!-- Harga -->
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ formatCurrency(item.variant.harga) }}
+                    </p>
+
+                    <!-- Quantity Controls -->
+                    <div class="flex items-center gap-1">
+                      <button
+                        @click="updateQuantity(item.variant.id_varian, -1)"
+                        :disabled="item.kuantitas <= 1"
+                        class="w-7 h-7 flex items-center justify-center bg-blue-900 text-white text-xs rounded hover:bg-blue-800 disabled:bg-gray-400 transition-colors"
+                      >
+                        -
+                      </button>
+                      <span
+                        class="w-8 text-center text-xs font-medium text-gray-800"
+                      >
+                        {{ item.kuantitas }}
+                      </span>
+                      <button
+                        @click="updateQuantity(item.variant.id_varian, 1)"
+                        class="w-7 h-7 flex items-center justify-center bg-blue-900 text-white text-xs rounded hover:bg-blue-800 transition-colors"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <!-- Tombol Hapus -->
+                    <button
+                      @click="removeItem(item.variant.id_varian)"
+                      class="w-7 h-7 flex items-center justify-center text-red-600 hover:text-red-800 transition-colors"
+                      title="Hapus item"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -233,6 +264,57 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal Peringatan Multi-Toko -->
+    <Transition name="modal-fade">
+      <div
+        v-if="showMultiStoreModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        @click="showMultiStoreModal = false"
+      >
+        <Transition name="modal-slide">
+          <div
+            class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden"
+            @click.stop
+          >
+            <div class="p-6 text-center">
+              <div
+                class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-8 h-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">
+                Checkout Dibatasi
+              </h3>
+              <p class="text-gray-600 mb-6">
+                Anda hanya dapat melakukan checkout untuk produk dari
+                <strong>satu toko</strong> dalam satu transaksi. Silakan pilih
+                produk dari satu toko saja.
+              </p>
+              <button
+                @click="showMultiStoreModal = false"
+                class="px-6 py-2.5 bg-blue-900 text-white font-medium rounded-lg hover:bg-blue-800 transition-colors"
+              >
+                Mengerti
+              </button>
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -250,6 +332,7 @@ const cartSummary = ref([]);
 const apiError = ref(null);
 const checkedItems = ref({}); // default: semua false
 const isLoggedIn = ref(false);
+const showMultiStoreModal = ref(false);
 
 const checkLogin = () => {
   const token = localStorage.getItem("authToken");
@@ -260,6 +343,18 @@ const filteredCartForCheckout = computed(() => {
   return cartSummary.value.filter(
     (item) => checkedItems.value[item.variant.id_varian]
   );
+});
+
+const groupedCartItems = computed(() => {
+  const groups = {};
+  cartSummary.value.forEach((item) => {
+    const storeName = item.variant.product.toko?.toko_name || "Toko";
+    if (!groups[storeName]) {
+      groups[storeName] = [];
+    }
+    groups[storeName].push(item);
+  });
+  return groups;
 });
 
 const filteredTotalPrice = computed(() => {
@@ -412,6 +507,18 @@ const goToCheckout = () => {
     alert("Pilih minimal 1 produk untuk checkout");
     return;
   }
+
+  // Check for multiple stores
+  const stores = new Set();
+  filteredCartForCheckout.value.forEach((item) => {
+    stores.add(item.variant.product.toko?.toko_name || "Toko");
+  });
+
+  if (stores.size > 1) {
+    showMultiStoreModal.value = true;
+    return;
+  }
+
   const selectedItems = filteredCartForCheckout.value.map((item) => ({
     id_varian: item.variant.id_varian,
     kuantitas: item.kuantitas,
@@ -449,5 +556,27 @@ onMounted(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Animasi Modal */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-slide-enter-active,
+.modal-slide-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.modal-slide-enter-from {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+.modal-slide-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
 }
 </style>

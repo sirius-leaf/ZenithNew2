@@ -568,7 +568,8 @@ const submitReview = async (item) => {
     });
 
     alert("Ulasan berhasil dikirim!");
-    // Optional: Hide form or mark as reviewed
+    // Refresh order to update UI and hide form
+    await fetchOrder();
   } catch (err) {
     console.error(err);
     alert(err.response?.data?.message || "Gagal mengirim ulasan.");

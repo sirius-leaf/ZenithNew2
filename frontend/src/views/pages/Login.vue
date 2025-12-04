@@ -58,7 +58,7 @@
           </div>
 
           <!-- Recaptcha temporarily disabled -->
-          <div id="recaptcha-box" class="w-full flex justify-center"></div>
+          <!-- <div id="recaptcha-box" class="w-full flex justify-center"></div> -->
 
           <!-- Error Message -->
           <div
@@ -114,6 +114,8 @@ const form = ref({
 });
 
 onMounted(() => {
+  // Recaptcha disabled
+  /*
   window.onCaptchaSuccess = (token) => {
     form.value.recaptcha = token;
   };
@@ -127,6 +129,7 @@ onMounted(() => {
       clearInterval(interval);
     }
   }, 300);
+  */
 });
 
 const isLoading = ref(false);
