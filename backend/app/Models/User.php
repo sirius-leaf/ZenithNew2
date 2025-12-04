@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Toko;
 use App\Models\Pesanan;
 use App\Models\PcBuild;
@@ -10,8 +10,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Notifications\VerifyEmailSpaNotification;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
@@ -36,6 +37,8 @@ class User extends Authenticatable
         'ktp_path',
         'npwp_path',
         'store_photo',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     public function toko()
@@ -82,4 +85,8 @@ class User extends Authenticatable
         ];
     }
 
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailSpaNotification());
+    }
 }

@@ -84,7 +84,7 @@ class LoginController extends Controller
 
         return response()->json([
             'message' => 'Login berhasil!',
-            'user' => $user->only('id', 'name', 'email', 'role', 'store_name'), // aman: jangan kirim password, dll
+            'user' => $user->only('id', 'name', 'email', 'role', 'store_name', 'email_verified_at'), // aman: jangan kirim password, dll
             'token' => $token,
         ]);
     }

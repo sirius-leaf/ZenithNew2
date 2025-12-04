@@ -194,6 +194,8 @@ const router = createRouter({
     /* ---------- Auth ---------- */
     { path: "/login", component: Login, meta: { hideLayout: true } },
     { path: "/register", component: Register, meta: { hideLayout: true } },
+    { path: "/verify-email", component: () => import("./views/pages/VerifyEmail.vue"), meta: { hideLayout: true } },
+    { path: "/verify-code", component: () => import("./views/pages/VerifyCode.vue"), meta: { hideLayout: true } },
 
     /* ---------- 404 Fallback ---------- */
     { path: "/:pathMatch(.*)*", component: NotFound },

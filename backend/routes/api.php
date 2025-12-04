@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\MidtransCallbackController;
 // Rute umum (tidak perlu autentikasi)
 Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('guest')->name('api.register');
 Route::post('/login', [LoginController::class, 'login']);
+Route::post('/verify-code', [\App\Http\Controllers\Auth\CodeVerificationController::class, 'verify']);
 
 Route::get('/products', [ProductPageController::class, 'index']);
 Route::get('/productAll', [PcBuildController::class, 'products']);

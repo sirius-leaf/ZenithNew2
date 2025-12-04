@@ -14,17 +14,20 @@ Route::middleware('guest')->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store'])
         ->name('register.store');
+
+    Route::post('verify-code', [\App\Http\Controllers\Auth\CodeVerificationController::class, 'verify'])
+        ->name('verification.code');
 });
 
-// Route::middleware('auth')->group(function () {
-//     Route::get('verify-email', EmailVerificationPromptController::class)
-//         ->name('verification.notice');
+Route::middleware('auth')->group(function () {
+    Route::get('verify-email', EmailVerificationPromptController::class)
+        ->name('verification.notice');
 
-//     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-//         ->middleware(['signed', 'throttle:6,1'])
-//         ->name('verification.verify');
+    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
 
-//     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-//         ->middleware('throttle:6,1')
-//         ->name('verification.send');
-// });
+    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
+});

@@ -188,11 +188,36 @@ const handleLogout = () => {
   delete axios.defaults.headers.common["Authorization"];
   router.push("/login");
 };
+
+
+const resendVerification = async () => {
+  try {
+    await axios.post('/email/verification-notification');
+    toast.success("Link verifikasi telah dikirim ke email Anda!");
+  } catch (error) {
+    if (error.response && error.response.status === 429) {
+       toast.error("Terlalu banyak permintaan. Tunggu beberapa saat.");
+    } else {
+       toast.error("Gagal mengirim link verifikasi.");
+    }
+  }
+};
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50">
     <main class="px-4 py-6 md:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <!-- Verification Alert -->
+      <div v-if="user && !user.email_verified_at" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded shadow-sm flex justify-between items-center">
+        <div>
+          <p class="font-bold">Email Belum Terverifikasi</p>
+          <p class="text-sm">Silakan cek email Anda untuk memverifikasi akun. Belum terima email?</p>
+        </div>
+        <button @click="resendVerification" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded text-sm transition-colors">
+          Kirim Ulang
+        </button>
+      </div>
+
       <!-- Hero Banner -->
       <div
         class="relative bg-gradient-to-r from-pink-600 to-purple-600 rounded-2xl p-8 md:p-10 mb-8 overflow-hidden shadow-lg text-white"

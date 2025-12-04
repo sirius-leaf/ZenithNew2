@@ -118,8 +118,10 @@ const registerUser = async () => {
   try {
     const res = await axios.post('http://127.0.0.1:8000/api/register', form.value)
     console.log(res.data)
-    alert('Registrasi berhasil!')
+    alert('Registrasi berhasil! Silakan cek email untuk kode verifikasi.')
     
+    const email = form.value.email
+
     // Reset form setelah berhasil
     form.value = {
       name: '',
@@ -127,7 +129,7 @@ const registerUser = async () => {
       password: ''
     }
 
-    router.push('/login')
+    router.push({ path: '/verify-code', query: { email: email } })
 
   } catch (err) {
     console.error(err.response?.data)

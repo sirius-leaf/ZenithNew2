@@ -8,8 +8,11 @@ use Illuminate\Auth\Events\Registered;
 // use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\Http\JsonResponse;
+use App\Mail\VerificationCodeMail;
 // use Inertia\Inertia;
 // use Inertia\Response;
 
@@ -60,20 +63,26 @@ class RegisteredUserController extends Controller
             'password' => ['required', Rules\Password::defaults()],
         ]);
 
+        $code = (string) rand(100000, 999999);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password,
+            'password' => Hash::make($request->password),
+            'verification_code' => $code,
+            'verification_code_expires_at' => now()->addMinutes(10),
         ]);
 
-        event(new Registered($user));
+        // event(new Registered($user));
 
         // Auth::login($user);
 
         // $request->session()->regenerate();
+        // $user->notify(new VerifyEmailSpaNotification());
+        Mail::to($user->email)->send(new VerificationCodeMail($code));
 
         return response()->json([
-            'message' => 'Registrasi berhasil. Silakan login.',
+            'message' => 'Registrasi berhasil. Silakan cek email untuk kode verifikasi.',
             'user' => $user
         ], 201); // 201 artinya "Created"
     }
