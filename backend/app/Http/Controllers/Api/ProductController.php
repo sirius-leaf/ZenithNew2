@@ -539,4 +539,53 @@ class ProductController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get product statistics for seller.
+     *
+     * @OA\Get(
+     *     path="/api/manage/product/statistics",
+     *     tags={"Product Management"},
+     *     summary="Get product statistics (Sales & Ratings)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product statistics",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
+    public function statistics()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'penjual' || !$user->toko) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $products = Product::where('id_toko', $user->toko->id)
+            ->with([
+                'variant' => function ($query) {
+                    $query->withCount(['detailPesanans as sold_count', 'reviews as rating_count']);
+                }
+            ])
+            ->get();
+
+        $stats = [];
+        foreach ($products as $product) {
+            foreach ($product->variant as $variant) {
+                $stats[] = [
+                    'product_name' => $product->nama_produk,
+                    'variant_name' => $variant->nama_varian,
+                    'full_name' => $product->nama_produk . ' - ' . $variant->nama_varian,
+                    'sold' => $variant->sold_count,
+                    'rating_count' => $variant->rating_count,
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $stats
+        ]);
+    }
 }

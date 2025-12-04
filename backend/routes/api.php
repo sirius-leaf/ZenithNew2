@@ -82,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Manajemen PC Build
     Route::prefix('manage')->name('manage.')->group(function () {
+        Route::get('/product/statistics', [ProductController::class, 'statistics']);
         Route::apiResource('pcBuild', PcBuildController::class);
         Route::apiResource('product', ProductController::class);
         Route::get('productToko', [ProductController::class, 'create']);
@@ -97,7 +98,6 @@ Route::middleware('auth:sanctum')->group(function () {
         // 3. Admin: Approve request
         Route::post('/admin/seller-requests/{id}/approve', [UserRoleController::class, 'approve']);
 
-        // 4. Admin: Get ALL products
         Route::get('/all-products', [ProductController::class, 'adminIndex'])->middleware('admin');
     });
 });

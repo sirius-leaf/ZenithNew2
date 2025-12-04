@@ -38,8 +38,34 @@
       </div>
     </div>
 
-    <div class="mb-6">
+    <div class="mb-6 flex justify-between items-center">
+      <div class="flex p-1 bg-gray-100 rounded-xl">
+        <button
+          @click="activeTab = 'list'"
+          class="px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200"
+          :class="
+            activeTab === 'list'
+              ? 'bg-white text-pink-600 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          "
+        >
+          Daftar Produk
+        </button>
+        <button
+          @click="activeTab = 'stats'"
+          class="px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200"
+          :class="
+            activeTab === 'stats'
+              ? 'bg-white text-pink-600 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          "
+        >
+          Statistik
+        </button>
+      </div>
+
       <button
+        v-if="activeTab === 'list'"
         @click="handleAddProduct"
         class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg inline-block transition-colors"
         :class="{ 'opacity-50 cursor-not-allowed': isFrozen }"
@@ -48,87 +74,99 @@
       </button>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="text-center py-12">
+    <!-- Statistics View -->
+    <ProdukStatistik v-if="activeTab === 'stats'" />
+
+    <!-- Product List View -->
+    <div v-if="activeTab === 'list'">
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-12">
+        <div
+          class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500"
+        ></div>
+        <p class="mt-2 text-gray-600">Memuat data...</p>
+      </div>
+
+      <!-- Error Message -->
       <div
-        class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500"
-      ></div>
-      <p class="mt-2 text-gray-600">Memuat data...</p>
-    </div>
+        v-else-if="error"
+        class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg"
+      >
+        {{ error }}
+      </div>
 
-    <!-- Error Message -->
-    <div v-else-if="error" class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
-      {{ error }}
-    </div>
-
-    <!-- Product Table -->
-    <div v-else class="overflow-x-auto bg-white rounded-lg shadow">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Nama Produk
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Merek
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Deskripsi
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Aksi
-            </th>
-          </tr>
-        </thead>
-
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="product in products" :key="product.id_produk">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ product.nama_produk }}
-              <span class="text-gray-500 text-xs ml-1"
-                >({{
-                  product.variant ? product.variant.length : 0
-                }}
-                varian)</span
+      <!-- Product Table -->
+      <div v-else class="overflow-x-auto bg-white rounded-lg shadow">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ product.merek }}
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
-              {{ product.deskripsi }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <RouterLink
-                :to="{
-                  name: 'produk.edit',
-                  params: { id: product.id_produk },
-                }"
-                class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mr-2"
+                Nama Produk
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Edit
-              </RouterLink>
-              <button
-                @click="deleteProduct(product.id_produk)"
-                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                Merek
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Hapus
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                Deskripsi
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Aksi
+              </th>
+            </tr>
+          </thead>
 
-      <div v-if="products.length === 0" class="text-center py-10 text-gray-500">
-        Tidak ada produk ditemukan.
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-for="product in products" :key="product.id_produk">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ product.nama_produk }}
+                <span class="text-gray-500 text-xs ml-1"
+                  >({{
+                    product.variant ? product.variant.length : 0
+                  }}
+                  varian)</span
+                >
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ product.merek }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                {{ product.deskripsi }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <RouterLink
+                  :to="{
+                    name: 'produk.edit',
+                    params: { id: product.id_produk },
+                  }"
+                  class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mr-2"
+                >
+                  Edit
+                </RouterLink>
+                <button
+                  @click="deleteProduct(product.id_produk)"
+                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                >
+                  Hapus
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div
+          v-if="products.length === 0"
+          class="text-center py-10 text-gray-500"
+        >
+          Tidak ada produk ditemukan.
+        </div>
       </div>
     </div>
 

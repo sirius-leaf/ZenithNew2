@@ -66,8 +66,41 @@
 
     <!-- Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Tabs -->
+      <div class="flex justify-center mb-6">
+        <div class="flex p-1 bg-gray-200/50 rounded-xl">
+          <button
+            @click="activeTab = 'list'"
+            class="px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200"
+            :class="
+              activeTab === 'list'
+                ? 'bg-white text-pink-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            "
+          >
+            Daftar Produk
+          </button>
+          <button
+            @click="activeTab = 'stats'"
+            class="px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200"
+            :class="
+              activeTab === 'stats'
+                ? 'bg-white text-pink-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            "
+          >
+            Statistik
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistics View -->
+      <div v-if="activeTab === 'stats'" class="mb-8">
+        <ProdukStatistik />
+      </div>
+
       <!-- Products Table -->
-      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div v-if="activeTab === 'list'" class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div
           class="px-6 py-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4"
         >
@@ -772,10 +805,12 @@
 import { ref, onMounted, computed, onUnmounted } from "vue";
 import axios from "axios";
 import { useToast } from "vue-toastification";
+import ProdukStatistik from "../manage_pages/produk/ProdukStatistik.vue";
 
 const toast = useToast();
 
 // State
+const activeTab = ref("list");
 const products = ref([]);
 const categories = ref([]);
 const user = ref(null);
