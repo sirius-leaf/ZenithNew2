@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Review>
  */
-class TokoFactory extends Factory
+class ReviewFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,9 +17,10 @@ class TokoFactory extends Factory
     public function definition(): array
     {
         return [
-            'toko_name' => $this->faker->company(),
-            'deskripsi' => $this->faker->sentence(),
             'id_user' => \App\Models\User::factory(),
+            'id_produk' => \App\Models\Product::factory(),
+            'rating' => $this->faker->numberBetween(1, 5),
+            'komentar' => $this->faker->sentence(),
         ];
     }
 }
