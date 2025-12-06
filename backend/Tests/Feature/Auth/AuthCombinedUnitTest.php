@@ -19,54 +19,42 @@ class AuthCombinedUnitTest extends TestCase
     use RefreshDatabase;
 
     // ==========================================
-    // METHOD 1: TEST REGISTRASI SAJA
+    // METHOD 1: TEST REGISTRASI SAJA (Unit)
     // ==========================================
     #[Test]
     public function RegistrasiBerhasil()
     {
-        // 1. Siapkan Data Registrasi
         $data = [
             'name' => 'Mahasiswa Baru',
             'email' => 'mahasiswa@example.com',
             'password' => 'password123',
         ];
 
-        // 2. Buat Request Manual
         $request = Request::create('/api/register', 'POST', $data);
         $request->headers->set('Accept', 'application/json');
 
-        // 3. Mock Mailer
         Mail::fake();
 
-        // 4. Panggil Controller Register (Function Call)
         $controller = new RegisteredUserController();
         $response = $controller->store($request);
 
-        // 5. Assert (Pastikan Sukses)
         $this->assertEquals(201, $response->getStatusCode());
-        
-        // Pastikan data masuk ke DB
-        $this->assertDatabaseHas('users', [
-            'email' => 'mahasiswa@example.com'
-        ]);
+        $this->assertDatabaseHas('users', ['email' => 'mahasiswa@example.com']);
     }
 
     // ==========================================
-    // METHOD 2: TEST LOGIN SAJA
+    // METHOD 2: TEST LOGIN SAJA (Unit)
     // ==========================================
     #[Test]
     public function LoginBerhasil()
     {
-        // 1. PERSIAPAN DATA (PENTING)
-        // Karena database di-reset setelah test di atas selesai,
-        // Kita WAJIB membuat user baru lagi di sini agar bisa Login.
+        // Kita butuh factory karena ini test terpisah (DB bersih)
         $password = 'rahasia123';
-        $user = User::factory()->create([
+        User::factory()->create([
             'email' => 'dosen@example.com',
-            'password' => Hash::make($password), // Password di DB harus ter-hash
+            'password' => Hash::make($password),
         ]);
 
-        // 2. Siapkan Request Login (Kirim password asli/plain)
         $loginData = [
             'email' => 'dosen@example.com',
             'password' => $password,
@@ -76,20 +64,76 @@ class AuthCombinedUnitTest extends TestCase
         $request = Request::create('/api/login', 'POST', $loginData);
         $request->headers->set('Accept', 'application/json');
 
-        // 3. Mock Service Recaptcha
         $mockRecaptcha = Mockery::mock(RecaptchaService::class);
         $mockRecaptcha->shouldReceive('verify')->andReturn(true);
 
-        // 4. Panggil Controller Login (Function Call)
         $controller = new LoginController();
         $response = $controller->login($request, $mockRecaptcha);
 
-        // 5. Assert (Pastikan Sukses)
         $this->assertEquals(200, $response->getStatusCode());
         
-        // Cek isi respon
         $result = $response->getData(true);
         $this->assertEquals('Login berhasil!', $result['message']);
         $this->assertArrayHasKey('token', $result);
+    }
+
+    // ==========================================
+    // METHOD 3: TEST GABUNGAN (Integration via Function Call)
+    // ==========================================
+    #[Test]
+    public function RegistrasiDanLangsungLoginBerhasil()
+    {
+        // --- STEP 1: REGISTRASI ---
+        // Kita gunakan data yang sama untuk register dan login nanti
+        $email = 'gabungan@example.com';
+        $password = 'passwordKuat123';
+
+        $regRequest = Request::create('/api/register', 'POST', [
+            'name' => 'User Gabungan',
+            'email' => $email,
+            'password' => $password,
+        ]);
+        $regRequest->headers->set('Accept', 'application/json');
+
+        Mail::fake();
+
+        // Panggil Controller Register
+        $regController = new RegisteredUserController();
+        $regResponse = $regController->store($regRequest);
+
+        // Pastikan Step 1 Sukses dulu
+        $this->assertEquals(201, $regResponse->getStatusCode());
+
+        // --- STEP 2: LOGIN ---
+        // PENTING: Di sini kita TIDAK pakai User::factory().
+        // Kenapa? Karena user 'gabungan@example.com' sudah tersimpan di database
+        // berkat Step 1 di atas (dalam satu method, DB belum di-reset).
+
+        $loginRequest = Request::create('/api/login', 'POST', [
+            'email' => $email,     // Pakai email dari Step 1
+            'password' => $password, // Pakai password dari Step 1
+            'recaptcha' => 'token_valid',
+        ]);
+        $loginRequest->headers->set('Accept', 'application/json');
+
+        // Mock Recaptcha
+        $mockRecaptcha = Mockery::mock(RecaptchaService::class);
+        $mockRecaptcha->shouldReceive('verify')->andReturn(true);
+
+        // Panggil Controller Login
+        $loginController = new LoginController();
+        $loginResponse = $loginController->login($loginRequest, $mockRecaptcha);
+
+        // --- STEP 3: ASSERT FINAL ---
+        $this->assertEquals(200, $loginResponse->getStatusCode());
+
+        $result = $loginResponse->getData(true);
+        
+        // Buktikan login berhasil dan dapat token
+        $this->assertEquals('Login berhasil!', $result['message']);
+        $this->assertArrayHasKey('token', $result);
+        
+        // Buktikan yang login adalah user yang tadi register
+        $this->assertEquals($email, $result['user']['email']);
     }
 }
