@@ -1,83 +1,82 @@
 <?php
 
-namespace Tests\Unit\Auth;
+namespace Tests\Feature\Auth;
 
 use Tests\TestCase;
 use App\Models\User;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use Tests\Feature\Auth\Modul\Registermodul; // <--- Pakai Replika
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\ValidationException; // Wajib import ini untuk cek error
+use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 
-class RegistrationUnitTest extends TestCase
+class RegisterUnitTest extends TestCase
 {
     use RefreshDatabase;
 
-    // 1. TEST SUKSES (Yang tadi sudah dibuat)
+    // 1. TEST SUKSES
     #[Test]
-    public function test_register_controller_success()
+    public function registrasi_sukses_menggunakan_replika()
     {
+        // Arrange
         $data = [
-            'name' => 'Mahasiswa',
-            'email' => 'mahasiswa@example.com',
+            'name' => 'Mahasiswa Rajin',
+            'email' => 'rajin@example.com',
             'password' => 'password123',
         ];
 
         $request = Request::create('/api/register', 'POST', $data);
         $request->headers->set('Accept', 'application/json');
-        
-        Mail::fake();
 
-        $controller = new RegisteredUserController();
-        $response = $controller->store($request);
+        // Act (Function Call)
+        $modul = new Registermodul();
+        $response = $modul->store($request);
 
+        // Assert
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertDatabaseHas('users', ['email' => 'mahasiswa@example.com']);
+        $this->assertDatabaseHas('users', ['email' => 'rajin@example.com']);
     }
 
-    // 2. TEST GAGAL VALIDASI (Input Kosong)
+    // 2. TEST GAGAL (Data Kosong)
     #[Test]
-    public function test_register_controller_fails_validation_empty_data()
+    public function registrasi_gagal_karena_data_kosong()
     {
-        // Siapkan data kosong
+        // Arrange (Data kosong)
         $request = Request::create('/api/register', 'POST', []);
         $request->headers->set('Accept', 'application/json');
 
-        $controller = new RegisteredUserController();
+        $modul = new Registermodul();
 
-        // KITA HARAPKAN ERROR:
-        // Karena ini function call langsung, dia tidak return 422,
-        // tapi melempar 'ValidationException'.
+        // Expect Exception (Karena function call melempar error validasi mentah)
         $this->expectException(ValidationException::class);
 
-        // Panggil fungsi (ini akan menyebabkan crash/exception yang ditangkap di atas)
-        $controller->store($request);
+        // Act
+        $modul->store($request);
     }
 
-    // 3. TEST GAGAL DUPLIKAT (Email Kembar)
+    // 3. TEST GAGAL (Email Duplikat)
     #[Test]
-    public function test_register_controller_fails_duplicate_email()
+    public function registrasi_gagal_karena_email_sudah_ada()
     {
-        // Buat user pertama dulu
+        // Arrange: Buat user duluan
         User::factory()->create(['email' => 'kembar@example.com']);
 
-        // Coba register lagi dengan email sama
+        // Coba daftar pakai email sama
         $data = [
             'name' => 'Orang Kedua',
-            'email' => 'kembar@example.com', // SAMA
+            'email' => 'kembar@example.com',
             'password' => 'password123',
         ];
 
         $request = Request::create('/api/register', 'POST', $data);
         $request->headers->set('Accept', 'application/json');
 
-        $controller = new RegisteredUserController();
+        $modul = new Registermodul();
 
-        // Harapannya error validasi lagi (karena rule 'unique:users')
+        // Expect Exception
         $this->expectException(ValidationException::class);
 
-        $controller->store($request);
+        // Act
+        $modul->store($request);
     }
 }

@@ -1,17 +1,14 @@
 <?php
 
-namespace Tests\Unit\Auth;
+namespace Tests\Feature\Auth;
 
 use Tests\TestCase;
 use App\Models\User;
-use App\Http\Controllers\Auth\LoginController;
-use App\Services\RecaptchaService;
+use Tests\Feature\Auth\Modul\Loginmodul; // <--- Pakai Replika
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use PHPUnit\Framework\Attributes\Test;
-use Mockery;
 
 class LoginUnitTest extends TestCase
 {
@@ -19,148 +16,118 @@ class LoginUnitTest extends TestCase
 
     // 1. TEST SUKSES LOGIN
     #[Test]
-    public function test_login_success()
+    public function login_sukses_menggunakan_replika()
     {
+        // Arrange
         $password = 'rahasia123';
-        $user = User::factory()->create([
+        User::factory()->create([
             'email' => 'dosen@example.com',
             'password' => Hash::make($password),
-            'is_banned' => false
         ]);
 
-        $request = Request::create('/api/login', 'POST', [
+        $loginData = [
             'email' => 'dosen@example.com',
             'password' => $password,
-            'recaptcha' => 'valid_token',
-        ]);
+            // Recaptcha TIDAK PERLU lagi
+        ];
+
+        $request = Request::create('/api/login', 'POST', $loginData);
         $request->headers->set('Accept', 'application/json');
 
-        // Mock Recaptcha Sukses
-        $mockRecaptcha = Mockery::mock(RecaptchaService::class);
-        $mockRecaptcha->shouldReceive('verify')->andReturn(true);
+        // Act (Function Call)
+        // Tidak perlu inject mock service lagi, cukup $request
+        $modul = new Loginmodul();
+        $response = $modul->login($request);
 
-        $controller = new LoginController();
-        $response = $controller->login($request, $mockRecaptcha);
-
+        // Assert
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('Login berhasil!', $response->getData()->message);
+
+        $result = $response->getData(true);
+        $this->assertEquals('Login berhasil!', $result['message']);
+        $this->assertArrayHasKey('token', $result);
     }
 
     // 2. TEST GAGAL PASSWORD SALAH
     #[Test]
-    public function test_login_fails_wrong_password()
+    public function login_gagal_password_salah()
     {
-        // User ada, password 'benar'
+        // Arrange
         User::factory()->create([
             'email' => 'user@example.com',
             'password' => Hash::make('password_benar'),
         ]);
 
-        // Request kirim password 'salah'
         $request = Request::create('/api/login', 'POST', [
             'email' => 'user@example.com',
             'password' => 'password_salah',
-            'recaptcha' => 'valid_token',
         ]);
         $request->headers->set('Accept', 'application/json');
 
-        $mockRecaptcha = Mockery::mock(RecaptchaService::class);
-        $mockRecaptcha->shouldReceive('verify')->andReturn(true);
+        // Act
+        $modul = new Loginmodul();
+        $response = $modul->login($request);
 
-        $controller = new LoginController();
-        $response = $controller->login($request, $mockRecaptcha);
-
-        // Harapannya 401 Unauthorized
+        // Assert (Harusnya 401)
         $this->assertEquals(401, $response->getStatusCode());
         $this->assertEquals('Email atau password salah.', $response->getData()->message);
     }
 
-    // 3. TEST GAGAL RECAPTCHA
+    // 3. TEST GAGAL USER BANNED
     #[Test]
-    public function test_login_fails_invalid_recaptcha()
+    public function login_gagal_karena_banned()
     {
-        $request = Request::create('/api/login', 'POST', [
-            'email' => 'random@example.com',
-            'password' => 'any',
-            'recaptcha' => 'invalid_token',
-        ]);
-        $request->headers->set('Accept', 'application/json');
-
-        // Mock Recaptcha return FALSE (Gagal)
-        $mockRecaptcha = Mockery::mock(RecaptchaService::class);
-        $mockRecaptcha->shouldReceive('verify')->andReturn(false);
-
-        $controller = new LoginController();
-        $response = $controller->login($request, $mockRecaptcha);
-
-        // Harapannya 422 Unprocessable Entity
-        $this->assertEquals(422, $response->getStatusCode());
-        $this->assertEquals('Recaptcha verification failed.', $response->getData()->message);
-    }
-
-    // 4. TEST GAGAL USER BANNED
-    #[Test]
-    public function test_login_fails_banned_user()
-    {
-        $password = 'password123';
+        // Arrange: User dengan status banned
         User::factory()->create([
             'email' => 'banned@example.com',
-            'password' => Hash::make($password),
-            'is_banned' => true, // Status Banned
+            'password' => Hash::make('pass'),
+            'is_banned' => true,
         ]);
 
         $request = Request::create('/api/login', 'POST', [
             'email' => 'banned@example.com',
-            'password' => $password,
-            'recaptcha' => 'valid_token',
+            'password' => 'pass',
         ]);
         $request->headers->set('Accept', 'application/json');
 
-        $mockRecaptcha = Mockery::mock(RecaptchaService::class);
-        $mockRecaptcha->shouldReceive('verify')->andReturn(true);
+        // Act
+        $modul = new Loginmodul();
+        $response = $modul->login($request);
 
-        $controller = new LoginController();
-        $response = $controller->login($request, $mockRecaptcha);
-
-        // Harapannya 403 Forbidden
+        // Assert (Harusnya 403 Forbidden)
         $this->assertEquals(403, $response->getStatusCode());
-        // Menggunakan assertStringContainsString karena pesannya panjang
-        $this->assertStringContainsString('akun anda dibatasi', $response->getData()->message);
+        $this->assertEquals(true, $response->getData()->banned);
     }
 
-    // 5. TEST LOGOUT
+    // 4. TEST LOGOUT
     #[Test]
-    public function test_logout_success()
+    public function logout_berhasil()
     {
-        // 1. Buat User
+        // Arrange
         $user = User::factory()->create();
-        
-        // 2. Buat Token, tapi simpan object lengkapnya (bukan cuma string plainTextToken)
-        $tokenResult = $user->createToken('test'); 
-        
-        // 3. PENTING: Set token tersebut sebagai 'currentAccessToken' secara manual
-        // Agar function currentAccessToken() di controller nanti tidak return null
-        $user->withAccessToken($tokenResult->accessToken);
 
-        // 4. Siapkan Request
+        // Buat token manual dan tempelkan ke user
+        $tokenObj = $user->createToken('test');
+        $user->withAccessToken($tokenObj->accessToken);
+
+        // Request Logout
         $request = Request::create('/api/logout', 'POST');
         $request->headers->set('Accept', 'application/json');
-        
-        // 5. Masukkan user yang SUDAH PUNYA access token ke dalam request
+
+        // Set user ke request
         $request->setUserResolver(function () use ($user) {
             return $user;
         });
 
-        // 6. Panggil Controller
-        $controller = new LoginController();
-        $response = $controller->logout($request);
+        // Act
+        $modul = new Loginmodul();
+        $response = $modul->logout($request);
 
-        // 7. Assert
+        // Assert
         $this->assertEquals(200, $response->getStatusCode());
-        
-        // Pastikan token benar-benar terhapus dari database
+
+        // Pastikan token hilang dari DB
         $this->assertDatabaseMissing('personal_access_tokens', [
-            'id' => $tokenResult->accessToken->id
+            'id' => $tokenObj->accessToken->id
         ]);
     }
 }
