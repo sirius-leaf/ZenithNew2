@@ -1,0 +1,55 @@
+Berikut adalah daftar perubahan yang telah dilakukan di branch ini (`store`) dibandingkan dengan branch `tes-fitur+fe-update`:
+
+### **Fitur yang Telah Diimplementasikan**
+
+1.  **Halaman Kelola Toko (`/toko`)**:
+    *   Membuat halaman dashboard sederhana untuk penjual.
+    *   **Manajemen Produk (CRUD)**:
+        *   Menampilkan daftar produk dinamis dari database.
+        *   **Tambah Produk**: Modal form untuk input Nama, Merek, Kategori, Harga, Stok, dan Upload Gambar.
+        *   **Edit Produk**: Fitur untuk mengubah detail produk yang sudah ada.
+        *   **Hapus Produk**: Fitur untuk menghapus produk.
+
+2.  **Pencarian Toko**:
+    *   Menambahkan tab "Toko" di halaman Pencarian (`/searching`).
+    *   User dapat mencari toko berdasarkan nama.
+
+3.  **Perbaikan Logika Toko & Penjual**:
+    *   **Auto-Create Store**: Saat user disetujui menjadi penjual, data `Toko` otomatis dibuat di database.
+    *   **Self-Healing**: Jika penjual lama belum memiliki data `Toko`, sistem akan otomatis membuatnya saat mereka mencoba menyimpan produk pertama kali (mengatasi error 500/403).
+
+4.  **UI/UX Updates**:
+    *   **Navbar**: Menambahkan ikon "Toko" yang hanya muncul untuk user dengan role `penjual`.
+    *   **Profile**: Memperbarui tampilan profil user dan form edit informasi toko.
+
+---
+
+### **Rincian File yang Diedit & Perubahannya**
+
+#### **Backend (Laravel)**
+*   `app/Http/Controllers/Api/ProductController.php`:
+    *   Update `index()`: Memfilter produk agar hanya menampilkan produk milik toko yang sedang login.
+    *   Update `store()`: Menambahkan logika upload gambar, validasi, dan **self-healing** (buat toko otomatis jika hilang).
+    *   Menambahkan logging untuk debugging error 500.
+*   `app/Http/Controllers/Api/TokoController.php`:
+    *   Menambahkan method `search()` untuk fitur pencarian toko.
+*   `app/Http/Controllers/Api/UserRoleController.php`:
+    *   Update method `approve()`: Menambahkan logika untuk membuat record `Toko` saat admin menyetujui request seller.
+*   `routes/api.php`:
+    *   Menambahkan route `/shops` untuk pencarian toko.
+    *   Menambahkan route resource untuk `manage/product`.
+
+#### **Frontend (Vue.js)**
+*   `src/views/pages/ManageStore.vue` (File Baru):
+    *   Implementasi UI lengkap untuk kelola toko.
+    *   Integrasi API untuk Fetch, Create, Update, Delete produk.
+*   `src/views/pages/Searching.vue`:
+    *   Menambahkan logika untuk switch antara pencarian "Produk" dan "Toko".
+    *   Menampilkan hasil pencarian toko dalam bentuk card.
+*   `src/components/layout/Navbar.vue`:
+    *   Menambahkan logika kondisional `v-if` untuk menampilkan ikon toko bagi penjual.
+*   `src/views/pages/ProfileUser.vue`:
+    *   Merapikan layout profil.
+    *   Menghapus bagian collapsible yang tidak perlu.
+*   `src/main.js`:
+    *   Mendaftarkan route `/toko`.

@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Toko;
+use App\Models\BuildDetail;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Product extends Model
+{
+    use HasFactory;
+
+    protected $primaryKey = 'id_produk';
+    protected $fillable = ['id_toko', 'deskripsi', 'merek', 'nama_produk'];
+
+    public function variant()
+    {
+        return $this->hasMany(Variant::class, 'id_produk', 'id_produk');
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_details', 'id_produk', 'id_kategori');
+    }
+
+    public function categoryDetail()
+    {
+        return $this->hasMany(CategoryDetail::class, 'id_produk', 'id_produk');
+    }
+
+    public function toko()
+    {
+        return $this->belongsTo(Toko::class, 'id_toko');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'id_produk', 'id_produk');
+    }
+}

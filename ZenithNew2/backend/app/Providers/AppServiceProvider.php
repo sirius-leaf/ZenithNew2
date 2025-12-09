@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Providers;
+
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        Gate::define('is-admin', function (User $user) {
+            return $user->role === 'admin'; // sesuaikan dengan nama kolom di tabel users kamu
+        });
+
+        Gate::define('create-toko', function (User $user) {
+        // hanya boleh buat toko kalau user belum punya toko
+        return !$user->toko;
+    });
+    }
+}

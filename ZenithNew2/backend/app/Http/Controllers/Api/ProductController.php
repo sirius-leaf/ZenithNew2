@@ -1,0 +1,549 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+
+use Illuminate\Support\Facades\Log;
+
+class ProductController extends Controller
+{
+    /**
+     * Display a listing of the products.
+     */
+    /**
+     * Display a listing of the products.
+     *
+     * @OA\Get(
+     *     path="/api/manage/product",
+     *     tags={"Product Management"},
+     *     summary="Get seller products",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of seller products",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
+    public function index()
+    {
+        if (Auth::user()->role === 'penjual' && Auth::user()->toko) {
+            $products = Product::where('id_toko', Auth::user()->toko->id)
+                ->with(['variant', 'categoryDetail.category'])
+                ->latest()
+                ->get();
+
+            // Hitung terjual manual (karena relasi nested)
+            $products->each(function ($product) {
+                $product->terjual = $product->variant->sum(function ($variant) {
+                    return $variant->detailPesanans()->sum('kuantitas');
+                });
+            });
+        } else {
+            $products = [];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $products
+        ]);
+    }
+
+    /**
+     * Display a listing of ALL products for ADMIN.
+     */
+    /**
+     * Display a listing of ALL products for ADMIN.
+     *
+     * @OA\Get(
+     *     path="/api/manage/all-products",
+     *     tags={"Product Management"},
+     *     summary="Get all products (Admin)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of all products",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
+     */
+    public function adminIndex()
+    {
+        // Ensure only admin can access this (double check in controller or rely on route middleware)
+        // For extra safety:
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $products = Product::with(['toko', 'variant', 'categoryDetail.category'])
+            ->latest()
+            ->get();
+
+        // Transform data to include flat category names and store name
+        $transformed = $products->map(function ($p) {
+            return [
+                'id' => $p->id_produk,
+                'storeName' => $p->toko ? $p->toko->toko_name : 'Unknown Store',
+                'productName' => $p->nama_produk,
+                'category' => $p->categoryDetail->map(fn($cd) => $cd->category->nama_kategori)->join(', '),
+                'stock' => $p->variant->sum('stok'),
+                'price' => $p->variant->min('harga'), // Show lowest price
+                'image' => $p->variant->first() ? $p->variant->first()->gambar_varian : null
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $transformed
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new product (not needed for API, but kept if needed)
+     */
+    public function create()
+    {
+        $categories = Category::all();
+        $store = Auth::user()->toko;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'categories' => $categories,
+                'store' => $store
+            ]
+        ]);
+    }
+
+    /**
+     * Store a newly created product in storage.
+     */
+    /**
+     * Store a newly created product in storage.
+     *
+     * @OA\Post(
+     *     path="/api/manage/product",
+     *     tags={"Product Management"},
+     *     summary="Create a product",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"nama_produk","merek","kategori","varian"},
+     *                 @OA\Property(property="nama_produk", type="string"),
+     *                 @OA\Property(property="deskripsi", type="string"),
+     *                 @OA\Property(property="merek", type="string"),
+     *                 @OA\Property(property="kategori[]", type="array", @OA\Items(type="integer")),
+     *                 @OA\Property(property="varian", type="array", @OA\Items(type="object"))
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Product created",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized or Store Frozen")
+     * )
+     */
+    public function store(Request $request)
+    {
+        Log::info('Store Product Request:', $request->all());
+        Log::info('Files:', $request->allFiles());
+
+        $user = Auth::user();
+
+        // Self-healing: Create Toko if user is seller but has no Toko record
+        if (!$user->toko && $user->role === 'penjual') {
+            Log::info('Auto-creating missing Toko for user: ' . $user->id);
+            $user->toko()->create([
+                'toko_name' => $user->store_name ?? $user->name . "'s Store",
+                'deskripsi' => $user->description ?? 'Welcome to my store',
+            ]);
+            $user->load('toko');
+        }
+
+        if (!$user->toko) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda belum memiliki toko.',
+            ], 403);
+        }
+
+        if ($user->toko->is_frozen) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Toko Anda sedang dibekukan. Anda tidak dapat membuat produk baru. Alasan: ' . $user->toko->frozen_reason,
+            ], 403);
+        }
+
+        try {
+            $validated = $request->validate([
+                'nama_produk' => 'required|string|max:255',
+                'deskripsi' => 'nullable|string',
+                'merek' => 'required|string|max:255',
+                'kategori' => 'array|required',
+                'kategori.*' => 'exists:categories,id_kategori',
+                'varian' => 'required|array|min:1',
+                'varian.*.nama_varian' => 'required|string|max:255',
+                'varian.*.harga' => 'required|numeric|min:0',
+                'varian.*.stok' => 'required|integer|min:0',
+                'varian.*.gambar_varian' => 'required|file|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+        } catch (ValidationException $e) {
+            Log::error('Validation Error:', $e->errors());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        try {
+            $product = DB::transaction(function () use ($validated, $request) {
+                $product = Product::create([
+                    'id_toko' => Auth::user()->toko->id,
+                    'nama_produk' => $validated['nama_produk'],
+                    'deskripsi' => $validated['deskripsi'] ?? '',
+                    'merek' => $validated['merek'],
+                ]);
+
+                foreach ($validated['kategori'] as $k) {
+                    $product->categoryDetail()->create([
+                        'id_kategori' => $k
+                    ]);
+                }
+
+                foreach ($validated['varian'] as $i => $varianData) {
+                    if ($request->hasFile("varian.$i.gambar_varian")) {
+                        $path = $request->file("varian.$i.gambar_varian")->store('varians', 'public');
+                    } else {
+                        throw new \Exception("Gambar varian ke-$i tidak ditemukan.");
+                    }
+
+                    $product->variant()->create([
+                        'nama_varian' => $varianData['nama_varian'],
+                        'harga' => $varianData['harga'],
+                        'stok' => $varianData['stok'],
+                        'gambar_varian' => $path,
+                    ]);
+                }
+
+                return $product->load(['variant', 'categoryDetail']);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk dan variannya berhasil disimpan!',
+                'data' => $product
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('Store Product Error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan produk.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Display the specified product.
+     */
+    /**
+     * Display the specified product.
+     *
+     * @OA\Get(
+     *     path="/api/manage/product/{id}",
+     *     tags={"Product Management"},
+     *     summary="Get product details (Management)",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product details",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
+    public function show(int $id)
+    {
+        $product = Product::with(['variant', 'categoryDetail'])->findOrFail($id);
+        $categories = Category::all();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'product' => $product,
+                'categories' => $categories,
+                'store' => Auth::user()->toko
+            ]
+        ]);
+    }
+
+    /**
+     * Show product for editing (optional in API, but useful for prefill)
+     */
+    public function edit(int $id)
+    {
+        $product = Product::with(['variant', 'categoryDetail'])->findOrFail($id);
+        $categories = Category::all();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'product' => $product,
+                'categories' => $categories,
+                'store' => Auth::user()->toko
+            ]
+        ]);
+    }
+
+    /**
+     * Update the specified product in storage.
+     */
+    /**
+     * Update the specified product in storage.
+     *
+     * @OA\Post(
+     *     path="/api/manage/product/{id}",
+     *     tags={"Product Management"},
+     *     summary="Update a product",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="_method", type="string", example="PUT"),
+     *                 @OA\Property(property="nama_produk", type="string"),
+     *                 @OA\Property(property="deskripsi", type="string"),
+     *                 @OA\Property(property="merek", type="string")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product updated",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
+    public function update(Request $request, int $id)
+    {
+        $product = Product::findOrFail($id);
+
+        try {
+            $validated = $request->validate([
+                'nama_produk' => 'required|string|max:255',
+                'deskripsi' => 'nullable|string',
+                'merek' => 'required|string|max:255',
+                'kategori' => 'array',
+                'kategori.*' => 'exists:categories,id_kategori',
+                'detail' => 'array',
+                'detail.*.id' => 'nullable|exists:category_details,id',
+                'detail.*.kategori' => 'required|exists:categories,id_kategori',
+                'varian' => 'required|array|min:1',
+                'varian.*.id_varian' => 'nullable|exists:variants,id_varian',
+                'varian.*.nama_varian' => 'required|string|max:255',
+                'varian.*.harga' => 'required|numeric|min:0',
+                'varian.*.stok' => 'required|integer|min:0',
+                'varian.*.gambar_varian' => 'nullable|file|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        try {
+            DB::transaction(function () use ($product, $request) {
+                // Update product info
+                $product->update($request->only('nama_produk', 'merek', 'deskripsi'));
+
+                // --- Handle Categories ---
+                if ($request->has('kategori')) {
+                    // Simple sync: delete all and recreate
+                    $product->categoryDetail()->delete();
+                    if (is_array($request->kategori)) {
+                        foreach ($request->kategori as $kId) {
+                            $product->categoryDetail()->create(['id_kategori' => $kId]);
+                        }
+                    }
+                } elseif ($request->has('detail')) {
+                    $existingDetailIds = $product->categoryDetail->pluck('id')->toArray();
+                    $incomingDetailIds = collect($request->detail)->pluck('id')->filter()->toArray();
+
+                    // Delete removed categories
+                    $toDeleteCategory = array_diff($existingDetailIds, $incomingDetailIds);
+                    if (!empty($toDeleteCategory)) {
+                        $product->categoryDetail()->whereIn('id', $toDeleteCategory)->delete();
+                    }
+
+                    // Update or create categories
+                    foreach ($request->detail as $d) {
+                        if (!empty($d['id'])) {
+                            $detail = $product->categoryDetail()->find($d['id']);
+                            if ($detail) {
+                                $detail->update(['id_kategori' => $d['kategori']]);
+                            }
+                        } else {
+                            $product->categoryDetail()->create(['id_kategori' => $d['kategori']]);
+                        }
+                    }
+                }
+
+                // --- Handle Variants ---
+                $existingVariantIds = $product->variant->pluck('id_varian')->toArray();
+                $incomingVariantIds = collect($request->varian)->pluck('id_varian')->filter()->toArray();
+                $toDeleteVariant = array_diff($existingVariantIds, $incomingVariantIds);
+
+                // Delete removed variants + images
+                foreach ($toDeleteVariant as $vId) {
+                    $variant = $product->variant()->find($vId);
+                    if ($variant && $variant->gambar_varian) {
+                        Storage::disk('public')->delete($variant->gambar_varian);
+                    }
+                }
+                if (!empty($toDeleteVariant)) {
+                    $product->variant()->whereIn('id_varian', $toDeleteVariant)->delete();
+                }
+
+                // Update or create variants
+                foreach ($request->varian as $i => $v) {
+                    if (!empty($v['id_varian'])) {
+                        $variant = $product->variant()->find($v['id_varian']);
+                        if ($variant) {
+                            $path = $variant->gambar_varian;
+                            if ($request->hasFile("varian.$i.gambar_varian")) {
+                                // Delete old image
+                                Storage::disk('public')->delete($path);
+                                // Store new
+                                $path = $request->file("varian.$i.gambar_varian")->store('varians', 'public');
+                            }
+                            $variant->update([
+                                'nama_varian' => $v['nama_varian'],
+                                'harga' => $v['harga'],
+                                'stok' => $v['stok'],
+                                'gambar_varian' => $path,
+                            ]);
+                        }
+                    } else {
+                        $path = '';
+                        if ($request->hasFile("varian.$i.gambar_varian")) {
+                            $path = $request->file("varian.$i.gambar_varian")->store('varians', 'public');
+                        }
+                        $product->variant()->create([
+                            'nama_varian' => $v['nama_varian'],
+                            'harga' => $v['harga'],
+                            'stok' => $v['stok'],
+                            'gambar_varian' => $path,
+                        ]);
+                    }
+                }
+            });
+
+            $updatedProduct = $product->fresh()->load(['variant', 'categoryDetail']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil diperbarui!',
+                'data' => $updatedProduct
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui produk.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove the specified product from storage.
+     */
+    /**
+     * Remove the specified product from storage.
+     *
+     * @OA\Delete(
+     *     path="/api/manage/product/{id}",
+     *     tags={"Product Management"},
+     *     summary="Delete a product",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product deleted",
+     *         @OA\JsonContent(type="object")
+     *     )
+     * )
+     */
+    public function destroy(int $id)
+    {
+        $product = Product::with(['variant', 'categoryDetail'])->findOrFail($id);
+
+        try {
+            DB::transaction(function () use ($product) {
+                // Delete category links
+                $product->categoryDetail()->delete();
+
+                // Delete variants + images
+                foreach ($product->variant as $variant) {
+                    if ($variant->gambar_varian) {
+                        Storage::disk('public')->delete($variant->gambar_varian);
+                    }
+                    $variant->delete();
+                }
+
+                $product->delete();
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil dihapus!'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus produk.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+}
