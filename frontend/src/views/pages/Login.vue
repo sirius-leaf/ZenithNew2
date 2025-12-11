@@ -146,10 +146,21 @@ const loginUser = async () => {
     // Recaptcha temporarily disabled
     form.value.recaptcha = "mobile_dev_bypass";
 
+    const res = await axios.get("http://127.0.0.1:8000/csrf-token");
+
+    const token = res.data.token;
+    console.log("Token CSRF didapat:", token);
+
     const response = await axios.post("http://127.0.0.1:8000/api/login", {
       email: form.value.email,
       password: form.value.password,
       recaptcha: form.value.recaptcha, // dummy token for backend bypass
+    },
+    {
+      headers: {
+        "X-CSRF-TOKEN": token,
+        "Content-Type": "application/json",
+      },
     });
 
     const role = response.data.user.role;

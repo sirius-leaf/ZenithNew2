@@ -20,6 +20,19 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::post('/api/test', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'POST diterima! CSRF bekerja jika kamu mengirim token yang benar.',
+        'data' => $request->all()
+    ]);
+});
+
+Route::post('/api/login', [LoginController::class, 'login']);
+
+Route::get('/csrf-token', fn() => ['token' => csrf_token()]);
+
+
 Route::get('/buy', [ProductPageController::class, 'index'])->name('home');
 
 // Rute untuk Halaman Detail Produk
