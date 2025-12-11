@@ -5,9 +5,11 @@ namespace App\Models;
 use App\Models\Pesanan;
 use App\Models\Variant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DetailPesanan extends Model
 {
+    use HasFactory;
     // Matikan timestamps (created_at, updated_at)
     public $timestamps = false;
 

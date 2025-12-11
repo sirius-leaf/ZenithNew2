@@ -6,9 +6,11 @@ use App\Models\Toko;
 use App\Models\User;
 use App\Models\DetailPesanan;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pesanan extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'user_id',
         'toko_id',
