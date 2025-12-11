@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\RecaptchaService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\JsonResponse;
-
-use App\Services\RecaptchaService;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -50,10 +49,17 @@ class LoginController extends Controller
             'recaptcha' => ['required'],
         ]);
 
-        //
+        // Cek Recaptcha
         if (!$recaptchaService->verify($request->recaptcha)) {
+            // [LOGGING KEAMANAN] Catat kegagalan Recaptcha
+            Log::warning('Security: Recaptcha verification failed', [
+                'ip' => $request->ip(),
+                'email' => $request->input('email'),
+                'user_agent' => $request->header('User-Agent'),
+            ]);
+
             return response()->json([
-                'message' => 'Recaptcha verification failed.'
+                'message' => 'Recaptcha verification failed.',
             ], 422);
         }
 
@@ -61,8 +67,15 @@ class LoginController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (!Auth::attempt($credentials)) {
+            // [LOGGING KEAMANAN] Catat gagal login (indikasi brute force / salah password)
+            Log::warning('Security: Failed login attempt', [
+                'email' => $request->input('email'), // Jangan log password!
+                'ip' => $request->ip(),
+                'user_agent' => $request->header('User-Agent'),
+            ]);
+
             return response()->json([
-                'message' => 'Email atau password salah.'
+                'message' => 'Email atau password salah.',
             ], 401);
         }
 
@@ -70,9 +83,16 @@ class LoginController extends Controller
 
         // 🔒 Cek banned
         if ($user->is_banned) {
+            // [LOGGING KEAMANAN] Catat upaya login user yang dibanned
+            Log::notice('Security: Banned user attempted login', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'ip' => $request->ip(),
+            ]);
+
             return response()->json([
                 'message' => 'Maaf, akun anda dibatasi. Mohon hubungi admin untuk masalah ini.',
-                'banned' => true
+                'banned' => true,
             ], 403);
         }
 
@@ -81,6 +101,14 @@ class LoginController extends Controller
 
         // ✅ Buat token Sanctum (Personal Access Token)
         $token = $user->createToken('auth-token')->plainTextToken;
+
+        // [LOGGING AUDIT] Catat login berhasil (siapa, kapan, dimana)
+        Log::info('Audit: User logged in', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'role' => $user->role,
+            'ip' => $request->ip(),
+        ]);
 
         return response()->json([
             'message' => 'Login berhasil!',
@@ -108,11 +136,19 @@ class LoginController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
+        // [LOGGING AUDIT] Catat logout
+        if ($request->user()) {
+            Log::info('Audit: User logged out', [
+                'user_id' => $request->user()->id,
+                'email' => $request->user()->email,
+            ]);
+        }
+
         // Hapus token saat ini
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logout berhasil.'
+            'message' => 'Logout berhasil.',
         ]);
     }
 }
