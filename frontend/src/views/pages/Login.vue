@@ -113,7 +113,10 @@ const form = ref({
   recaptcha: "",
 });
 
-onMounted(() => {
+onMounted(async() => {
+  axios.defaults.withCredentials = true;
+
+  await axios.get("http://localhost:8000/sanctum/csrf-cookie");
   // Recaptcha disabled
   /*
   window.onCaptchaSuccess = (token) => {
