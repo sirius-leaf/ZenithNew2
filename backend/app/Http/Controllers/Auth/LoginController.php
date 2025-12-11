@@ -136,7 +136,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        // [LOGGING AUDIT] Catat logout (opsional)
+        // [LOGGING AUDIT] Catat logout
         if ($request->user()) {
             Log::info('Audit: User logged out', [
                 'user_id' => $request->user()->id,
