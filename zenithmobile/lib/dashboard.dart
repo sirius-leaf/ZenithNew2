@@ -20,17 +20,17 @@ class _DashboardPageState extends State<DashboardPage> {
 
   // Use 10.0.2.2 for Android emulator, localhost for others
   static String get _baseUrl {
-    if (Platform.isAndroid) {
+    /*if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000/api';
-    }
+    }*/
     return 'http://127.0.0.1:8000/api';
   }
 
   static String get _storageUrl {
-    if (Platform.isAndroid) {
+    /*if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000/storage';
-    }
-    return 'http://127.0.0.1:8000/storage';
+    }*/
+    return 'http://127.0.0.1:8000/file/storage';
   }
 
   @override
@@ -256,10 +256,12 @@ class _DashboardPageState extends State<DashboardPage> {
     final firstVariant = (variants != null && variants.isNotEmpty) ? variants[0] : null;
     
     final String? imagePath = firstVariant?['gambar_varian'];
-    final String imageUrl = imagePath != null 
+    final String imageUrl = imagePath != null
         ? (imagePath.startsWith('http') ? imagePath : '$_storageUrl/$imagePath')
-        : 'https://via.placeholder.com/150';
-        
+        : 'http://127.0.0.1:8000/file/img_placeholder.jpg';
+
+    print(imageUrl);
+
     final double price = double.tryParse(firstVariant?['harga']?.toString() ?? '0') ?? 0;
     final double rating = double.tryParse(product['rating']?.toString() ?? '0') ?? 0; // Assuming rating is on product or need to calc
 

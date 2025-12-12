@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -28,9 +30,9 @@ class _ProductFormPageState extends State<ProductFormPage> {
   List<Map<String, dynamic>> _variants = [];
 
   static String get _baseUrl {
-    if (Platform.isAndroid) {
+    /*if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000/api';
-    }
+    }*/
     return 'http://127.0.0.1:8000/api';
   }
 
@@ -82,7 +84,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           'stok': v['stok'].toString(),
           'gambar_varian': null,
           'gambar_preview': v['gambar_varian'] != null 
-              ? '$_baseUrl/../storage/${v['gambar_varian']}' // Hacky way to get storage url
+              ? '$_baseUrl/../file/storage/${v['gambar_varian']}' // Hacky way to get storage url
               : null, 
         });
       }
@@ -111,9 +113,12 @@ class _ProductFormPageState extends State<ProductFormPage> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      Uint8List fileBytes = await pickedFile.readAsBytes();
+
       setState(() {
         _variants[index]['gambar_varian'] = File(pickedFile.path);
         _variants[index]['gambar_preview'] = pickedFile.path; // Local path for preview
+        _variants[index]['gambar_bytes'] = fileBytes;
       });
     }
   }
@@ -162,10 +167,14 @@ class _ProductFormPageState extends State<ProductFormPage> {
         request.fields['varian[$i][stok]'] = v['stok'];
 
         if (v['gambar_varian'] is File) {
-          request.files.add(await http.MultipartFile.fromPath(
-            'varian[$i][gambar_varian]',
-            (v['gambar_varian'] as File).path,
-          ));
+          request.files.add(
+            await http.MultipartFile.fromBytes(
+              'varian[$i][gambar_varian]',
+              v['gambar_bytes'],
+              filename: v['gambar_filename'] ?? "gambar.png",
+              contentType: http.MediaType('image', 'jpeg'), // optional
+            ),
+          );
         }
       }
 
@@ -371,7 +380,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
                                         ? ClipRRect(
                                             borderRadius: BorderRadius.circular(8),
                                             child: v['gambar_varian'] is File
-                                                ? Image.file(v['gambar_varian'], fit: BoxFit.cover)
+                                                ? Image.memory(
+                                                    v['gambar_bytes'],
+                                                    fit: BoxFit.cover,
+                                                  )
                                                 : Image.network(v['gambar_preview'], fit: BoxFit.cover,
                                                     errorBuilder: (c,e,s) => const Icon(Icons.error)),
                                           )

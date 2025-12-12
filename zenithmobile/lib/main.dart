@@ -44,9 +44,9 @@ class _LoginPageState extends State<LoginPage> {
 
   // Use 10.0.2.2 for Android emulator, localhost for others
   static String get _baseUrl {
-    if (Platform.isAndroid) {
+    /*if (false) {
       return 'http://10.0.2.2:8000/api';
-    }
+    }*/
     return 'http://127.0.0.1:8000/api';
   }
 

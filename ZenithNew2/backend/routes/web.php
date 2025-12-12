@@ -3,6 +3,8 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\MyTokoController;
@@ -21,6 +23,18 @@ Route::get('/', function () {
 });
 
 Route::get('/buy', [ProductPageController::class, 'index'])->name('home');
+
+Route::get('/file/{filename}', function ($filename) {
+    $path = public_path($filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
+    $file = File::get($path);
+    $type = File::mimeType($path);
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+    return $response;
+})->where('filename', '.*\.(jpg|jpeg|png|gif|webp)$');
 
 // Rute untuk Halaman Detail Produk
 // Gunakan {id_produk} sesuai dengan Primary Key Anda

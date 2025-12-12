@@ -19,17 +19,17 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
   String? _error;
 
   static String get _baseUrl {
-    if (Platform.isAndroid) {
+    /*if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000/api';
-    }
+    }*/
     return 'http://127.0.0.1:8000/api';
   }
 
   static String get _storageUrl {
-    if (Platform.isAndroid) {
+    /*if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000/storage';
-    }
-    return 'http://127.0.0.1:8000/storage';
+    }*/
+    return 'http://127.0.0.1:8000/file/storage';
   }
 
   @override
