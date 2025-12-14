@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dashboard.dart';
+import 'package:http/http.dart' as http; //buat plugin tambahan buat vektor
+import 'dart:convert'; //untuk bisa mengirim data dart ke teks json agar bisa dikirim ke server
+import 'dart:io'; //bawaan
+import 'package:shared_preferences/shared_preferences.dart'; //untuk menyimpan token login dan role user
+import 'dashboard.dart'; //import file lokal agar bisa langsung ke dashboard
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatelessWidget { //tampilannya tidak berubah
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { //Membuat widget
     return MaterialApp(
       title: 'Zenith Mobile',
       theme: ThemeData(
@@ -22,16 +22,17 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Ubuntu',
       ),
-      home: const LoginPage(),
+      home: const LoginPage(), //Menampilkan loginpage
     );
   }
 }
 
-class LoginPage extends StatefulWidget {
+//Backend buat login
+class LoginPage extends StatefulWidget {//Login Page
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState(); //Membuat state
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -42,34 +43,31 @@ class _LoginPageState extends State<LoginPage> {
 
 
 
-  // Use 10.0.2.2 for Android emulator, localhost for others
+  //Logika Login
   static String get _baseUrl {
-    /*if (false) {
-      return 'http://10.0.2.2:8000/api';
-    }*/
-    return 'http://127.0.0.1:8000/api';
+    return 'http://127.0.0.1:8000/api'; //alamat URL API
   }
 
-  Future<void> _login() async {
+  Future<void> _login() async { //Fungsi async pada login
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    try {
+    try { //memproses data
       final response = await http.post(
         Uri.parse('$_baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'email': _emailController.text,
+          'email': _emailController.text, //mengambil data
           'password': _passwordController.text,
-          'recaptcha': 'mobile_dev_bypass',
+          'recaptcha': 'mobile_dev_bypass', //gajadi pake recaptcha cui
         }),
       );
 
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body); //mengirim data user dalam bentuk json
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200) { //jika berhasil
         final token = data['token'];
         final user = data['user'];
         final role = user['role'];
@@ -80,57 +78,45 @@ class _LoginPageState extends State<LoginPage> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login Berhasil!')),
-          );
-          // Navigate to dashboard or home screen here
-          // For now, just show a success dialog
-
-
-// ... imports ...
-
-// ... inside _login method ...
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login Berhasil!')),
+            const SnackBar(content: Text('Login Berhasil!')), //Notifikasi berhasil
           );
           
-          Navigator.pushReplacement(
+          Navigator.pushReplacement( //replace
             context,
             MaterialPageRoute(builder: (context) => const DashboardPage()),
           );
         }
-        }
       } else {
         setState(() {
-          _errorMessage = data['message'] ?? 'Login failed';
+          _errorMessage = data['message'] ?? 'Login failed'; //failed
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Terjadi kesalahan koneksi. Coba lagi nanti.';
+        _errorMessage = 'Terjadi kesalahan koneksi. Coba lagi nanti.'; //failed 2
       });
       debugPrint('Login error: $e');
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          _isLoading = false; //loading false
         });
       }
     }
   }
 
+  // UI Login
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Color
+          // Warna buat background
           Container(
-            color: const Color(0xFFEC4899), // Pink-500
+            color: const Color(0xFFEC4899), // Warna pink
           ),
           
-          // Wave Background
+          // Motif buat background
           Positioned.fill(
             child: SvgPicture.string(
               '''
@@ -149,7 +135,6 @@ class _LoginPageState extends State<LoginPage> {
             left: 16,
             child: TextButton.icon(
               onPressed: () {
-                // Navigator.pop(context); // No navigation stack yet
               },
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               label: const Text(
@@ -185,15 +170,15 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Logo
-                    Image.asset(
-                      'assets/zenith.png',
+                    // Logo Zenith
+                    Image.asset( 
+                      'assets/zenith.png', //sizenya
                       width: 64,
                       height: 64,
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 40), //margin ke atas
 
-                    // Email Field
+                    // Input Email
                     _buildTextField(
                       controller: _emailController,
                       hintText: 'Username / Email',
@@ -201,11 +186,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Password Field
+                    // Input password
                     _buildTextField(
                       controller: _passwordController,
                       hintText: 'Password',
-                      obscureText: true,
+                      obscureText: true, //sensor
                     ),
                     const SizedBox(height: 24),
 
@@ -213,8 +198,8 @@ class _LoginPageState extends State<LoginPage> {
                     if (_errorMessage != null)
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        margin: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.all(10), //padding
+                        margin: const EdgeInsets.only(bottom: 20), //buat margunnya
                         decoration: BoxDecoration(
                           color: Colors.red[100],
                           borderRadius: BorderRadius.circular(5),
@@ -226,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
 
-                    // Login Button
+                    // Button Login
                     SizedBox(
                       width: double.infinity,
                       height: 40,
@@ -240,16 +225,16 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           elevation: 0,
                         ),
-                        child: _isLoading
+                        child: _isLoading //Loading
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(
+                                child: CircularProgressIndicator( //bentuk
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1E3A8A)),
                                 ),
                               )
-                            : const Text(
+                            : const Text( //Label text button
                                 'Login',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -264,17 +249,17 @@ class _LoginPageState extends State<LoginPage> {
                     // Register Link
                     Column(
                       children: [
-                        const Text(
+                        const Text( //text
                           'Belom punya akun?',
                           style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
+                            color: Colors.white70, //warna text
+                            fontSize: 12, //size text
                           ),
                         ),
                         const SizedBox(height: 4),
                         GestureDetector(
-                          onTap: () {
-                            // Navigate to register
+                          onTap: () { //trigger
+                            // Melanjutkan ke register
                           },
                           child: const Text(
                             'Daftar sekarang',
@@ -295,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
 
-          // Footer
+          // bagian footer
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -319,15 +304,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildTextField({
+  Widget _buildTextField({ //blueprint desain format form
     required TextEditingController controller,
     required String hintText,
     required bool obscureText,
   }) {
-    return Column(
+    return Column( //kolom
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField(
+        TextField( //text field
           controller: controller,
           obscureText: obscureText,
           style: const TextStyle(color: Colors.white, fontSize: 14),
@@ -339,7 +324,7 @@ class _LoginPageState extends State<LoginPage> {
             contentPadding: const EdgeInsets.only(bottom: 8),
           ),
         ),
-        Container(
+        Container( //underline
           height: 1,
           color: Colors.white,
         ),
