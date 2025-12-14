@@ -1,42 +1,41 @@
-import 'dart:typed_data';
+import 'dart:typed_data'; //untuk bisa upload gambar
+import 'package:flutter/material.dart'; //bawaan
+import 'package:http/http.dart' as http; //untuk request API
+import 'dart:convert'; //untuk encode decode
+import 'dart:io'; //untuk file
+import 'package:image_picker/image_picker.dart'; //untuk pilih gambar
+import 'package:shared_preferences/shared_preferences.dart'; //untuk simpan data
 
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//Form produk seller
+class ProductFormPage extends StatefulWidget { //menggunakan stateful agar dinamis
+  final Map<String, dynamic>? product; 
 
-class ProductFormPage extends StatefulWidget {
-  final Map<String, dynamic>? product; // If null, it's create mode
-
-  const ProductFormPage({super.key, this.product});
+  const ProductFormPage({super.key, this.product});//constructor
 
   @override
   State<ProductFormPage> createState() => _ProductFormPageState();
 }
 
 class _ProductFormPageState extends State<ProductFormPage> {
-  final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>(); //untuk validasi form
+  bool _isLoading = false; //untuk loading
   List<dynamic> _categories = [];
   
   // Form Fields
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _brandController = TextEditingController();
-  final TextEditingController _descController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController(); //untuk nama produk
+  final TextEditingController _brandController = TextEditingController(); //untuk merek
+  final TextEditingController _descController = TextEditingController(); //untuk deskripsi
   
   List<Map<String, dynamic>> _selectedCategories = []; // List of {id_kategori: ...}
-  List<Map<String, dynamic>> _variants = [];
+  List<Map<String, dynamic>> _variants = []; // List of {id_varian: ...}
 
-  static String get _baseUrl {
-    /*if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000/api';
-    }*/
+  static String get _baseUrl { //untuk base URL API
     return 'http://127.0.0.1:8000/api';
+
+
   }
 
-  @override
+  @override //untuk inisialisasi
   void initState() {
     super.initState();
     _fetchCategories();
@@ -47,35 +46,35 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
-  void _initCreateMode() {
-    _variants.add({
+  void _initCreateMode() { //untuk inisialisasi create mode
+    _variants.add({ 
       'nama_varian': 'Standard',
       'harga': '0',
       'stok': '0',
       'gambar_varian': null, // File
       'gambar_preview': null, // String URL or File path
     });
-    _selectedCategories.add({'id_kategori': null});
+    _selectedCategories.add({'id_kategori': null}); //isinya kosong, karena harus pilih dulu
   }
 
-  void _initEditMode() {
-    final p = widget.product!;
+  void _initEditMode() { //untuk inisialisasi edit mode produk
+    final p = widget.product!; // p = produk
     _nameController.text = p['nama_produk'] ?? '';
     _brandController.text = p['merek'] ?? '';
     _descController.text = p['deskripsi'] ?? '';
 
     // Categories
-    if (p['category_detail'] != null) {
+    if (p['category_detail'] != null) { 
       for (var cat in p['category_detail']) {
-        _selectedCategories.add({'id_kategori': cat['id_kategori']});
+        _selectedCategories.add({'id_kategori': cat['id_kategori']}); //untuk menambahkan kategori
       }
     }
-    if (_selectedCategories.isEmpty) {
-      _selectedCategories.add({'id_kategori': null});
+    if (_selectedCategories.isEmpty) { 
+      _selectedCategories.add({'id_kategori': null}); 
     }
 
     // Variants
-    if (p['variant'] != null) {
+    if (p['variant'] != null) { 
       for (var v in p['variant']) {
         _variants.add({
           'id_varian': v['id_varian'],
@@ -84,26 +83,26 @@ class _ProductFormPageState extends State<ProductFormPage> {
           'stok': v['stok'].toString(),
           'gambar_varian': null,
           'gambar_preview': v['gambar_varian'] != null 
-              ? '$_baseUrl/../file/storage/${v['gambar_varian']}' // Hacky way to get storage url
+              ? '$_baseUrl/../file/storage/${v['gambar_varian']}'
               : null, 
         });
       }
     }
-    if (_variants.isEmpty) {
+    if (_variants.isEmpty) { //mencegah error jika produk tidak punya variant samsek
       _initCreateMode();
     }
   }
 
-  Future<void> _fetchCategories() async {
+  Future<void> _fetchCategories() async { //untuk mengambil data kategori
     try {
       final response = await http.get(Uri.parse('$_baseUrl/categories'));
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.body); //untuk mengubah data menjadi json
         setState(() {
           _categories = data['data'];
         });
       }
-    } catch (e) {
+    } catch (e) { //untuk menangkap error
       print('Error fetching categories: $e');
     }
   }
