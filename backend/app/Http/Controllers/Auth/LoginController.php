@@ -79,6 +79,7 @@ class LoginController extends Controller
             ], 401);
         }
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         // 🔒 Cek banned
