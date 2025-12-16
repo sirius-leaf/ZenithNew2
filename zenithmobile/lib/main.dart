@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard.dart';
 
 
-
+//Back-end
 void main() {
   runApp(const MyApp());
 }
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
       _errorMessage = null;
     });
 
-    });
+
 
     try {
       final response = await http.post(
@@ -70,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
         }),
       );
 
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body); //penerjemah JSON
 
       if (response.statusCode == 200) {
         final token = data['token'];
@@ -111,6 +111,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 
+  //Front-end
   @override
   Widget build(BuildContext context) {
     return Scaffold(
