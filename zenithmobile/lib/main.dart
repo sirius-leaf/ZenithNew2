@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http; //buat plugin tambahan buat vektor
-import 'dart:convert'; //untuk bisa mengirim data dart ke teks json agar bisa dikirim ke server
-import 'dart:io'; //bawaan
-import 'package:shared_preferences/shared_preferences.dart'; //untuk menyimpan token login dan role user
-import 'dashboard.dart'; //import file lokal agar bisa langsung ke dashboard
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dashboard.dart';
 
 
-//==={{{Back-end}}}
+
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget { //tampilannya tidak berubah
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) { //Membuat widget
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Zenith Mobile',
       theme: ThemeData(
@@ -24,17 +25,17 @@ class MyApp extends StatelessWidget { //tampilannya tidak berubah
         useMaterial3: true,
         fontFamily: 'Ubuntu',
       ),
-      home: const LoginPage(), //Menampilkan loginpage
+      home: const LoginPage(),
     );
   }
 }
 
-//Backend buat login
-class LoginPage extends StatefulWidget {//Login Page
+
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState(); //Membuat state
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -47,29 +48,31 @@ class _LoginPageState extends State<LoginPage> {
 
   //Logika Login
   static String get _baseUrl {
-    return 'http://127.0.0.1:8000/api'; //alamat URL API
+    return 'http://127.0.0.1:8000/api';
   }
 
-  Future<void> _login() async { //Fungsi async pada login
+  Future<void> _login() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    try { //memproses data
+    });
+
+    try {
       final response = await http.post(
         Uri.parse('$_baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'email': _emailController.text, //mengambil data
+          'email': _emailController.text,
           'password': _passwordController.text,
-          'recaptcha': 'mobile_dev_bypass', //gajadi pake recaptcha cui
+          'recaptcha': 'mobile_dev_bypass',
         }),
       );
 
-      final data = jsonDecode(response.body); //mengirim data user dalam bentuk json
+      final data = jsonDecode(response.body);
 
-      if (response.statusCode == 200) { //jika berhasil
+      if (response.statusCode == 200) {
         final token = data['token'];
         final user = data['user'];
         final role = user['role'];
@@ -80,36 +83,34 @@ class _LoginPageState extends State<LoginPage> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login Berhasil!')), //Notifikasi berhasil
+            const SnackBar(content: Text('Login Berhasil!')),
           );
           
-          Navigator.pushReplacement( //replace
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardPage()),
           );
         }
       } else {
         setState(() {
-          _errorMessage = data['message'] ?? 'Login failed'; //failed
+          _errorMessage = data['message'] ?? 'Login failed';
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Terjadi kesalahan koneksi. Coba lagi nanti.'; //failed 2
+        _errorMessage = 'Terjadi kesalahan koneksi. Coba lagi nanti.';
       });
       debugPrint('Login error: $e');
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false; //loading false
+          _isLoading = false;
         });
       }
     }
   }
 
 
-  //==={{{Front-end}}}===
-  // UI Login
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           // Warna buat background
           Container(
-            color: const Color(0xFFEC4899), // Warna pink
+            color: const Color(0xFFEC4899),
           ),
           
           // Motif buat background
@@ -308,15 +309,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildTextField({ //blueprint desain format form
+  Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
     required bool obscureText,
   }) {
-    return Column( //kolom
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField( //text field
+        TextField(
           controller: controller,
           obscureText: obscureText,
           style: const TextStyle(color: Colors.white, fontSize: 14),
@@ -328,7 +329,7 @@ class _LoginPageState extends State<LoginPage> {
             contentPadding: const EdgeInsets.only(bottom: 8),
           ),
         ),
-        Container( //underline
+        Container(
           height: 1,
           color: Colors.white,
         ),

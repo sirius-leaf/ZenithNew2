@@ -1,44 +1,40 @@
-import 'dart:typed_data'; //untuk bisa upload gambar
-import 'package:flutter/material.dart'; //bawaan
-import 'package:http/http.dart' as http; //untuk request API
-import 'dart:convert'; //untuk encode decode
-import 'dart:io'; //untuk file
-import 'package:image_picker/image_picker.dart'; //untuk pilih gambar
-import 'package:shared_preferences/shared_preferences.dart'; //untuk simpan data
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-//==={{{Back-end}}}===
-
-//Form produk seller
-class ProductFormPage extends StatefulWidget { //menggunakan stateful agar dinamis
+class ProductFormPage extends StatefulWidget {
   final Map<String, dynamic>? product; 
 
-  const ProductFormPage({super.key, this.product});//constructor
+  const ProductFormPage({super.key, this.product});
 
   @override
   State<ProductFormPage> createState() => _ProductFormPageState();
 }
 
 class _ProductFormPageState extends State<ProductFormPage> {
-  final _formKey = GlobalKey<FormState>(); //untuk validasi form
-  bool _isLoading = false; //untuk loading
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
   List<dynamic> _categories = [];
   
   // Form Fields
-  final TextEditingController _nameController = TextEditingController(); //untuk nama produk
-  final TextEditingController _brandController = TextEditingController(); //untuk merek
-  final TextEditingController _descController = TextEditingController(); //untuk deskripsi
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _brandController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
   
   List<Map<String, dynamic>> _selectedCategories = []; // List of {id_kategori: ...}
   List<Map<String, dynamic>> _variants = []; // List of {id_varian: ...}
 
-  static String get _baseUrl { //untuk base URL API
+  static String get _baseUrl {
     return 'http://127.0.0.1:8000/api';
 
 
   }
 
-  // Menginisialisasi state, mengambil kategori, dan mengecek mode edit/tambah
-  @override //untuk inisialisasi
+  @override
   void initState() {
     super.initState();
     _fetchCategories();
@@ -49,8 +45,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
-  // Menyiapkan data awal untuk mode tambah produk baru
-  void _initCreateMode() { //untuk inisialisasi create mode
+  void _initCreateMode() {
     _variants.add({ 
       'nama_varian': 'Standard',
       'harga': '0',
@@ -58,11 +53,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
       'gambar_varian': null, // File
       'gambar_preview': null, // String URL or File path
     });
-    _selectedCategories.add({'id_kategori': null}); //isinya kosong, karena harus pilih dulu
+    _selectedCategories.add({'id_kategori': null});
   }
 
-  // Mengisi form dengan data produk yang ada untuk diedit
-  void _initEditMode() { //untuk inisialisasi edit mode produk
+  void _initEditMode() {
     final p = widget.product!; // p = produk
     _nameController.text = p['nama_produk'] ?? '';
     _brandController.text = p['merek'] ?? '';
@@ -71,7 +65,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     // Categories
     if (p['category_detail'] != null) { 
       for (var cat in p['category_detail']) {
-        _selectedCategories.add({'id_kategori': cat['id_kategori']}); //untuk menambahkan kategori
+        _selectedCategories.add({'id_kategori': cat['id_kategori']});
       }
     }
     if (_selectedCategories.isEmpty) { 
@@ -93,27 +87,25 @@ class _ProductFormPageState extends State<ProductFormPage> {
         });
       }
     }
-    if (_variants.isEmpty) { //mencegah error jika produk tidak punya variant samsek
+    if (_variants.isEmpty) {
       _initCreateMode();
     }
   }
 
-  // Mengambil daftar kategori produk dari API
-  Future<void> _fetchCategories() async { //untuk mengambil data kategori
+  Future<void> _fetchCategories() async {
     try {
       final response = await http.get(Uri.parse('$_baseUrl/categories'));
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body); //untuk mengubah data menjadi json
+        final data = jsonDecode(response.body);
         setState(() {
           _categories = data['data'];
         });
       }
-    } catch (e) { //untuk menangkap error
+    } catch (e) {
       print('Error fetching categories: $e');
     }
   }
 
-  // Memilih gambar dari galeri untuk varian produk tertentu
   Future<void> _pickImage(int index) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -129,7 +121,6 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
-  // Memvalidasi input dan mengirim data produk (baru/edit) ke server
   Future<void> _saveProduct() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -225,8 +216,6 @@ class _ProductFormPageState extends State<ProductFormPage> {
   }
 
 
-  //==={{{Front-end}}}===
-  // Membangun tampilan form input produk (UI)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
