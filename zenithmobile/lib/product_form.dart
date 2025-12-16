@@ -37,6 +37,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
   }
 
+  // Menginisialisasi state, mengambil kategori, dan mengecek mode edit/tambah
   @override //untuk inisialisasi
   void initState() {
     super.initState();
@@ -48,6 +49,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
+  // Menyiapkan data awal untuk mode tambah produk baru
   void _initCreateMode() { //untuk inisialisasi create mode
     _variants.add({ 
       'nama_varian': 'Standard',
@@ -59,6 +61,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     _selectedCategories.add({'id_kategori': null}); //isinya kosong, karena harus pilih dulu
   }
 
+  // Mengisi form dengan data produk yang ada untuk diedit
   void _initEditMode() { //untuk inisialisasi edit mode produk
     final p = widget.product!; // p = produk
     _nameController.text = p['nama_produk'] ?? '';
@@ -95,6 +98,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
+  // Mengambil daftar kategori produk dari API
   Future<void> _fetchCategories() async { //untuk mengambil data kategori
     try {
       final response = await http.get(Uri.parse('$_baseUrl/categories'));
@@ -109,6 +113,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
+  // Memilih gambar dari galeri untuk varian produk tertentu
   Future<void> _pickImage(int index) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -124,6 +129,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
+  // Memvalidasi input dan mengirim data produk (baru/edit) ke server
   Future<void> _saveProduct() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -220,6 +226,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
 
   //==={{{Front-end}}}===
+  // Membangun tampilan form input produk (UI)
   @override
   Widget build(BuildContext context) {
     return Scaffold(

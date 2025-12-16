@@ -33,12 +33,14 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
     return 'http://127.0.0.1:8000/file/storage';
   }
 
+  // Menginisialisasi state dan memanggil fungsi untuk mengambil data produk
   @override
   void initState() {
     super.initState();
     _fetchProducts();
   }
 
+  // Mengambil daftar produk dari API server
   Future<void> _fetchProducts() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -86,11 +88,13 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
     }
   }
 
+  // Mengubah angka menjadi format mata uang Rupiah
   String _formatCurrency(dynamic amount) {
     final format = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
     return format.format(amount);
   }
 
+  // Menghapus produk berdasarkan ID setelah konfirmasi dialog
   Future<void> _deleteProduct(int id) async {
     bool confirm = await showDialog(
       context: context,
@@ -129,6 +133,7 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
     }
   }
 
+  // Membuka halaman formulir untuk menambah atau mengedit produk
   void _openForm({Map<String, dynamic>? product}) async {
     bool? result = await Navigator.push(
       context,
@@ -142,6 +147,7 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
 
 
   //==={{{Front-end}}}===
+  // Membangun tampilan antarmuka (UI) halaman manajemen produk
   @override
   Widget build(BuildContext context) {
     return Scaffold(
