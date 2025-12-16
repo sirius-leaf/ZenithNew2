@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'manage_products.dart';
 
+
+//{{{Back-end}}}
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -83,6 +85,8 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+
+  //{{{Front-end}}}
   @override
   Widget build(BuildContext context) {
     return Scaffold(

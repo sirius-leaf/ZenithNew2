@@ -6,6 +6,8 @@ import 'dart:io'; //untuk file
 import 'package:image_picker/image_picker.dart'; //untuk pilih gambar
 import 'package:shared_preferences/shared_preferences.dart'; //untuk simpan data
 
+//==={{{Back-end}}}===
+
 //Form produk seller
 class ProductFormPage extends StatefulWidget { //menggunakan stateful agar dinamis
   final Map<String, dynamic>? product; 
@@ -216,6 +218,8 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
+
+  //==={{{Front-end}}}===
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -6,6 +6,8 @@ import 'dart:io'; //bawaan
 import 'package:shared_preferences/shared_preferences.dart'; //untuk menyimpan token login dan role user
 import 'dashboard.dart'; //import file lokal agar bisa langsung ke dashboard
 
+
+//==={{{Back-end}}}
 void main() {
   runApp(const MyApp());
 }
@@ -105,6 +107,8 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+
+  //==={{{Front-end}}}===
   // UI Login
   @override
   Widget build(BuildContext context) {

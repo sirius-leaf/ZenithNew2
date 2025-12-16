@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'product_form.dart';
 
+//==={{{back-end}}}===
 class ManageProductsPage extends StatefulWidget {
   const ManageProductsPage({super.key});
 
@@ -139,6 +140,8 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
     }
   }
 
+
+  //==={{{Front-end}}}===
   @override
   Widget build(BuildContext context) {
     return Scaffold(
