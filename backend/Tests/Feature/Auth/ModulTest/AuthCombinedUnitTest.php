@@ -4,11 +4,7 @@ namespace Tests\Feature\Auth;
 
 use Tests\TestCase;
 use App\Models\User;
-
-// Import Modul Replika
-use Tests\Feature\Auth\Modul\Registermodul;
-use Tests\Feature\Auth\Modul\Loginmodul;
-
+use Tests\Feature\Auth\Modul\AuthModul; // <--- CUKUP SATU IMPORT INI
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -27,14 +23,13 @@ class AuthCombinedUnitTest extends TestCase
             'password' => 'password123',
         ];
 
-        // Request tanpa header Recaptcha/Email verification
         $request = Request::create('/api/register', 'POST', $data);
         $request->headers->set('Accept', 'application/json');
 
-        // Tidak perlu Mail::fake() lagi
-
-        $controller = new Registermodul();
-        $response = $controller->store($request);
+        // INSTANSIASI MODUL GABUNGAN
+        $modul = new AuthModul();
+        // Panggil method 'register' (bukan store lagi, biar lebih jelas)
+        $response = $modul->register($request);
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertDatabaseHas('users', ['email' => 'mahasiswa@example.com']);
@@ -52,17 +47,14 @@ class AuthCombinedUnitTest extends TestCase
         $loginData = [
             'email' => 'dosen@example.com',
             'password' => $password,
-            // 'recaptcha' tidak perlu dikirim
         ];
 
         $request = Request::create('/api/login', 'POST', $loginData);
         $request->headers->set('Accept', 'application/json');
 
-        // Tidak perlu Mock Recaptcha lagi
-
-        $controller = new Loginmodul();
-        // Panggil fungsi login cukup dengan $request saja
-        $response = $controller->login($request);
+        // INSTANSIASI MODUL GABUNGAN
+        $modul = new AuthModul();
+        $response = $modul->login($request);
 
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -86,8 +78,9 @@ class AuthCombinedUnitTest extends TestCase
         ]);
         $regRequest->headers->set('Accept', 'application/json');
 
-        $regController = new Registermodul();
-        $regResponse = $regController->store($regRequest);
+        // Pakai AuthModul
+        $modul = new AuthModul();
+        $regResponse = $modul->register($regRequest);
 
         $this->assertEquals(201, $regResponse->getStatusCode());
 
@@ -98,9 +91,9 @@ class AuthCombinedUnitTest extends TestCase
         ]);
         $loginRequest->headers->set('Accept', 'application/json');
 
-        $loginController = new Loginmodul();
-        // Login langsung, tanpa inject service
-        $loginResponse = $loginController->login($loginRequest);
+        // Pakai AuthModul (Instance baru atau pakai yang sama juga bisa)
+        $modulLogin = new AuthModul();
+        $loginResponse = $modulLogin->login($loginRequest);
 
         // --- STEP 3: ASSERT ---
         if ($emailLogin !== $emailRegister) {
