@@ -11,21 +11,20 @@ class Variant extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'id_varian';
-    protected $fillable = ['id_produk', 'nama_varian', 'harga', 'stok', 'gambar_varian'];
+    protected $fillable = ['product_id', 'nama_varian', 'harga', 'stok', 'gambar_varian'];
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'id_produk', 'id_produk');
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
     public function detailPesanans()
     {
-        return $this->hasMany(DetailPesanan::class, 'id_varian', 'id_varian');
+        return $this->hasMany(DetailPesanan::class, 'variant_id', 'id');
     }
 
     public function buildDetail()
     {
-        return $this->hasMany(BuildDetail::class, 'id_varian', 'id_varian');
+        return $this->hasMany(BuildDetail::class, 'variant_id', 'id');
     }
 }

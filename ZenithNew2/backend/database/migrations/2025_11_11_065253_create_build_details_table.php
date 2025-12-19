@@ -12,11 +12,11 @@ return new class extends Migration {
     {
         Schema::create('build_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_build')
-                ->constrained('pc_builds', 'id_build')
+            $table->foreignId('build_id')
+                ->constrained('pc_builds', 'id')
                 ->onDelete('cascade');
-            $table->foreignId('id_produk')
-                ->constrained('products', 'id_produk')
+            $table->foreignId('variant_id')
+                ->constrained('variants', 'id')
                 ->onDelete('cascade');
             $table->enum('bagian_komponen', ['motherboard', 'cpu', 'ram', 'psu', 'storage']);
             $table->timestamps();

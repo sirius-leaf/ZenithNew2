@@ -17,7 +17,7 @@ class CategoryDetailFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_kategori' => $this->faker->numberBetween(1, 3),
+            'category_id' => $this->faker->numberBetween(1, 3),
         ];
     }
 }

@@ -11,8 +11,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('pc_builds', function (Blueprint $table) {
-            $table->id('id_build');
-            $table->foreignId('id_user')->constrained('users', 'id')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade');
             $table->string('nama_build');
             $table->timestamps();
         });

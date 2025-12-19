@@ -12,11 +12,11 @@ return new class extends Migration {
     {
         Schema::create('category_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_produk')
-                ->constrained('products', 'id_produk')
+            $table->foreignId('product_id')
+                ->constrained('products', 'id')
                 ->onDelete('cascade');
-            $table->foreignId('id_kategori')
-                ->constrained('categories', 'id_kategori')
+            $table->foreignId('category_id')
+                ->constrained('categories', 'id')
                 ->onDelete('cascade');
             $table->timestamps();
         });

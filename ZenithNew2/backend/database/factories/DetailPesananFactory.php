@@ -18,7 +18,7 @@ class DetailPesananFactory extends Factory
     {
         return [
             'pesanan_id' => \App\Models\Pesanan::factory(),
-            'id_varian' => \App\Models\Variant::factory(),
+            'variant_id' => \App\Models\Variant::factory(),
             'kuantitas' => $this->faker->numberBetween(1, 10),
             'harga' => $this->faker->numberBetween(10000, 100000),
         ];

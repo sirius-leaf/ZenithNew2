@@ -11,9 +11,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('variants', function (Blueprint $table) {
-            $table->id('id_varian');
-            $table->foreignId('id_produk')
-                ->constrained('products', 'id_produk')
+            $table->id();
+            $table->foreignId('product_id')
+                ->constrained('products', 'id')
                 ->onDelete('cascade');
             $table->text('gambar_varian')->nullable();
             $table->string('nama_varian', 100);

@@ -43,7 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function toko()
     {
-        return $this->hasOne(Toko::class, 'id_user');
+        return $this->hasOne(Toko::class, 'user_id');
     }
 
     public function pesanans()

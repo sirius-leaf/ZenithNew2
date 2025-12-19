@@ -11,31 +11,30 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'id_produk';
-    protected $fillable = ['id_toko', 'deskripsi', 'merek', 'nama_produk'];
+    protected $fillable = ['toko_id', 'deskripsi', 'merek', 'nama_produk'];
 
     public function variant()
     {
-        return $this->hasMany(Variant::class, 'id_produk', 'id_produk');
+        return $this->hasMany(Variant::class, 'product_id', 'id');
     }
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'category_details', 'id_produk', 'id_kategori');
+        return $this->belongsToMany(Category::class, 'category_details', 'product_id', 'id_kategori');
     }
 
     public function categoryDetail()
     {
-        return $this->hasMany(CategoryDetail::class, 'id_produk', 'id_produk');
+        return $this->hasMany(CategoryDetail::class, 'product_id', 'id');
     }
 
     public function toko()
     {
-        return $this->belongsTo(Toko::class, 'id_toko');
+        return $this->belongsTo(Toko::class, 'toko_id');
     }
 
     public function reviews()
     {
-        return $this->hasMany(Review::class, 'id_produk', 'id_produk');
+        return $this->hasMany(Review::class, 'product_id', 'id');
     }
 }

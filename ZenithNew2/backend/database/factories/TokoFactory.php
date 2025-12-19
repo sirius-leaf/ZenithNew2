@@ -19,7 +19,7 @@ class TokoFactory extends Factory
         return [
             'toko_name' => $this->faker->company(),
             'deskripsi' => $this->faker->sentence(),
-            'id_user' => \App\Models\User::factory(),
+            'user_id' => \App\Models\User::factory(),
         ];
     }
 }

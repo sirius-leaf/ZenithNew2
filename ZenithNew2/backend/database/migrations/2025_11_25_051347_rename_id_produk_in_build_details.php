@@ -10,13 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('build_details', function (Blueprint $table) {
-            $table->dropForeign(['id_produk']);
-            $table->dropColumn('id_produk');
-            $table->foreignId('id_varian')
-                ->constrained('variants', 'id_varian')
-                ->onDelete('cascade');
-        });
+        // Schema::table('build_details', function (Blueprint $table) {
+        //     $table->dropForeign(['id_produk']);
+        //     $table->dropColumn('id_produk');
+        //     $table->foreignId('id_varian')
+        //         ->constrained('variants', 'id_varian')
+        //         ->onDelete('cascade');
+        // });
     }
 
     /**
@@ -24,12 +24,12 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('build_details', function (Blueprint $table) {
-            $table->dropForeign(['id_varian']);
-            $table->dropColumn('id_varian');
-            $table->foreignId('id_produk')
-                ->constrained('products', 'id_produk')
-                ->onDelete('cascade');
-        });
+        // Schema::table('build_details', function (Blueprint $table) {
+        //     $table->dropForeign(['id_varian']);
+        //     $table->dropColumn('id_varian');
+        //     $table->foreignId('id_produk')
+        //         ->constrained('products', 'id_produk')
+        //         ->onDelete('cascade');
+        // });
     }
 };

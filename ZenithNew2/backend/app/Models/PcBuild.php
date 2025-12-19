@@ -10,16 +10,15 @@ class PcBuild extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'id_build';
-    protected $fillable = ['id_user', 'nama_build'];
+    protected $fillable = ['user_id', 'nama_build'];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function buildDetail()
     {
-        return $this->hasMany(BuildDetail::class, 'id_build', 'id_build');
+        return $this->hasMany(BuildDetail::class, 'build_id', 'id');
     }
 }

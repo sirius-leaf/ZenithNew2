@@ -10,17 +10,17 @@ class CategoryDetail extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id_produk',
-        'id_kategori',
+        'product_id',
+        'category_id',
     ];
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'id_produk');
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
     public function category()
     {
-        return $this->belongsTo(Category::class, 'id_kategori');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 }
