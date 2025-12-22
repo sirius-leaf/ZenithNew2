@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('reviews', function (Blueprint $table) {
-            $table->foreignId('id_variant')->nullable()->constrained('variants', 'id_varian')->onDelete('set null');
+            $table->foreignId('id_variant')->nullable()->constrained('variants', 'id')->onDelete('set null');
             $table->foreignId('id_pesanan')->nullable()->constrained('pesanans')->onDelete('cascade');
         });
     }
