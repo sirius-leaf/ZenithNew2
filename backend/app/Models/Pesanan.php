@@ -23,6 +23,10 @@ class Pesanan extends Model
         'payment_method',
     ];
 
+    protected $casts = [
+        'is_cancellation_rejected' => 'boolean',
+    ];
+
     // Relasi: Pesanan ini milik siapa
     public function user()
     {

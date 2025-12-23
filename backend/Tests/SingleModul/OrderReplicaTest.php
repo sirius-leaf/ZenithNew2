@@ -22,7 +22,8 @@ class OrderReplicaTest extends TestCase
             'toko_id' => $tokoId,
             'total_harga' => 100000,
             'status' => $status,
-            'alamat_pengiriman' => 'Jl. Test'
+            'alamat_pengiriman' => 'Jl. Test',
+            'payment_method' => 'transfer',
         ]);
 
         // Tambahkan detail pesanan (butuh untuk kembalikan stok saat cancel)
@@ -45,10 +46,10 @@ class OrderReplicaTest extends TestCase
         $this->seller = User::factory()->create();
 
         // Buat toko milik seller
-        $this->toko = Toko::factory()->create(['user_id' => $this->seller->id]);
+        $this->toko = Toko::factory()->create(['id_user' => $this->seller->id]);
 
         // Produk & varian
-        $product = Product::factory()->create(['toko_id' => $this->toko->id]);
+        $product = Product::factory()->create(['id_toko' => $this->toko->id]);
         $this->variant = Variant::factory()->create([
             'id_produk' => $product->id_produk,
             'stok' => 10,
@@ -163,6 +164,8 @@ class OrderReplicaTest extends TestCase
         $originalStok = $this->variant->stok;
 
         // User cancel
+        $this->variant->decrement('stok', 2);
+
         $replica = new OrderReplica();
         $replica->cancel($pesanan->id, $this->buyer->id, 'Batalkan');
 
