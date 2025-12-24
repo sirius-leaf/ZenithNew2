@@ -4,6 +4,7 @@ namespace Tests\SingleModul;
 
 use App\Models\Pesanan;
 use App\Models\Variant;
+use App\Models\User; 
 use Illuminate\Support\Facades\DB;
 
 class OrderReplica
@@ -20,7 +21,7 @@ class OrderReplica
     public function updateStatus(int $orderId, int $userId, string $status, ?string $resi = null): array
     {
         $pesanan = Pesanan::with('detailPesanans')->findOrFail($orderId);
-        $user = auth()->loginUsingId($userId); // hanya untuk load relasi, tidak pakai auth sebenarnya
+        $user = User::find($userId); // ✅ Gunakan model langsung, bukan auth()
         if (!$user) {
             return ['success' => false, 'message' => 'User tidak ditemukan.'];
         }
@@ -156,7 +157,7 @@ class OrderReplica
     // Helper
     protected function isUserSellerOfOrder(int $userId, int $tokoId): bool
     {
-        $user = auth()->loginUsingId($userId);
+        $user = User::find($userId); // ✅ Gunakan model langsung
         return $user && $user->toko && $user->toko->id == $tokoId;
     }
 }

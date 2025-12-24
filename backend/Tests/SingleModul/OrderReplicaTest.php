@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Variant;
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
+use Tests\SingleModul\OrderReplica;
 
 class OrderReplicaTest extends TestCase
 {
