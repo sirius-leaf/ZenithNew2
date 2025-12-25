@@ -58,7 +58,8 @@ class CheckoutReplica
                         'toko_id' => $tokoId,
                         'total_harga' => $total,
                         'status' => 'pending',
-                        'alamat_pengiriman' => $alamatPengiriman
+                        'alamat_pengiriman' => $alamatPengiriman,
+                        'payment_method' => 'midtrans'
                     ]);
 
                     foreach ($items as $item) {
@@ -83,7 +84,7 @@ class CheckoutReplica
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Gagal memproses pesanan.',
+                'message' => 'Gagal memproses pesanan: ' . $e->getMessage() . ' (File: ' . basename($e->getFile()) . ', Line: ' . $e->getLine() . ')',
                 'pesanan_ids' => []
             ];
         }

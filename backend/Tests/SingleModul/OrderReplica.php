@@ -4,33 +4,29 @@ namespace Tests\SingleModul;
 
 use App\Models\Pesanan;
 use App\Models\Variant;
-use App\Models\User; 
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class OrderReplica
 {
     /**
      * Update status pesanan (untuk seller atau buyer)
-     *
-     * @param int $orderId
-     * @param int $userId
-     * @param string $status
-     * @param string|null $resi
-     * @return array
      */
     public function updateStatus(int $orderId, int $userId, string $status, ?string $resi = null): array
     {
         $pesanan = Pesanan::with('detailPesanans')->findOrFail($orderId);
-        $user = User::find($userId); // ✅ Gunakan model langsung, bukan auth()
+        $user = User::find($userId);
         if (!$user) {
             return ['success' => false, 'message' => 'User tidak ditemukan.'];
         }
 
-        // Cek apakah user adalah seller (punya toko) atau buyer
         $isSeller = $user->toko && $user->toko->id == $pesanan->toko_id;
         $isBuyer = $user->id == $pesanan->user_id;
 
-        // Validasi status
+        if (!$isSeller && !$isBuyer) {
+            return ['success' => false, 'message' => 'Unauthorized. Anda bukan pembeli atau seller.'];
+        }
+
         $allowedStatuses = ['confirmed', 'packed', 'shipped', 'completed', 'cancelled'];
         if (!in_array($status, $allowedStatuses)) {
             return ['success' => false, 'message' => 'Status tidak valid.'];
@@ -38,12 +34,11 @@ class OrderReplica
 
         // Aturan khusus untuk 'completed'
         if ($status === 'completed') {
-            if (!$isBuyer && !$isSeller) {
-                return ['success' => false, 'message' => 'Unauthorized. Anda bukan pembeli atau seller.'];
-            }
             if ($isBuyer && !in_array($pesanan->status, ['shipped', 'packed'])) {
                 return ['success' => false, 'message' => 'Pesanan belum dikirim; tidak dapat dikonfirmasi sebagai diterima.'];
             }
+            // ✅ Untuk COD: completed = pembayaran sukses (cash diterima)
+            // Tidak perlu logika tambahan — cukup ubah status
         } else {
             // Hanya seller yang boleh ubah status selain 'completed'
             if (!$isSeller) {
@@ -51,7 +46,7 @@ class OrderReplica
             }
         }
 
-        // Update
+        // Update status
         $pesanan->status = $status;
         if ($resi !== null) {
             $pesanan->resi = $resi;
@@ -62,7 +57,7 @@ class OrderReplica
     }
 
     /**
-     * Cancel pesanan oleh user (buyer)
+     * Cancel pesanan oleh buyer
      */
     public function cancel(int $orderId, int $userId, string $alasan): array
     {
@@ -91,7 +86,6 @@ class OrderReplica
     {
         $pesanan = Pesanan::findOrFail($orderId);
 
-        // Validasi seller
         if (!$this->isUserSellerOfOrder($sellerId, $pesanan->toko_id)) {
             return ['success' => false, 'message' => 'Unauthorized. Bukan seller toko ini.'];
         }
@@ -136,28 +130,10 @@ class OrderReplica
         return ['success' => true, 'message' => 'Pembatalan ditolak.', 'data' => $pesanan];
     }
 
-    /**
-     * Mark as paid (manual)
-     */
-    public function markAsPaid(int $orderId, int $userId): array
-    {
-        $pesanan = Pesanan::where('id', $orderId)->where('user_id', $userId)->first();
-        if (!$pesanan) {
-            return ['success' => false, 'message' => 'Pesanan tidak ditemukan.'];
-        }
-
-        if ($pesanan->status === 'pending') {
-            $pesanan->status = 'paid';
-            $pesanan->save();
-        }
-
-        return ['success' => true, 'message' => 'Status diubah menjadi dibayar.', 'data' => $pesanan];
-    }
-
     // Helper
     protected function isUserSellerOfOrder(int $userId, int $tokoId): bool
     {
-        $user = User::find($userId); // ✅ Gunakan model langsung
+        $user = User::find($userId);
         return $user && $user->toko && $user->toko->id == $tokoId;
     }
 }

@@ -16,24 +16,36 @@ class OrderReplicaTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function createOrder(int $buyerId, int $tokoId, string $status = 'pending'): Pesanan
-    {
+    // 👇 Deklarasi property agar IDE tidak merah
+    protected $buyer;
+    protected $seller;
+    protected $toko;
+    protected $variant;
+
+    protected function createOrder(
+        int $buyerId,
+        int $tokoId,
+        string $status = 'pending',
+        string $paymentMethod = 'midtrans'
+    ): Pesanan {
         $pesanan = Pesanan::create([
             'user_id' => $buyerId,
             'toko_id' => $tokoId,
             'total_harga' => 100000,
             'status' => $status,
             'alamat_pengiriman' => 'Jl. Test',
-            'payment_method' => 'transfer',
+            'payment_method' => $paymentMethod,
         ]);
 
-        // Tambahkan detail pesanan (butuh untuk kembalikan stok saat cancel)
         DetailPesanan::create([
             'pesanan_id' => $pesanan->id,
             'id_varian' => $this->variant->id_varian,
             'kuantitas' => 2,
             'harga' => 50000
         ]);
+
+        // Kurangi stok saat order dibuat (berlaku untuk Midtrans & COD)
+        $this->variant->decrement('stok', 2);
 
         return $pesanan;
     }
@@ -42,14 +54,10 @@ class OrderReplicaTest extends TestCase
     {
         parent::setUp();
 
-        // Buat user buyer & seller
         $this->buyer = User::factory()->create();
         $this->seller = User::factory()->create();
-
-        // Buat toko milik seller
         $this->toko = Toko::factory()->create(['id_user' => $this->seller->id]);
 
-        // Produk & varian
         $product = Product::factory()->create(['id_toko' => $this->toko->id]);
         $this->variant = Variant::factory()->create([
             'id_produk' => $product->id_produk,
@@ -75,9 +83,25 @@ class OrderReplicaTest extends TestCase
     }
 
     /** @test */
-    public function buyer_can_mark_order_as_completed()
+    public function buyer_can_mark_order_as_completed_for_midtrans()
     {
-        $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'shipped');
+        $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'shipped', 'midtrans');
+
+        $replica = new OrderReplica();
+        $result = $replica->updateStatus(
+            orderId: $pesanan->id,
+            userId: $this->buyer->id,
+            status: 'completed'
+        );
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('completed', $pesanan->fresh()->status);
+    }
+
+    /** @test */
+    public function buyer_can_complete_order_for_cod_payment()
+    {
+        $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'shipped', 'cod');
 
         $replica = new OrderReplica();
         $result = $replica->updateStatus(
@@ -93,7 +117,7 @@ class OrderReplicaTest extends TestCase
     /** @test */
     public function buyer_cannot_complete_order_if_not_shipped()
     {
-        $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'confirmed');
+        $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'confirmed', 'cod');
 
         $replica = new OrderReplica();
         $result = $replica->updateStatus(
@@ -111,7 +135,6 @@ class OrderReplicaTest extends TestCase
     {
         $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'confirmed');
 
-        // User lain (bukan seller, bukan buyer)
         $otherUser = User::factory()->create();
 
         $replica = new OrderReplica();
@@ -161,22 +184,16 @@ class OrderReplicaTest extends TestCase
     /** @test */
     public function seller_can_approve_cancellation_and_restore_stock()
     {
-        $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'confirmed');
         $originalStok = $this->variant->stok;
-
-        // User cancel
-        $this->variant->decrement('stok', 2);
+        $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'confirmed');
 
         $replica = new OrderReplica();
         $replica->cancel($pesanan->id, $this->buyer->id, 'Batalkan');
 
-        // Seller approve
         $result = $replica->approveCancellation($pesanan->id, $this->seller->id);
 
         $this->assertTrue($result['success']);
         $this->assertEquals('cancelled', $pesanan->fresh()->status);
-
-        // Cek stok kembali
         $this->assertEquals($originalStok, $this->variant->fresh()->stok);
     }
 
@@ -188,36 +205,10 @@ class OrderReplicaTest extends TestCase
         $replica = new OrderReplica();
         $replica->cancel($pesanan->id, $this->buyer->id, 'Salah pilih');
 
-        // Seller reject
         $result = $replica->rejectCancellation($pesanan->id, $this->seller->id);
 
         $this->assertTrue($result['success']);
-        // 'paid' harus jadi 'confirmed' setelah reject
         $this->assertEquals('confirmed', $pesanan->fresh()->status);
         $this->assertTrue($pesanan->fresh()->is_cancellation_rejected);
-    }
-
-    /** @test */
-    public function buyer_can_mark_order_as_paid()
-    {
-        $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'pending');
-
-        $replica = new OrderReplica();
-        $result = $replica->markAsPaid($pesanan->id, $this->buyer->id);
-
-        $this->assertTrue($result['success']);
-        $this->assertEquals('paid', $pesanan->fresh()->status);
-    }
-
-    /** @test */
-    public function buyer_cannot_mark_non_pending_order_as_paid()
-    {
-        $pesanan = $this->createOrder($this->buyer->id, $this->toko->id, 'confirmed');
-
-        $replica = new OrderReplica();
-        $replica->markAsPaid($pesanan->id, $this->buyer->id);
-
-        // Tetap 'confirmed', tidak berubah
-        $this->assertEquals('confirmed', $pesanan->fresh()->status);
     }
 }
