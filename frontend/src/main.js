@@ -77,7 +77,7 @@ import SellerRequests from "./views/manage_pages/admin/SellerRequests.vue";
    📌 AXIOS GLOBAL CONFIG
 ========================================================= */
 axios.defaults.baseURL = "http://localhost:8000/api";
-axios.defaults.withCredentials = false;
+axios.defaults.withCredentials = true;
 
 // Interceptor: banned auto logout
 axios.interceptors.response.use(null, (error) => {
